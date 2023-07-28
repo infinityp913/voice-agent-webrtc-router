@@ -1,7 +1,7 @@
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230607014313-65b30ebb4805 h1:TLdHs+pfZx43VCnsJd7FCtCAunqe8iU7xTWSOs7l4Cw=
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230607014313-65b30ebb4805/go.mod h1:YmO3ijW8Lqjp9iGcBw825iwiMoHV8kNMgsbpvW+oFKg=
-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/http v0.0.0-20230726165431-f1d355a1a072 h1:ZCwir9ehHGyF6uO7wZsXXq0v1LpHoAvIOYwqinu549g=
-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/http v0.0.0-20230726165431-f1d355a1a072/go.mod h1:MSrMHf+rgrrezZHb9wxEwlQOdY6LQolpKeKWTLJmfaE=
+-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230726165431-f1d355a1a072 h1:N98vNQH+Ft6dg6830nC54WK7VGbJlF4wWV0/Al6tOTs=
+-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230726165431-f1d355a1a072/go.mod h1:ZYef2hiFkHrWke21n1ctM0sjh5xUjsJUiBNtVur9muI=
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230719114411-da8cf673b1ee h1:dCUR/mq64ES8GBf2O++pxEAUMnuAznHnDEhYYNxS4mE=
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230719114411-da8cf673b1ee/go.mod h1:hoelJTPi5bLH5RiuNnamPhS+VxjfG0n+U04Dq07tN0k=
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util v0.0.0-20230607012320-a2f6bc254fdf h1:OO99f8V+gMJeKFT0xdDn8/aIsOWHR32s11wGMS/btS0=
