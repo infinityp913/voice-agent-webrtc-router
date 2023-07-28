@@ -149,4 +149,3 @@ func main() {
 		logger.Fatal(err, "error starting Saturday Client")
 	}
 }
-
