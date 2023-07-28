@@ -11,6 +11,8 @@ require (
 	github.com/pion/webrtc/v3 v3.2.13
 )
 
+require github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20230716200034-399846572185 // indirect
+
 require (
 	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230607014313-65b30ebb4805
 	github.com/davecgh/go-spew v1.1.1 // indirect
