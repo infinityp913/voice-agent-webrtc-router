@@ -3,7 +3,7 @@ module main
 go 1.20
 
 require (
-	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/http v0.0.0-20230726165431-f1d355a1a072
+	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230726165431-f1d355a1a072
 	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230719114411-da8cf673b1ee
 	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util v0.0.0-20230607012320-a2f6bc254fdf
 	github.com/gorilla/websocket v1.5.0
