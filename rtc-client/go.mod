@@ -1,4 +1,4 @@
-module main
+module github.com/infinityp913/rtc-go-server/rtc-client
 
 go 1.20
 
