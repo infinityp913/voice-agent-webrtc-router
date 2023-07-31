@@ -1,4 +1,4 @@
-package main
+package rtc_client
 
 import (
 	"os"
@@ -127,4 +127,3 @@ func (c PeerConn) AddIceCandidate(candidate webrtc.ICECandidateInit) error {
 		return c.conn.AddICECandidate(candidate)
 	}
 }
-

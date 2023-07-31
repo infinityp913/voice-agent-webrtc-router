@@ -1,4 +1,4 @@
-package rtcutils
+package rtc_client
 
 import (
 	"encoding/json"
@@ -253,4 +253,3 @@ func (s *SocketConnection) sendMessage(msg any) error {
 	}
 	return nil
 }
-

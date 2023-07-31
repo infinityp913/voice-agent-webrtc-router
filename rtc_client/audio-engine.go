@@ -1,10 +1,11 @@
-package rtcutils
+package rtc_client
 
 import (
 	"math"
 	"time"
 
 	"main/internal"
+
 	stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 
 	"github.com/pion/rtp"
@@ -76,7 +77,6 @@ func (a *AudioEngine) Start() {
 	internal.Logger.Info("Starting audio engine")
 	go a.decode()
 }
-
 
 // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
 func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
@@ -156,4 +156,3 @@ func convertToBytes(in []float32, out []byte) int {
 	}
 	return currIndex
 }
-

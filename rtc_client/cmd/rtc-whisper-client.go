@@ -1,7 +1,6 @@
 package main
 
 import (
-	"main/rtcutils"
 	"net/url"
 	"strings"
 
@@ -9,6 +8,7 @@ import (
 	whisper "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp"
 	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 	stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
+	"github.com/infinityp913/rtc-go-server/rtc_client"
 	"github.com/pion/webrtc/v3"
 )
 
@@ -30,19 +30,19 @@ type RiaConfig struct {
 }
 
 type RiaClient struct {
-	ws     *rtcutils.SocketConnection
+	ws     *rtc_client.SocketConnection
 	rtc    *RTCConnection
 	config RiaConfig
-	ae     *rtcutils.AudioEngine
+	ae     *rtc_client.AudioEngine
 }
 
 func NewRiaClient(config RiaConfig) (*RiaClient, error) {
-	ae, err := rtcutils.NewAudioEngine(config.SttEngine)
+	ae, err := rtc_client.NewAudioEngine(config.SttEngine)
 	if err != nil {
 		return nil, err
 	}
 
-	ws := rtcutils.NewSocketConnection(config.Url)
+	ws := rtc_client.NewSocketConnection(config.Url)
 
 	rtc, err := NewRTCConnection(RTCConnectionParams{
 		trickleFn: func(candidate *webrtc.ICECandidate, target int) error {

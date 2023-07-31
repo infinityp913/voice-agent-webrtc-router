@@ -1,4 +1,4 @@
-package main
+package rtc_client
 
 import (
 	"encoding/json"
@@ -170,4 +170,3 @@ func (r *RTCConnection) OnOffer(offer webrtc.SessionDescription) (webrtc.Session
 	}
 	return answer, nil
 }
-
