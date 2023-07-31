@@ -4,9 +4,8 @@ import (
 	"math"
 	"time"
 
-	"main/internal"
-
 	stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
+	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
 
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3/pkg/media"

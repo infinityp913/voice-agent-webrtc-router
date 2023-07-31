@@ -4,8 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"main/internal"
-
+	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
 	"github.com/pion/webrtc/v3"
 )
 

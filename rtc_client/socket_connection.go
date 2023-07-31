@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"main/internal"
-
 	"github.com/gorilla/websocket"
+	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
 	"github.com/pion/webrtc/v3"
 )
 
