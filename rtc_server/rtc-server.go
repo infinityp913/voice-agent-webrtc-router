@@ -1,13 +1,14 @@
 package main
+
 import (
 	"fmt"
 	"net/http"
 	"strings"
 
 	"internal/ws"
-	
-	log "github.com/pion/ion-sfu/pkg/logger"
+
 	"github.com/gorilla/websocket"
+	log "github.com/pion/ion-sfu/pkg/logger"
 	"github.com/pion/ion-sfu/pkg/sfu"
 	"github.com/sourcegraph/jsonrpc2"
 	websocketjsonrpc2 "github.com/sourcegraph/jsonrpc2/websocket"
@@ -29,24 +30,24 @@ func formatRequest(r *http.Request) string {
 	request = append(request, fmt.Sprintf("Host: %v", r.Host))
 	// Loop through headers
 	for name, headers := range r.Header {
-	  name = strings.ToLower(name)
-	  for _, h := range headers {
-		request = append(request, fmt.Sprintf("%v: %v", name, h))
-	  }
+		name = strings.ToLower(name)
+		for _, h := range headers {
+			request = append(request, fmt.Sprintf("%v: %v", name, h))
+		}
 	}
-	
+
 	// If this is a POST, add post data
 	if r.Method == "POST" {
-	   r.ParseForm()
-	   request = append(request, "\n")
-	   request = append(request, r.Form.Encode())
-	} 
-	 // Return the request as a string
-	 return strings.Join(request, "\n")
-   }
+		r.ParseForm()
+		request = append(request, "\n")
+		request = append(request, r.Form.Encode())
+	}
+	// Return the request as a string
+	return strings.Join(request, "\n")
+}
 
 func main() {
-	
+
 	// start websocket server
 
 	sfu.Logger = logger
@@ -61,11 +62,11 @@ func main() {
 		WriteBufferSize: 1024,
 	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request){
-		fmt.Print("websocket version: ",r.Header.Get("Sec-WebSocket-Version"))
-        fmt.Print("Request log",formatRequest(r))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Print("websocket version: ", r.Header.Get("Sec-WebSocket-Version"))
+		fmt.Print("Request log", formatRequest(r))
 
-		// Upgrading the HTTP request to the WebSocket protocol. The server inspects the request and if all is good the server sends an HTTP response agreeing to upgrade the connection. 
+		// Upgrading the HTTP request to the WebSocket protocol. The server inspects the request and if all is good the server sends an HTTP response agreeing to upgrade the connection.
 		// conn is a websocket connection object
 
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -81,15 +82,15 @@ func main() {
 
 		jc := jsonrpc2.NewConn(r.Context(), websocketjsonrpc2.NewObjectStream(conn), p)
 		<-jc.DisconnectNotify()
-    })
+	})
 
 	// Start the server and listen on port 8080.
 	// port := 36710
 	fmt.Printf("Starting server at port 36710\n")
-    // if err := http.ListenAndServe(":36710", nil); err != nil {
-    //     fmt.Println(err)
-    // }
-	if err := http.ListenAndServeTLS(":36710","/etc/letsencrypt/live/matherium.com/fullchain.pem","/etc/letsencrypt/live/matherium.com/privkey.pem", nil); err != nil {
-        fmt.Println(err)
-    }
+	// if err := http.ListenAndServe(":36710", nil); err != nil {
+	//     fmt.Println(err)
+	// }
+	if err := http.ListenAndServeTLS(":36710", "/etc/letsencrypt/live/matherium.com/fullchain.pem", "/etc/letsencrypt/live/matherium.com/privkey.pem", nil); err != nil {
+		fmt.Println(err)
+	}
 }
