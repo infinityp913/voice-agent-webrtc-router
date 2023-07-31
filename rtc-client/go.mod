@@ -3,18 +3,21 @@ module github.com/infinityp913/rtc-go-server/rtc-client
 go 1.20
 
 require (
-	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230726165431-f1d355a1a072
-	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230719114411-da8cf673b1ee
+	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230729192628-8d783e5be014
+	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230728192344-b107deb4c796
 	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util v0.0.0-20230607012320-a2f6bc254fdf
 	github.com/gorilla/websocket v1.5.0
 	github.com/pion/rtp v1.8.0
 	github.com/pion/webrtc/v3 v3.2.13
 )
 
-require github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20230716200034-399846572185 // indirect
+require (
+	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20230716200034-399846572185 // indirect
+	github.com/kr/pretty v0.2.0 // indirect
+)
 
 require (
-	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230607014313-65b30ebb4805
+	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230728192344-b107deb4c796
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/pion/datachannel v1.5.5 // indirect

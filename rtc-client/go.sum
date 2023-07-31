@@ -1,9 +1,6 @@
-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230607014313-65b30ebb4805 h1:TLdHs+pfZx43VCnsJd7FCtCAunqe8iU7xTWSOs7l4Cw=
-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230607014313-65b30ebb4805/go.mod h1:YmO3ijW8Lqjp9iGcBw825iwiMoHV8kNMgsbpvW+oFKg=
-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230726165431-f1d355a1a072 h1:N98vNQH+Ft6dg6830nC54WK7VGbJlF4wWV0/Al6tOTs=
-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230726165431-f1d355a1a072/go.mod h1:ZYef2hiFkHrWke21n1ctM0sjh5xUjsJUiBNtVur9muI=
-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230719114411-da8cf673b1ee h1:dCUR/mq64ES8GBf2O++pxEAUMnuAznHnDEhYYNxS4mE=
-github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230719114411-da8cf673b1ee/go.mod h1:hoelJTPi5bLH5RiuNnamPhS+VxjfG0n+U04Dq07tN0k=
+github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230728192344-b107deb4c796 h1:fSV3U7QKmNOHKgwkFIiqxTR+ojNVGLBlKjm+D7ll9P8=
+github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230729192628-8d783e5be014 h1:HUwHjnVUHqLfOnomRbGipQxWu3ReFRElwtT6BUc/RQk=
+github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230728192344-b107deb4c796 h1:LiJoeebCuAk4zRMEMXBuCaLu30zhFiRpA630wBEOTHE=
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util v0.0.0-20230607012320-a2f6bc254fdf h1:OO99f8V+gMJeKFT0xdDn8/aIsOWHR32s11wGMS/btS0=
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util v0.0.0-20230607012320-a2f6bc254fdf/go.mod h1:qioXMnv97ocGqkdCO3O1WBNIFGElisu+X0r1ywrSlhU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -35,8 +32,8 @@ github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
 github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
+github.com/kr/pretty v0.2.0 h1:s5hAObm+yFO5uHYt5dYjxi2rXrsnmRpJx4OYvIWUaQs=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
