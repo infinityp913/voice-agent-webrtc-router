@@ -80,17 +80,17 @@ func (s *RiaClient) OnOffer(offer webrtc.SessionDescription) error {
 }
 
 func (s *RiaClient) Start() error {
-	Logger.info("before ws.connect")
+	Logger.Info("before ws.connect")
 	if err := s.ws.Connect(); err != nil {
 		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
-	Logger.info("before rtc.GetOffer")
+	Logger.Info("before rtc.GetOffer")
 	offer, err := s.rtc.GetOffer()
 	if err != nil {
 		Logger.Error(err, "error getting intial offer")
 	}
-	Logger.info("before ws.join")
+	Logger.Info("before ws.join")
 	if err := s.ws.Join(s.config.Room, offer); err != nil {
 		Logger.Error(err, "error joining room")
 		return err
