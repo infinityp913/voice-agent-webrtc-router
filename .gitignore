@@ -1,1 +1,3 @@
 models/
+rtc_server/config.toml
+rtc_client/secrets.json

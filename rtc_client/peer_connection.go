@@ -1,10 +1,13 @@
 package rtc_client
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"os"
 	"sync"
 
 	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
+	log "github.com/pion/ion-sfu/pkg/logger"
 	"github.com/pion/webrtc/v3"
 )
 
@@ -12,6 +15,16 @@ type PeerConn struct {
 	conn              *webrtc.PeerConnection
 	pendingCandidates []webrtc.ICECandidateInit
 	mu                sync.Mutex
+}
+
+var (
+	logger = log.New()
+)
+
+// to unmarshal the json to get u and p
+type User struct {
+	username string `json:"user"`
+	pass     string `json: "pass"`
 }
 
 func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
@@ -24,6 +37,21 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	// 		},
 	// 	},
 	// }
+
+	// opening secrets.json
+	jsonFile, err := os.Open("secrets.json")
+	if err != nil {
+		logger.Error(err, "error reading secrets.json")
+	}
+	defer jsonFile.Close()
+
+	// reading the user creds from it
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var user User
+	json.Unmarshal(byteValue, &user)
+	logger.Info("username: ", user.username)
+	logger.Info("pass: ", user.pass)
+
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			webrtc.ICEServer{
@@ -31,23 +59,23 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 			},
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:80"},
-				Username:   "b80b34d90c2b9e6aeec282b8",
-				Credential: "HVLCy798je+k1X2L",
+				Username:   user.username,
+				Credential: user.pass,
 			},
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:80?transport=tcp"},
-				Username:   "b80b34d90c2b9e6aeec282b8",
-				Credential: "HVLCy798je+k1X2L",
+				Username:   user.username,
+				Credential: user.pass,
 			},
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:443"},
-				Username:   "b80b34d90c2b9e6aeec282b8",
-				Credential: "HVLCy798je+k1X2L",
+				Username:   user.username,
+				Credential: user.pass,
 			},
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:443?transport=tcp"},
-				Username:   "b80b34d90c2b9e6aeec282b8",
-				Credential: "HVLCy798je+k1X2L",
+				Username:   user.username,
+				Credential: user.pass,
 			},
 		},
 	}

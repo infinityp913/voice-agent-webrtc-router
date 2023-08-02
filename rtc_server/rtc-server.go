@@ -12,6 +12,7 @@ import (
 	"github.com/pion/ion-sfu/pkg/sfu"
 	"github.com/sourcegraph/jsonrpc2"
 	websocketjsonrpc2 "github.com/sourcegraph/jsonrpc2/websocket"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -47,6 +48,22 @@ func formatRequest(r *http.Request) string {
 }
 
 func main() {
+
+	// build + start sfu
+
+	viper.SetConfigFile("./config.toml")
+	viper.SetConfigType("toml")
+	err := viper.ReadInConfig()
+	if err != nil {
+		logger.Error(err, "error reading config")
+		panic(err)
+	}
+
+	err = viper.Unmarshal(&conf)
+	if err != nil {
+		logger.Error(err, "error unmarshalling config")
+		panic(err)
+	}
 
 	// start websocket server
 
