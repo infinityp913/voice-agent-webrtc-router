@@ -16,11 +16,38 @@ type PeerConn struct {
 
 func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	// Prepare the configuration
+	// config := webrtc.Configuration{
+	// 	ICEServers: []webrtc.ICEServer{
+	// 		{
+	// 			// URLs: []string{"stun:stun.l.google.com:19302"},
+	// 			URLs: []string{"stun:stun.relay.metered.ca:80"},
+	// 		},
+	// 	},
+	// }
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
-			{
-				// URLs: []string{"stun:stun.l.google.com:19302"},
+			webrtc.ICEServer{
 				URLs: []string{"stun:stun.relay.metered.ca:80"},
+			},
+			webrtc.ICEServer{
+				URLs:       []string{"turn:a.relay.metered.ca:80"},
+				Username:   "b80b34d90c2b9e6aeec282b8",
+				Credential: "HVLCy798je+k1X2L",
+			},
+			webrtc.ICEServer{
+				URLs:       []string{"turn:a.relay.metered.ca:80?transport=tcp"},
+				Username:   "b80b34d90c2b9e6aeec282b8",
+				Credential: "HVLCy798je+k1X2L",
+			},
+			webrtc.ICEServer{
+				URLs:       []string{"turn:a.relay.metered.ca:443"},
+				Username:   "b80b34d90c2b9e6aeec282b8",
+				Credential: "HVLCy798je+k1X2L",
+			},
+			webrtc.ICEServer{
+				URLs:       []string{"turn:a.relay.metered.ca:443?transport=tcp"},
+				Username:   "b80b34d90c2b9e6aeec282b8",
+				Credential: "HVLCy798je+k1X2L",
 			},
 		},
 	}
