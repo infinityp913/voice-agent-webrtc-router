@@ -2,5 +2,7 @@ github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230726165431-f1d355a1a072/go.mod
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230728192344-b107deb4c796/go.mod h1:YmO3ijW8Lqjp9iGcBw825iwiMoHV8kNMgsbpvW+oFKg=
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp v0.0.0-20230729192628-8d783e5be014/go.mod h1:vo95fQu4X6wJXlJTVfxuXFlayobFvRvtnoAObzBoAG0=
 github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230728192344-b107deb4c796/go.mod h1:72TgTwNTizwj+Q+RV6pz6WCduQR1kPalf+MYqOhQgRE=
+github.com/GRVYDEV/ion-sfu v0.0.0-20230418020340-dbea2d314f93 h1:fdrDVvOa6eC4sJaj3wjFqMPPoeRTSnW/3h9jDU/G2DQ=
+github.com/GRVYDEV/ion-sfu v0.0.0-20230418020340-dbea2d314f93/go.mod h1:FJ41uuR5Cxwh3CMVw85geBr1OgX1vPHHRr8UsC6CwaE=
 github.com/cespare/xxhash v1.1.0 h1:a6HrQnmkObjyL+Gs60czilIUGqrzKutQD6XZog3p+ko=
 golang.org/x/text v0.10.0 h1:UpjohKhiEgNc0CSauXmwYftY1+LlaC75SJwh0SgCX58=
