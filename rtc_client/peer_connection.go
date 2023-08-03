@@ -23,8 +23,8 @@ var (
 
 // to unmarshal the json to get u and p
 type User struct {
-	username string `json:"user"`
-	pass     string `json: "pass"`
+	Username string `json:"user"`
+	Pass     string `json:"pass"`
 }
 
 func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
@@ -49,8 +49,8 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var user User
 	json.Unmarshal(byteValue, &user)
-	logger.Info("username: ", user.username)
-	logger.Info("pass: ", user.pass)
+	logger.Info("username: ", user.Username)
+	logger.Info("pass: ", user.Pass)
 
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
@@ -59,23 +59,23 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 			},
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:80"},
-				Username:   user.username,
-				Credential: user.pass,
+				Username:   user.Username,
+				Credential: user.Pass,
 			},
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:80?transport=tcp"},
-				Username:   user.username,
-				Credential: user.pass,
+				Username:   user.Username,
+				Credential: user.Pass,
 			},
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:443"},
-				Username:   user.username,
-				Credential: user.pass,
+				Username:   user.Username,
+				Credential: user.Pass,
 			},
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:443?transport=tcp"},
-				Username:   user.username,
-				Credential: user.pass,
+				Username:   user.Username,
+				Credential: user.Pass,
 			},
 		},
 	}
