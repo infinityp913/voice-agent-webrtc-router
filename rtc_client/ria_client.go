@@ -1,6 +1,7 @@
 package rtc_client
 
 import (
+	"errors"
 	"net/url"
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
@@ -31,6 +32,10 @@ type RiaClient struct {
 }
 
 func NewRiaClient(config RiaConfig) (*RiaClient, error) {
+	// TODO allow this to be nil and just disable transcriptions in that case
+	if config.SttEngine == nil {
+		return nil, errors.New("SttEngine cannot be nil")
+	}
 	ae, err := NewAudioEngine(config.SttEngine)
 	if err != nil {
 		return nil, err
@@ -42,10 +47,10 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 		trickleFn: func(candidate *webrtc.ICECandidate, target int) error {
 			return ws.SendTrickle(candidate, target)
 		},
-		rtpChan: ae.RtpIn(),
-		// transcriptionStream: config.TranscriptionStream,
-		transcriptionStream: nil,
-		mediaIn:             ae.MediaOut(),
+		rtpChan:             ae.RtpIn(),
+		transcriptionStream: config.TranscriptionStream,
+		// transcriptionStream: nil,
+		mediaIn: ae.MediaOut(),
 	})
 	if err != nil {
 		return nil, err
@@ -96,7 +101,7 @@ func (s *RiaClient) Start() error {
 		return err
 	}
 
-	// s.ae.Start()
+	s.ae.Start()
 
 	s.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
