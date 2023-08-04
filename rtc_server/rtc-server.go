@@ -49,7 +49,7 @@ func formatRequest(r *http.Request) string {
 
 func main() {
 
-	logger.Info("Starting S.A.T.U.R.D.A.Y RTC server...")
+	logger.Info("Starting Ria RTC server...")
 
 	// build + start sfu
 
