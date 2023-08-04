@@ -30,8 +30,8 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			{
-				// URLs: []string{"stun:stun.l.google.com:19302"},
-				URLs: []string{"stun:stun.relay.metered.ca:80"},
+				URLs: []string{"stun:stun.l.google.com:19302"},
+				// URLs: []string{"stun:stun.relay.metered.ca:80"},
 			},
 		},
 	}
