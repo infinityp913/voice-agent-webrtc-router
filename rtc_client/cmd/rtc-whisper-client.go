@@ -16,7 +16,7 @@ var (
 )
 
 func main() {
-	url := url.URL{Scheme: "ws", Host: "matherium.com", Path: "/go-server"}
+	url := url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"}
 
 	whisperCpp, err := whisper.New("../models/ggml-tiny.en.bin")
 	if err != nil {
