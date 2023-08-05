@@ -5,7 +5,9 @@ It also makes use of @ggerganov's https://github.com/ggerganov/whisper.cpp
 
 
 # Setup Instructions  
-1. `git submodule init` and `git submodule update` - to fill up the whisper.cpp submodule (which will be empty at first)
-2. `cd whisper.cpp` and `make libwhisper.a` to build whisper lib to link against
-3. (within the whisper.cpp dir) `make tiny.en` and `cp models/ggml-tiny.en.bin ../models/` - to fetch the whisper.cpp tiny model
-4. cd into the rtc_client dir and run `C_INCLUDE_PATH=${abs path to whisper} LIBRARY_PATH=${abs path to whisper} go run rtc-whisper-client.go` to run the rtc-client with compiling and linking env variables
+1. Start the RTC Server -- `cd rtc_server` and `sudo go run rtc_server.go`
+2. Fill up the whisper.cpp submodule (which will be empty at first) `git submodule init` and `git submodule update`
+3. Build whisper lib to link against: `cd whisper.cpp` and `make libwhisper.a`
+4. Fetch the whisper.cpp tiny model (within the whisper.cpp dir) `make tiny.en` and `cp models/ggml-tiny.en.bin ../models/`
+5. Run the RTC Client with compiling and linking env variables cd into the rtc_client dir and run `C_INCLUDE_PATH=${abs path to whisper} LIBRARY_PATH=${abs path to whisper} go run rtc-whisper-client.go`
+6. Go to matherium.com/webrtd-demo and click on call button
