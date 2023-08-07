@@ -3,4 +3,5 @@ go 1.20
 use (
 	./rtc_client
 	./rtc_server
+	./stt/engine
 )
