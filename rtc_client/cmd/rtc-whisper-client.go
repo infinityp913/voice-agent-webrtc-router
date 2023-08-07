@@ -52,9 +52,9 @@ func main() {
 
 	sttEngine.OnDocumentUpdate(onDocumentUpdate)
 
-	logger.Info("Starting Saturday Client...")
+	logger.Info("Starting Ria Client...")
 
 	if err := sc.Start(); err != nil {
-		logger.Fatal(err, "error starting Saturday Client")
+		logger.Fatal(err, "error starting Ria Client")
 	}
 }
