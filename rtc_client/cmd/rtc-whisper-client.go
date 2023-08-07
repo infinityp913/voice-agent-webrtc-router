@@ -6,9 +6,10 @@ import (
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
 	whisper "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp"
-	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
-	stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
+
+	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 	"github.com/infinityp913/rtc-go-server/rtc_client"
+	stt "github.com/infinityp913/rtc-go-server/stt/engine"
 )
 
 var (
@@ -23,7 +24,7 @@ func main() {
 		logger.Fatal(err, "error creating whisper model")
 	}
 
-	transcriptionStream := make(chan engine.Document, 100)
+	transcriptionStream := make(chan stt.Document, 100)
 
 	documentComposer := stt.NewDocumentComposer()
 	documentComposer.FilterSegment(func(ts stt.TranscriptionSegment) bool {
@@ -46,7 +47,7 @@ func main() {
 		logger.Fatal(err, "error creating saturday client")
 	}
 
-	onDocumentUpdate := func(document engine.Document) {
+	onDocumentUpdate := func(document stt.Document) {
 		transcriptionStream <- document
 	}
 
