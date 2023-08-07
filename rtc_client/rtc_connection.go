@@ -106,6 +106,8 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 			for transcription := range params.transcriptionStream {
 				internal.Logger.Debugf("Transcribed %s", transcription.TranscribedText)
 				internal.Logger.Debugf("New text %s", transcription.NewText)
+				internal.Logger.Info("Transcribed %s", transcription.TranscribedText)
+				internal.Logger.Info("New text %s", transcription.NewText)
 				data, err := json.Marshal(transcription)
 				if err != nil {
 					internal.Logger.Error(err, "error marshalling transcript")
