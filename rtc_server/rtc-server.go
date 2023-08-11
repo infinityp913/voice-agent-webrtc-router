@@ -92,7 +92,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		defer conn.Close()
+		// defer conn.Close()
 
 		p := ws.NewConnection(sfu.NewPeer(s), logger)
 		// p = {PeerLocal (NewPeer creates a new PeerLocal for signaling with the given SFU)
