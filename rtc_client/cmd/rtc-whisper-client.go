@@ -19,7 +19,7 @@ var (
 func main() {
 	url := url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"}
 
-	whisperCpp, err := whisper.New("../models/ggml-tiny.en.bin")
+	whisperCpp, err := whisper.New("../models/ggml-base.en.bin")
 	if err != nil {
 		logger.Fatal(err, "error creating whisper model")
 	}
