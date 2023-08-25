@@ -1,6 +1,7 @@
 package rtc_client
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -72,11 +73,24 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 		firstTimeStamp: 0,
 	}
 
-	// GET the json containing pcm array
-	resp, err := http.Get("http://localhost:8000/get_response")
+	// send POST req to the URL with user_input and get the json containing pcm
+	url := "http://localhost:8000/get_response"
+	var jsonStr = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	if err != nil {
 		log.Fatalln(err)
 	}
+	req.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	client.Timeout = time.Second * 15
+
+	defer resp.Body.Close()
+
 	//We Read the response body on the line below.
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
