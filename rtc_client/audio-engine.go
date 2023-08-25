@@ -45,8 +45,8 @@ type AudioEngine struct {
 }
 
 type FlaskResponse struct {
-	New_state string    `json:"new_state"`
-	Pcm_arr   []float32 `json:"response"`
+	New_state string `json:"new_state"`
+	Pcm_arr   string `json:"response"`
 }
 
 var client = &http.Client{Timeout: 10 * time.Second}
@@ -99,7 +99,7 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	getJson(url, jsonStrByte, flaskResponse)
 
 	// extract pcm array from json
-	var pcm_arr []float32 = flaskResponse.Pcm_arr
+	var pcm_arr string = flaskResponse.Pcm_arr
 	internal.Logger.Info("Inside audio-engine.go: pcm_arr:", flaskResponse.New_state)
 
 	// pass it to ae.Encode()
