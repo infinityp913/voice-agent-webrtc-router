@@ -98,7 +98,7 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	}
 	// internal.Logger.Info("Inside audio-engine.go: string(body):", string(body))
 	var flaskResponse FlaskResponse
-	json.Unmarshal([]byte(body), &flaskResponse)
+	json.Unmarshal([]byte(string(body)), &flaskResponse)
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
