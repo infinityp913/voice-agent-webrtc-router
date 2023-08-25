@@ -3,7 +3,6 @@ package rtc_client
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -50,6 +49,25 @@ type FlaskResponse struct {
 	Pcm_arr   []float32 `json:"response"`
 }
 
+var client = &http.Client{Timeout: 10 * time.Second}
+
+func getJson(url string, jsonStrByte []byte, target interface{}) error {
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStrByte))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+
+	return json.NewDecoder(resp.Body).Decode(target)
+}
+
 func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	dec, err := internal.NewOpusDecoder(sampleRate, channels)
 	if err != nil {
@@ -75,30 +93,10 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 
 	// send POST req to the URL with user_input and get the json containing pcm
 	url := "http://localhost:8000/get_response"
-	var jsonStr = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	req.Header.Add("Content-Type", "application/json")
+	var jsonStrByte = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	client.Timeout = time.Second * 15
-
-	defer resp.Body.Close()
-
-	//We Read the response body on the line below.
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	// internal.Logger.Info("Inside audio-engine.go: string(body):", string(body))
-	var flaskResponse FlaskResponse
-	json.Unmarshal([]byte(string(body)), &flaskResponse)
+	flaskResponse := new(FlaskResponse)
+	getJson(url, jsonStrByte, flaskResponse)
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
