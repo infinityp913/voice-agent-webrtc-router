@@ -96,13 +96,13 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	internal.Logger.Info("Inside audio-engine.go: string(body):", string(body))
+	// internal.Logger.Info("Inside audio-engine.go: string(body):", string(body))
 	var flaskResponse FlaskResponse
 	json.Unmarshal(body, &flaskResponse)
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
-	internal.Logger.Info("Inside audio-engine.go: pcm_arr:", flaskResponse.Pcm_arr[0])
+	internal.Logger.Info("Inside audio-engine.go: pcm_arr:", flaskResponse.Pcm_arr)
 
 	// pass it to ae.Encode()
 	ae.Encode(pcm_arr, 1, 22050)
