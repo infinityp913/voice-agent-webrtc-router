@@ -1,7 +1,11 @@
 package rtc_client
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
 	"math"
+	"net/http"
 	"time"
 
 	stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
@@ -40,6 +44,11 @@ type AudioEngine struct {
 	sttEngine      *stt.Engine
 }
 
+type FlaskResponse struct {
+	New_state string    `json:"new_state"`
+	Pcm_arr   []float32 `json:"response"`
+}
+
 func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	dec, err := internal.NewOpusDecoder(sampleRate, channels)
 	if err != nil {
@@ -62,6 +71,26 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 		sttEngine:      sttEngine,
 		firstTimeStamp: 0,
 	}
+
+	// GET the json containing pcm array
+	resp, err := http.Get("http://localhost:8000/get_response")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	//We Read the response body on the line below.
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	var flaskResponse FlaskResponse
+	json.Unmarshal(body, &flaskResponse)
+
+	// extract pcm array from json
+	var pcm_arr []float32 = flaskResponse.Pcm_arr
+	internal.Logger.Info("Inside audio-engine.go: pcm_arr:", pcm_arr)
+
+	// pass it to ae.Encode()
+	ae.Encode(pcm_arr, 1, 22050)
 
 	return ae, nil
 }
