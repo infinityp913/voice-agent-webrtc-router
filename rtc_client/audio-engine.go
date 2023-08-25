@@ -82,6 +82,7 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	internal.Logger.Info("Inside audio-engine.go: string(body):", string(body))
 	var flaskResponse FlaskResponse
 	json.Unmarshal(body, &flaskResponse)
 
