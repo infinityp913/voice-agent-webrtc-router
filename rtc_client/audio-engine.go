@@ -91,22 +91,6 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 		firstTimeStamp: 0,
 	}
 
-	// send POST req to the URL with user_input and get the json containing pcm
-	url := "http://localhost:8000/get_response"
-	var jsonStrByte = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
-
-	flaskResponse := new(FlaskResponse)
-	getJson(url, jsonStrByte, flaskResponse)
-
-	// extract pcm array from json
-	var pcm_arr []float32 = flaskResponse.Pcm_arr
-	internal.Logger.Info("Inside audio-engine.go: fR.pcmarr:", flaskResponse.Pcm_arr)
-	internal.Logger.Info("Inside audio-engine.go: pcm_arr:", pcm_arr)
-	internal.Logger.Info("Inside audio-engine.go: New_state:", flaskResponse.New_state)
-
-	// pass it to ae.Encode()
-	ae.Encode(pcm_arr, 1, 22050)
-
 	return ae, nil
 }
 
