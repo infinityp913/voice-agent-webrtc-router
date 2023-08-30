@@ -121,8 +121,11 @@ func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 
 // sendMedia turns opus frames into media samples and sends them on the channel
 func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
+	// REMOVE AFTER DEBUG
+	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
 		sample := convertOpusToSample(f)
+		internal.Logger.Info("SAMPLE:", sample.Data) // REMOVE AFTER DEBUG
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
