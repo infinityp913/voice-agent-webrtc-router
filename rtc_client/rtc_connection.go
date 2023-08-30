@@ -149,7 +149,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 				return ts.Text[0] == '.' || strings.ContainsAny(ts.Text, "[]()")
 			})
 
-			whisperCpp, err := whisper.New("../models/ggml-small.en.bin")
+			whisperCpp, err := whisper.New("../models/ggml-base.en.bin")
 			if err != nil {
 				internal.Logger.Fatal(err, "error creating whisper model")
 			}
