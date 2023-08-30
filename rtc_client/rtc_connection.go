@@ -171,8 +171,10 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 				firstTimeStamp: 0,
 			}
 
+			internal.Logger.Info("before encode") // REMOVE AFTER DEBUG
 			// pass it to ae.Encode()
 			ae.Encode(pcm_arr, 1, 22050)
+			internal.Logger.Info("After encode") // REMOVE AFTER DEBUG
 		})
 
 	} else {
