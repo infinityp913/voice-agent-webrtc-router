@@ -120,6 +120,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 				internal.Logger.Debugf("sending transcript %+v on data channel", transcription)
 				dc.Send(data)
 			}
+			internal.Logger.Info("Getting PCM data from Flask Server")
 			// send POST req to the URL with user_input and get the json containing pcm
 			url := "http://localhost:8000/get_response"
 			var jsonStrByte = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
