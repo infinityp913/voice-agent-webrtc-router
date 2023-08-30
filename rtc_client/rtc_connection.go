@@ -10,6 +10,10 @@ import (
 
 	// "github.com/infinityp913/rtc-go-server/stt/engine"
 
+	"strings" //REMOVE
+
+	whisper "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp" //REMOVE
+
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
@@ -116,6 +120,59 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 				internal.Logger.Debugf("sending transcript %+v on data channel", transcription)
 				dc.Send(data)
 			}
+			// send POST req to the URL with user_input and get the json containing pcm
+			url := "http://localhost:8000/get_response"
+			var jsonStrByte = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
+
+			flaskResponse := new(FlaskResponse)
+			getJson(url, jsonStrByte, flaskResponse)
+
+			// extract pcm array from json
+			var pcm_arr []float32 = flaskResponse.Pcm_arr
+			internal.Logger.Info("Inside audio-engine.go: fR.pcmarr:", flaskResponse.Pcm_arr)
+			internal.Logger.Info("Inside audio-engine.go: pcm_arr:", pcm_arr)
+			internal.Logger.Info("Inside audio-engine.go: New_state:", flaskResponse.New_state)
+
+			dec, err := internal.NewOpusDecoder(sampleRate, channels)
+			if err != nil {
+				internal.Logger.Error(err, "error creating decoder for Audio Engine in the Data Channel for Transcriptions")
+			}
+
+			// we use 2 channels for the output
+			enc, err := internal.NewOpusEncoder(2, frameSizeMs)
+			if err != nil {
+				internal.Logger.Error(err, "error creating decoder for Audio Engine in the Data Channel for Transcriptions")
+			}
+
+			documentComposer := engine.NewDocumentComposer()
+			documentComposer.FilterSegment(func(ts engine.TranscriptionSegment) bool {
+				return ts.Text[0] == '.' || strings.ContainsAny(ts.Text, "[]()")
+			})
+
+			whisperCpp, err := whisper.New("../models/ggml-small.en.bin")
+			if err != nil {
+				internal.Logger.Fatal(err, "error creating whisper model")
+			}
+
+			sttEngine, err := engine.New(engine.EngineParams{
+				Transcriber:      whisperCpp,
+				DocumentComposer: documentComposer,
+				UseVad:           true,
+			})
+
+			ae := &AudioEngine{
+				rtpIn:          make(chan *rtp.Packet),
+				mediaOut:       make(chan media.Sample),
+				pcm:            make([]float32, frameSize),
+				buf:            make([]byte, frameSize*2),
+				dec:            dec,
+				enc:            enc,
+				sttEngine:      sttEngine,
+				firstTimeStamp: 0,
+			}
+
+			// pass it to ae.Encode()
+			ae.Encode(pcm_arr, 1, 22050)
 		})
 
 	} else {
