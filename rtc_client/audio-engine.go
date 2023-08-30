@@ -128,6 +128,7 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 		sample := convertOpusToSample(f)
 		internal.Logger.Info("SAMPLE:", sample.Data) // REMOVE AFTER DEBUG
 		a.mediaOut <- sample
+		internal.Logger.Info("DEBUG: Sent sample to a.mediaOut")
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
 	}
