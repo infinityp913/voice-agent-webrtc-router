@@ -131,6 +131,7 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
 	}
+	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
 func convertOpusToSample(frame internal.OpusFrame) media.Sample {
