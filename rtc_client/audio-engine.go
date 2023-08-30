@@ -110,7 +110,6 @@ func (a *AudioEngine) Start() {
 // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
 func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
 	opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
-	internal.Logger.Info("DEBUG: Printing the opusFrames: ", opusFrames) // REMOVE AFTER DEBUG
 	if err != nil {
 		internal.Logger.Error(err, "error encoding pcm")
 	}
@@ -126,7 +125,6 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
 		sample := convertOpusToSample(f)
-		internal.Logger.Info("SAMPLE:", sample.Data) // REMOVE AFTER DEBUG
 		a.mediaOut <- sample
 		internal.Logger.Info("DEBUG: Sent sample to a.mediaOut")
 		// this is important to properly pace the samples
