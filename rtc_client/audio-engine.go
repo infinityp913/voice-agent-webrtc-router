@@ -162,6 +162,7 @@ func (a *AudioEngine) decode() {
 }
 
 func (a *AudioEngine) decodePacket(pkt *rtp.Packet) (int, error) {
+	internal.Logger.Info("The len(a.pcm) = ", len(a.pcm)) //REMOVE AFTER DEBUG
 	_, err := a.dec.Decode(pkt.Payload, a.pcm)
 	// we decode to float32 here since that is what whisper.cpp takes
 	if err != nil {
