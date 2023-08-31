@@ -71,6 +71,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	})
 
 	if params.mediaIn != nil {
+		internal.Logger.Info("executing if params.MediaIn != nil") // REMOVE AFTER DEBUG
 		audioTrack, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "audio/opus"}, "audio", "saturday_audio")
 		if err != nil {
 			internal.Logger.Error(err, "error creating local audio track")
@@ -83,9 +84,13 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 			return nil, err
 		}
 
+		internal.Logger.Info("Added Transciever") // REMOVE AFTER DEBUG
+
 		rtc.audioTrack = audioTrack
 
 		go rtc.processOutgoingMedia()
+
+		internal.Logger.Info("Executed processOutgoingMedia") // REMOVE AFTER DEBUG
 	} else {
 		internal.Logger.Info("mediaIn not provided... audio relay is disabled")
 	}
@@ -190,9 +195,11 @@ func (r *RTCConnection) processOutgoingMedia() {
 		return
 	}
 	for sample := range r.mediaIn {
+		internal.Logger.Info("MediaIn provided... writing samples") // REMOVE AFTER DEBUG
 		if err := r.audioTrack.WriteSample(sample); err != nil {
-			internal.Logger.Error(err, "error writing sample")
+			internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
 		}
+		internal.Logger.Info("Samples written to MediaIn")
 	}
 }
 
