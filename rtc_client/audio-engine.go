@@ -101,6 +101,7 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
+	internal.Logger.Info("len(pcm_arr): ", len(pcm_arr))
 
 	internal.Logger.Info("before encode") // REMOVE AFTER DEBUG
 	// pass it to ae.Encode()
