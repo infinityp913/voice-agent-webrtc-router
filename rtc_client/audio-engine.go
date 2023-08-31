@@ -91,6 +91,22 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 		firstTimeStamp: 0,
 	}
 
+	internal.Logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
+	// send POST req to the URL with user_input and get the json containing pcm
+	url := "http://localhost:8000/get_response"
+	var jsonStrByte = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
+
+	flaskResponse := new(FlaskResponse)
+	getJson(url, jsonStrByte, flaskResponse)
+
+	// extract pcm array from json
+	var pcm_arr []float32 = flaskResponse.Pcm_arr
+
+	internal.Logger.Info("before encode") // REMOVE AFTER DEBUG
+	// pass it to ae.Encode()
+	ae.Encode(pcm_arr, 1, 22050)
+	internal.Logger.Info("After encode") // REMOVE AFTER DEBUG
+
 	return ae, nil
 }
 
@@ -162,7 +178,6 @@ func (a *AudioEngine) decode() {
 }
 
 func (a *AudioEngine) decodePacket(pkt *rtp.Packet) (int, error) {
-	internal.Logger.Info("The len(a.pcm) = ", len(a.pcm)) //REMOVE AFTER DEBUG
 	_, err := a.dec.Decode(pkt.Payload, a.pcm)
 	// we decode to float32 here since that is what whisper.cpp takes
 	if err != nil {
