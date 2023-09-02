@@ -72,7 +72,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 
 	if params.mediaIn != nil {
 		internal.Logger.Info("executing if params.MediaIn != nil") // REMOVE AFTER DEBUG
-		audioTrack, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "audio/opus"}, "audio", "saturday_audio")
+		audioTrack, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "audio/opus"}, "audio", "ria_audio")
 		if err != nil {
 			internal.Logger.Error(err, "error creating local audio track")
 			return nil, err
