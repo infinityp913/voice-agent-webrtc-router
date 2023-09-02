@@ -142,11 +142,11 @@ func (r *RTCConnection) processOutgoingMedia() {
 		return
 	}
 	for sample := range r.mediaIn {
-		internal.Logger.Info("MediaIn provided... writing samples") // REMOVE AFTER DEBUG
+		internal.Logger.Info("MediaIn provided... writing samples from MediaIn") // REMOVE AFTER DEBUG
 		if err := r.audioTrack.WriteSample(sample); err != nil {
 			internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
 		}
-		internal.Logger.Info("Samples written to MediaIn")
+		internal.Logger.Info("Samples RECEIVED from MediaIn and written to rtc.audioTrack")
 	}
 }
 
