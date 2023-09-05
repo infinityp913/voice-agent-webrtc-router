@@ -99,13 +99,11 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 		// pass it to ae.Encode(), where the pcm array is encoded to Opus frames AND
 		// they're sent over to the browser via WebRTC using the processOutgoingMedia() function in AudioEngine
 		ae.Encode(chunk, 1, 22050)
+		Logger.Info("After each encode") // REMOVE AFTER DEBUG
+
+		Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+		go rtc.processOutgoingMedia()
 	}
-
-	Logger.Info("After encode") // REMOVE AFTER DEBUG
-
-	Logger.Info("calling go rtc.processOutgoingMedia") // REMOVE AFTER DEBUG
-
-	go rtc.processOutgoingMedia()
 
 	s := &RiaClient{
 		ws:     ws,
