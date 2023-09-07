@@ -107,20 +107,20 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
 	Logger.Info("len(pcm_arr): ", len(pcm_arr))
 
-	// Chunking pcm_arr before passing to ae.Encode()
-	var chunked_pcm_arr [][]float32
+	// // Chunking pcm_arr before passing to ae.Encode()
+	// var chunked_pcm_arr [][]float32
 
-	chunksize := 4800
+	// chunksize := 4800
 
-	for i := 0; i < len(pcm_arr); i += chunksize {
-		end := i + chunksize
+	// for i := 0; i < len(pcm_arr); i += chunksize {
+	// 	end := i + chunksize
 
-		if end > len(pcm_arr) {
-			end = len(pcm_arr)
-		}
-		chunked_pcm_arr = append(chunked_pcm_arr, pcm_arr[i:end])
+	// 	if end > len(pcm_arr) {
+	// 		end = len(pcm_arr)
+	// 	}
+	// 	chunked_pcm_arr = append(chunked_pcm_arr, pcm_arr[i:end])
 
-	}
+	// }
 
 	Logger.Info("before encode") // REMOVE AFTER DEBUG
 
