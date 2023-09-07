@@ -91,6 +91,61 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 		firstTimeStamp: 0,
 	}
 
+	// take transcriptions from rtc.transcriptionStream
+	// feed them into ae.Encode()
+	// do `go rtc.processOutgoingMedia` this will trigger writing to rtc.audioTrack
+
+	Logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
+	// send POST req to the URL with user_input and get the json containing pcm
+	url := "http://localhost:8000/get_response"
+	var jsonStrByte = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
+
+	flaskResponse := new(FlaskResponse)
+	getJson(url, jsonStrByte, flaskResponse)
+
+	// extract pcm array from json
+	var pcm_arr []float32 = flaskResponse.Pcm_arr
+	Logger.Info("len(pcm_arr): ", len(pcm_arr))
+
+	// Chunking pcm_arr before passing to ae.Encode()
+	var chunked_pcm_arr [][]float32
+
+	chunksize := 4800
+
+	for i := 0; i < len(pcm_arr); i += chunksize {
+		end := i + chunksize
+
+		if end > len(pcm_arr) {
+			end = len(pcm_arr)
+		}
+		chunked_pcm_arr = append(chunked_pcm_arr, pcm_arr[i:end])
+
+	}
+
+	Logger.Info("before encode") // REMOVE AFTER DEBUG
+
+	// // Looping through the chunks
+	// for _, chunk := range chunked_pcm_arr {
+
+	// 	Logger.Info("len(chunk): ", len(chunk))
+	// 	Logger.Info("chunk: ", chunk) // REMOVE AFTER DEBUG
+
+	// 	// pass it to ae.Encode(), where the pcm array is encoded to Opus frames AND
+	// 	// they're sent over to the browser via WebRTC using the processOutgoingMedia() function in AudioEngine
+	// 	s.ae.Encode(chunk, 1, 22050)
+	// 	Logger.Info("After each encode") // REMOVE AFTER DEBUG
+
+	// 	Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	// 	go s.rtc.processOutgoingMedia()
+	// }
+
+	ae.Encode(pcm_arr, 1, 22050)
+
+	Logger.Info("after encode") // REMOVE AFTER DEBUG
+
+	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	// go s.rtc.processOutgoingMedia()
+
 	return ae, nil
 }
 
