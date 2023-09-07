@@ -58,54 +58,54 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 		return nil, err
 	}
 
-	s := &RiaClient{
+	r := &RiaClient{
 		ws:     ws,
 		rtc:    rtc,
 		config: config,
 		ae:     ae,
 	}
 
-	s.ws.SetOnOffer(s.OnOffer)
-	s.ws.SetOnAnswer(s.OnAnswer)
-	s.ws.SetOnTrickle(s.rtc.OnTrickle)
+	r.ws.SetOnOffer(r.OnOffer)
+	r.ws.SetOnAnswer(r.OnAnswer)
+	r.ws.SetOnTrickle(r.rtc.OnTrickle)
 
-	return s, nil
+	return r, nil
 }
 
-func (s *RiaClient) OnAnswer(answer webrtc.SessionDescription) error {
-	return s.rtc.SetAnswer(answer)
+func (r *RiaClient) OnAnswer(answer webrtc.SessionDescription) error {
+	return r.rtc.SetAnswer(answer)
 }
 
-func (s *RiaClient) OnOffer(offer webrtc.SessionDescription) error {
-	ans, err := s.rtc.OnOffer(offer)
+func (r *RiaClient) OnOffer(offer webrtc.SessionDescription) error {
+	ans, err := r.rtc.OnOffer(offer)
 	if err != nil {
 		Logger.Error(err, "error getting answer")
 		return err
 	}
 
-	return s.ws.SendAnswer(ans)
+	return r.ws.SendAnswer(ans)
 }
 
-func (s *RiaClient) Start() error {
+func (r *RiaClient) Start() error {
 	Logger.Info("before ws.connect")
-	if err := s.ws.Connect(); err != nil {
+	if err := r.ws.Connect(); err != nil {
 		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
 	Logger.Info("before rtc.GetOffer")
-	offer, err := s.rtc.GetOffer()
+	offer, err := r.rtc.GetOffer()
 	if err != nil {
 		Logger.Error(err, "error getting intial offer")
 	}
 	Logger.Info("before ws.join")
-	if err := s.ws.Join(s.config.Room, offer); err != nil {
+	if err := r.ws.Join(r.config.Room, offer); err != nil {
 		Logger.Error(err, "error joining room")
 		return err
 	}
 
-	s.ae.Start()
+	r.ae.Start()
 
-	s.ws.WaitForDone()
+	r.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
 	return nil
 }

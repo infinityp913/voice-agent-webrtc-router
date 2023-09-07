@@ -37,7 +37,7 @@ func main() {
 		UseVad:           true,
 	})
 
-	sc, err := rtc_client.NewRiaClient(rtc_client.RiaConfig{
+	rc, err := rtc_client.NewRiaClient(rtc_client.RiaConfig{
 		Room:                "",
 		Url:                 url,
 		SttEngine:           sttEngine,
@@ -55,7 +55,7 @@ func main() {
 
 	logger.Info("Starting Ria Client...")
 
-	if err := sc.Start(); err != nil {
+	if err := rc.Start(); err != nil {
 		logger.Fatal(err, "error starting Ria Client")
 	}
 }
