@@ -140,6 +140,7 @@ func (s *RiaClient) Start() error {
 	for _, chunk := range chunked_pcm_arr {
 
 		Logger.Info("len(chunk): ", len(chunk))
+		Logger.Info("chunk: ", chunk) // REMOVE AFTER DEBUG
 
 		// pass it to ae.Encode(), where the pcm array is encoded to Opus frames AND
 		// they're sent over to the browser via WebRTC using the processOutgoingMedia() function in AudioEngine
@@ -147,7 +148,7 @@ func (s *RiaClient) Start() error {
 		Logger.Info("After each encode") // REMOVE AFTER DEBUG
 
 		Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-		s.rtc.processOutgoingMedia()
+		go s.rtc.processOutgoingMedia()
 	}
 
 	s.ae.Start()
