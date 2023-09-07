@@ -155,6 +155,9 @@ func (s *RiaClient) Start() error {
 
 	Logger.Info("after encode") // REMOVE AFTER DEBUG
 
+	Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	go s.rtc.processOutgoingMedia()
+
 	s.ae.Start()
 
 	s.ws.WaitForDone()
