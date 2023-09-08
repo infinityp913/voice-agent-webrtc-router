@@ -110,7 +110,7 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	// Chunking pcm_arr before passing to ae.Encode()
 	var chunked_pcm_arr [][]float32
 
-	chunksize := 4800
+	chunksize := 4700
 
 	for i := 0; i < len(pcm_arr); i += chunksize {
 		end := i + chunksize
