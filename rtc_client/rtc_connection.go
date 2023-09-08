@@ -134,7 +134,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	return rtc, nil
 }
 
-// processIncomingMedia sends the provided samples on the audioTrack
+// processOutgoingMedia sends the provided samples on the audioTrack
 func (r *RTCConnection) processOutgoingMedia() {
 	internal.Logger.Info("Inside processOutgoingMedia")
 	if r.mediaIn == nil {
