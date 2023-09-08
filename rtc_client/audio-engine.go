@@ -123,12 +123,12 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	}
 
 	Logger.Info("before encode") // REMOVE AFTER DEBUG
-
+	Logger.Info("total # of chunks", len(chunked_pcm_arr))
 	// Looping through the chunks
-	for _, chunk := range chunked_pcm_arr {
+	for i, chunk := range chunked_pcm_arr {
 
 		Logger.Info("len(chunk): ", len(chunk))
-		Logger.Info("chunk: ", chunk) // REMOVE AFTER DEBUG
+		Logger.Info("chunk #", i) // REMOVE AFTER DEBUG
 
 		// pass it to ae.Encode(), where the pcm array is encoded to Opus frames AND
 		// they're sent over to the browser via WebRTC using the processOutgoingMedia() function in AudioEngine
