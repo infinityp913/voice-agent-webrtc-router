@@ -90,28 +90,31 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	}
 
 	Logger.Info("before encode") // REMOVE AFTER DEBUG
-	Logger.Info("total # of chunks", len(chunked_pcm_arr))
-	// Looping through the chunks
-	for i, chunk := range chunked_pcm_arr {
+	// Logger.Info("total # of chunks", len(chunked_pcm_arr))
+	// // Looping through the chunks
+	// for i, chunk := range chunked_pcm_arr {
 
-		Logger.Info("len(chunk): ", len(chunk))
-		Logger.Info("chunk #", i) // REMOVE AFTER DEBUG
+	// 	Logger.Info("len(chunk): ", len(chunk))
+	// 	Logger.Info("chunk #", i) // REMOVE AFTER DEBUG
 
-		// pass it to ae.Encode(), where the pcm array is encoded to Opus frames AND
-		// they're sent over to the browser via WebRTC using the processOutgoingMedia() function in AudioEngine
-		ae.Encode(chunk, 1, 22050)
-		Logger.Info("After each encode") // REMOVE AFTER DEBUG
+	// 	// pass it to ae.Encode(), where the pcm array is encoded to Opus frames AND
+	// 	// they're sent over to the browser via WebRTC using the processOutgoingMedia() function in AudioEngine
+	// 	ae.Encode(chunk, 1, 22050)
+	// 	Logger.Info("After each encode") // REMOVE AFTER DEBUG
 
-		Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-		go rtc.processOutgoingMedia()
-	}
+	// 	Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	// 	go rtc.processOutgoingMedia()
+	// }
 
-	// ae.Encode(pcm_arr, 1, 22050)
+	// Trying to send a 1s chunk
+	// ae.Encode(pcm_arr[0:len(pcm_arr)/3], 1, 22050)
+
+	ae.Encode(pcm_arr, 1, 22050)
 
 	Logger.Info("after encode") // REMOVE AFTER DEBUG
 
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	// go s.rtc.processOutgoingMedia()
+	go rtc.processOutgoingMedia()
 
 	r := &RiaClient{
 		ws:     ws,
