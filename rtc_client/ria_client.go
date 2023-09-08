@@ -114,7 +114,7 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	Logger.Info("after encode") // REMOVE AFTER DEBUG
 
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	go rtc.processOutgoingMedia()
+	// go rtc.processOutgoingMedia()
 
 	r := &RiaClient{
 		ws:     ws,
