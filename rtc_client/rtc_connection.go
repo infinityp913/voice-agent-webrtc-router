@@ -148,8 +148,9 @@ func (r *RTCConnection) processOutgoingMedia() {
 		if err := r.audioTrack.WriteSample(sample); err != nil {
 			internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
 		}
+		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
-	internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
+	internal.Logger.Info("FINAL Number of samples written to rtc.audioTrack:", i)
 	internal.Logger.Info("Samples RECEIVED from MediaIn and written to rtc.audioTrack")
 }
 
