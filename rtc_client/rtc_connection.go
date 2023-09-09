@@ -141,12 +141,15 @@ func (r *RTCConnection) processOutgoingMedia() {
 		internal.Logger.Info("MediaIn not provided... skipping relay")
 		return
 	}
+	i := 0
 	for sample := range r.mediaIn {
+		i += 1
 		internal.Logger.Info("MediaIn provided... writing samples from MediaIn (inside the sample:=loop)") // REMOVE AFTER DEBUG
 		if err := r.audioTrack.WriteSample(sample); err != nil {
 			internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
 		}
 	}
+	internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	internal.Logger.Info("Samples RECEIVED from MediaIn and written to rtc.audioTrack")
 }
 
