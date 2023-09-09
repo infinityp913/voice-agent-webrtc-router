@@ -107,10 +107,10 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	// }
 
 	// Trying to send a 1s chunk
-	Logger.Info("len of chunk: ", len(pcm_arr[2*len(pcm_arr)/3:len(pcm_arr)]))
-	ae.Encode(pcm_arr[2*len(pcm_arr)/3:len(pcm_arr)], 1, 22050)
+	// Logger.Info("len of chunk: ", len(pcm_arr[2*len(pcm_arr)/3:len(pcm_arr)]))
+	// ae.Encode(pcm_arr[2*len(pcm_arr)/3:len(pcm_arr)], 1, 22050)
 
-	// ae.Encode(pcm_arr, 1, 22050)
+	ae.Encode(pcm_arr, 1, 22050)
 
 	Logger.Info("after encode") // REMOVE AFTER DEBUG
 
