@@ -88,6 +88,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 
 		rtc.audioTrack = audioTrack
 
+		// REMOVED POM FROM HERE
 		// go rtc.processOutgoingMedia()
 
 		// internal.Logger.Info("Executed processOutgoingMedia") // REMOVE AFTER DEBUG
@@ -150,6 +151,7 @@ func (r *RTCConnection) processOutgoingMedia() {
 		}
 		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
+	internal.Logger.Info("len of contents of rtc.audioTrack:", len(r.audioTrack.rtpTrack.bindings))
 	internal.Logger.Info("FINAL Number of samples written to rtc.audioTrack:", i)
 	internal.Logger.Info("Samples RECEIVED from MediaIn and written to rtc.audioTrack")
 }
