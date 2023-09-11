@@ -74,20 +74,26 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
 	Logger.Info("len(pcm_arr): ", len(pcm_arr))
 
-	// Chunking pcm_arr before passing to ae.Encode()
-	var chunked_pcm_arr [][]float32
+	// padding the audio with some silence -- seeing if this fixes the partial audio problem
 
-	chunksize := 4700
+	data := make([]float32, 4800)
+	data = append(data, pcm_arr...)
+	pcm_arr = data
 
-	for i := 0; i < len(pcm_arr); i += chunksize {
-		end := i + chunksize
+	// // Chunking pcm_arr before passing to ae.Encode()
+	// var chunked_pcm_arr [][]float32
 
-		if end > len(pcm_arr) {
-			end = len(pcm_arr)
-		}
-		chunked_pcm_arr = append(chunked_pcm_arr, pcm_arr[i:end])
+	// chunksize := 4700
 
-	}
+	// for i := 0; i < len(pcm_arr); i += chunksize {
+	// 	end := i + chunksize
+
+	// 	if end > len(pcm_arr) {
+	// 		end = len(pcm_arr)
+	// 	}
+	// 	chunked_pcm_arr = append(chunked_pcm_arr, pcm_arr[i:end])
+
+	// }
 
 	Logger.Info("before encode") // REMOVE AFTER DEBUG
 	// Logger.Info("total # of chunks", len(chunked_pcm_arr))
