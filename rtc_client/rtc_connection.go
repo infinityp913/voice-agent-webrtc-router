@@ -142,6 +142,7 @@ func (r *RTCConnection) processOutgoingMedia() {
 		internal.Logger.Info("MediaIn not provided... skipping relay")
 		return
 	}
+	internal.Logger.Info("TOTAL Number of samples to be written to rtc.audioTrack:", len(r.mediaIn))
 	i := 0
 	for sample := range r.mediaIn {
 		i += 1
