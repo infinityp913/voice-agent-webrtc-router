@@ -45,8 +45,8 @@ type AudioEngine struct {
 }
 
 type FlaskResponse struct {
-	New_state string    `json:"new_state"`
-	Pcm_arr   []float32 `json:"response"`
+	// New_state string    `json:"new_state"`
+	Pcm_arr []float32 `json:"response"`
 }
 
 var client = &http.Client{Timeout: 10 * time.Second}
