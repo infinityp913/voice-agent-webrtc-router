@@ -65,7 +65,7 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	Logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	// send POST req to the URL with user_input and get the json containing pcm
 	url := "http://localhost:8000/get_tts"
-	var jsonStrByte = []byte(`{"text":"Hello! Its so nice to meet you!! Im excited about the work we are gonna get done today. Cant wait to get started!"`)
+	var jsonStrByte = []byte(`{"text":"Hello! Its so nice to meet you!! Im excited about the work we are gonna get done today. Cant wait to get started!"}`)
 
 	flaskResponse := new(FlaskResponse)
 	getJson(url, jsonStrByte, flaskResponse)
