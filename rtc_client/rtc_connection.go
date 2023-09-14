@@ -152,6 +152,8 @@ func (r *RTCConnection) processOutgoingMedia() {
 		}
 		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
+	lsample := <-r.mediaIn
+	internal.Logger.Info("Last sample: ", lsample)
 	internal.Logger.Info("FINAL Number of samples written to rtc.audioTrack:", i)
 	internal.Logger.Info("Samples RECEIVED from MediaIn and written to rtc.audioTrack")
 }
