@@ -76,9 +76,9 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 
 	// padding the audio with some silence -- seeing if this fixes the partial audio problem
 
-	// data := make([]float32, 4800)
-	// data = append(data, pcm_arr...)
-	// pcm_arr = data
+	data := make([]float32, 4800)
+	data = append(data, pcm_arr...)
+	pcm_arr = data
 
 	// // Chunking pcm_arr before passing to ae.Encode()
 	// var chunked_pcm_arr [][]float32
