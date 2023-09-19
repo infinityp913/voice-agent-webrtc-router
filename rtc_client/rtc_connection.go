@@ -136,7 +136,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 }
 
 // processOutgoingMedia sends the provided samples on the audioTrack
-func (r *RTCConnection) processOutgoingMedia() {
+func (r *RTCConnection) ProcessOutgoingMedia() {
 	internal.Logger.Info("Inside processOutgoingMedia")
 	if r.mediaIn == nil {
 		internal.Logger.Info("MediaIn not provided... skipping relay")

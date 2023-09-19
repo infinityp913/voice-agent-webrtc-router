@@ -28,9 +28,9 @@ type RiaConfig struct {
 
 type RiaClient struct {
 	ws     *SocketConnection
-	rtc    *RTCConnection
+	Rtc    *RTCConnection
 	config RiaConfig
-	ae     *AudioEngine
+	Ae     *AudioEngine
 }
 
 func NewRiaClient(config RiaConfig) (*RiaClient, error) {
@@ -80,69 +80,35 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	data = append(data, pcm_arr...)
 	pcm_arr = data
 
-	// // Chunking pcm_arr before passing to ae.Encode()
-	// var chunked_pcm_arr [][]float32
-
-	// chunksize := 4700
-
-	// for i := 0; i < len(pcm_arr); i += chunksize {
-	// 	end := i + chunksize
-
-	// 	if end > len(pcm_arr) {
-	// 		end = len(pcm_arr)
-	// 	}
-	// 	chunked_pcm_arr = append(chunked_pcm_arr, pcm_arr[i:end])
-
-	// }
-
 	Logger.Info("before encode") // REMOVE AFTER DEBUG
-	// Logger.Info("total # of chunks", len(chunked_pcm_arr))
-	// // Looping through the chunks
-	// for i, chunk := range chunked_pcm_arr {
-
-	// 	Logger.Info("len(chunk): ", len(chunk))
-	// 	Logger.Info("chunk #", i) // REMOVE AFTER DEBUG
-
-	// 	// pass it to ae.Encode(), where the pcm array is encoded to Opus frames AND
-	// 	// they're sent over to the browser via WebRTC using the processOutgoingMedia() function in AudioEngine
-	// 	ae.Encode(chunk, 1, 22050)
-	// 	Logger.Info("After each encode") // REMOVE AFTER DEBUG
-
-	// 	Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	// 	go rtc.processOutgoingMedia()
-	// }
-
-	// Trying to send a 1s chunk
-	// Logger.Info("len of chunk: ", len(pcm_arr[2*len(pcm_arr)/3:len(pcm_arr)]))
-	// ae.Encode(pcm_arr[2*len(pcm_arr)/3:len(pcm_arr)], 1, 22050)
 
 	ae.Encode(pcm_arr, 1, 22050)
 
 	Logger.Info("after encode") // REMOVE AFTER DEBUG
 
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	go rtc.processOutgoingMedia()
+	go rtc.ProcessOutgoingMedia()
 
 	r := &RiaClient{
 		ws:     ws,
-		rtc:    rtc,
+		Rtc:    rtc,
 		config: config,
-		ae:     ae,
+		Ae:     ae,
 	}
 
 	r.ws.SetOnOffer(r.OnOffer)
 	r.ws.SetOnAnswer(r.OnAnswer)
-	r.ws.SetOnTrickle(r.rtc.OnTrickle)
+	r.ws.SetOnTrickle(r.Rtc.OnTrickle)
 
 	return r, nil
 }
 
 func (r *RiaClient) OnAnswer(answer webrtc.SessionDescription) error {
-	return r.rtc.SetAnswer(answer)
+	return r.Rtc.SetAnswer(answer)
 }
 
 func (r *RiaClient) OnOffer(offer webrtc.SessionDescription) error {
-	ans, err := r.rtc.OnOffer(offer)
+	ans, err := r.Rtc.OnOffer(offer)
 	if err != nil {
 		Logger.Error(err, "error getting answer")
 		return err
@@ -158,7 +124,7 @@ func (r *RiaClient) Start() error {
 		return err
 	}
 	Logger.Info("before rtc.GetOffer")
-	offer, err := r.rtc.GetOffer()
+	offer, err := r.Rtc.GetOffer()
 	if err != nil {
 		Logger.Error(err, "error getting intial offer")
 	}
@@ -168,7 +134,7 @@ func (r *RiaClient) Start() error {
 		return err
 	}
 
-	r.ae.Start()
+	r.Ae.Start()
 
 	r.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
