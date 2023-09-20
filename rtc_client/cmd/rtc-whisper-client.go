@@ -56,7 +56,9 @@ func main() {
 		logger.Fatal(err, "error creating saturday client")
 	}
 
-	promptBuilder := NewPromptBuilder(llmTime)
+	init_state := riaSaysHello(rc.Ae, rc.Rtc)
+
+	promptBuilder := NewPromptBuilder(llmTime, init_state)
 
 	onDocumentUpdate := func(document stt.Document) {
 		transcriptionStream <- document
@@ -87,12 +89,12 @@ type PromptBuilder struct {
 }
 
 // construct new PromptBuilder
-func NewPromptBuilder(interval time.Duration) *PromptBuilder {
+func NewPromptBuilder(interval time.Duration, init_state int) *PromptBuilder {
 	return &PromptBuilder{
 		timer:        time.NewTimer(interval),
 		prompt:       "",
 		cancel:       make(chan int),
-		currentState: 0, // Initial state is 0
+		currentState: init_state, // Initial state is 0
 	}
 }
 
@@ -210,4 +212,38 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	go rtc.ProcessOutgoingMedia()
 
 	// *** End of sending currentPrompt to Flask server code ***
+}
+
+func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
+	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
+	// send POST req to the URL with user_input and get the json containing pcm
+	url := "http://localhost:8000/get_response"
+
+	// Sending curr_state 0 signal to flask along with a hard-coded hello (content of endu_user_input doesn't matter)
+	// This is to get the intro as response
+	var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
+
+	flaskResponse := new(FlaskResponse)
+	getJson(url, jsonStrByte, flaskResponse)
+
+	// extract pcm array from json
+	var pcm_arr []float32 = flaskResponse.Pcm_arr
+	new_state := flaskResponse.New_state
+	logger.Info("len(pcm_arr): ", len(pcm_arr))
+
+	// padding the audio with some silence -- seeing if this fixes the partial audio problem
+
+	data := make([]float32, 38050)
+	data = append(data, pcm_arr...)
+	pcm_arr = data
+
+	logger.Info("before encode") // REMOVE AFTER DEBUG
+
+	ae.Encode(pcm_arr, 1, 22050)
+
+	logger.Info("after encode") // REMOVE AFTER DEBUG
+
+	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	go rtc.ProcessOutgoingMedia()
+	return new_state
 }
