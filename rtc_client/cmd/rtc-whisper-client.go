@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -77,9 +78,10 @@ func main() {
 // Struct to handle gathering STT output and passing to the Flask Server
 
 type PromptBuilder struct {
-	timer  *time.Timer // this tracks when to buffer and send to Flask
-	prompt string      // this is where the end user's transcribed sentence/question is collected before sending to Flask
-	cancel chan int    // channel to indicate exiting the infinite for loop in Start() function i.e., to stop sending data to Flask
+	timer        *time.Timer // this tracks when to buffer and send to Flask
+	prompt       string      // this is where the end user's transcribed sentence/question is collected before sending to Flask
+	cancel       chan int    // channel to indicate exiting the infinite for loop in Start() function i.e., to stop sending data to Flask
+	currentState int         // to store state for Ria's conversation
 
 	sync.Mutex // mutual exclusion lib to lock and unlock access to `prompt` by goroutines
 }
@@ -87,9 +89,10 @@ type PromptBuilder struct {
 // construct new PromptBuilder
 func NewPromptBuilder(interval time.Duration) *PromptBuilder {
 	return &PromptBuilder{
-		timer:  time.NewTimer(interval),
-		prompt: "",
-		cancel: make(chan int),
+		timer:        time.NewTimer(interval),
+		prompt:       "",
+		cancel:       make(chan int),
+		currentState: 0, // Initial state is 0
 	}
 }
 
@@ -129,8 +132,8 @@ func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCCon
 
 type FlaskResponse struct {
 	// TODO: uncomment and use new_state
-	// New_state string    `json:"new_state"`
-	Pcm_arr []float32 `json:"response"`
+	New_state string    `json:"new_state"`
+	Pcm_arr   []float32 `json:"response"`
 }
 
 var client = &http.Client{Timeout: 10 * time.Second}
@@ -171,7 +174,10 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	url := "http://localhost:8000/get_response"       // Flask server running QnA NN + TTS NN is hosted here
 	logger.Info("currentPrompt: ", currentPrompt)     // REMOVE AFTER DEBUG
-	jsonStr := `{"end_user_input": "` + currentPrompt + `", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`
+
+	p.Lock() // locking since we're going to access p.currentState
+
+	jsonStr := `{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`
 	// var jsonStrByte = []byte(`{"end_user_input":"Oh, okay. Thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
 	// jsonStr := `{'text': ` + currentPrompt + `'}`
 	var jsonStrByte = []byte(jsonStr)
@@ -181,6 +187,15 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
+	new_state, err := strconv.Atoi(flaskResponse.New_state)
+	if err != nil {
+		// ... handle error
+		panic(err)
+	}
+
+	p.currentState = new_state
+	p.Unlock()
+
 	logger.Info("len(pcm_arr): ", len(pcm_arr))
 
 	// padding the audio with some silence -- seeing if this fixes the partial audio problem
