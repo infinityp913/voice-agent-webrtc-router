@@ -132,7 +132,7 @@ func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCCon
 
 type FlaskResponse struct {
 	// TODO: uncomment and use new_state
-	New_state string    `json:"new_state"`
+	New_state int       `json:"new_state"`
 	Pcm_arr   []float32 `json:"response"`
 }
 
@@ -187,11 +187,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
-	new_state, err := strconv.Atoi(flaskResponse.New_state)
-	if err != nil {
-		// ... handle error
-		panic(err)
-	}
+	new_state := flaskResponse.New_state
 
 	p.currentState = new_state
 	p.Unlock()
