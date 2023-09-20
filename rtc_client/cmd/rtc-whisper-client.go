@@ -167,8 +167,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.Unlock()
 
 	// *** Send currentPrompt to Flask server ***
-
-	url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
+	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
+	url := "http://localhost:8000/get_response"       // Flask server running QnA NN + TTS NN is hosted here
 	jsonStr := "{'end_user_input': " + currentPrompt + ", 'curr_state':'4', 'client_id':'1', 'prompt_repeated_response':'0'}"
 	var jsonStrByte = []byte(jsonStr)
 
