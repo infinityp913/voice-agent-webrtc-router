@@ -171,9 +171,10 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	url := "http://localhost:8000/get_response"       // Flask server running QnA NN + TTS NN is hosted here
 	logger.Info("currentPrompt: ", currentPrompt)     // REMOVE AFTER DEBUG
-	jsonStr := `{'end_user_input': '` + currentPrompt + `', 'curr_state':'4', 'client_id':'1', 'prompt_repeated_response':'0'}`
-	// jsonStr := `{'text': ` + currentPrompt + `, 'curr_state':'4', 'client_id':'1', 'prompt_repeated_response':'0'}`
-	var jsonStrByte = []byte(jsonStr)
+	// jsonStr := `{'end_user_input': '` + currentPrompt + `', 'curr_state':'4', 'client_id':'1', 'prompt_repeated_response':'0'}`
+	var jsonStrByte = []byte(`{"end_user_input":"oh okay, thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
+	// jsonStr := `{'text': ` + currentPrompt + `'}`
+	// var jsonStrByte = []byte(jsonStr)
 
 	flaskResponse := new(FlaskResponse)
 	getJson(url, jsonStrByte, flaskResponse)
@@ -194,7 +195,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	// Logger.Info("calling go rtc.processOutgoingMedia") // REMOVE AFTER DEBUG
 	go rtc.ProcessOutgoingMedia()
 
 	// *** End of sending currentPrompt to Flask server code ***
