@@ -144,6 +144,7 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
+		logger.Info("Error at POST request!!")
 		panic(err)
 	}
 
