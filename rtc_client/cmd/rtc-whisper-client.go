@@ -198,7 +198,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// padding the audio with some silence -- seeing if this fixes the partial audio problem
 
-	data := make([]float32, 10000)
+	data := make([]float32, 18000)
 	data = append(data, pcm_arr...)
 	pcm_arr = data
 
@@ -233,7 +233,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	// padding the audio with some silence -- seeing if this fixes the partial audio problem
 
-	data := make([]float32, 10000)
+	data := make([]float32, 18000)
 	data = append(data, pcm_arr...)
 	pcm_arr = data
 
