@@ -58,7 +58,7 @@ func main() {
 
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
-	promptBuilder := NewPromptBuilder(llmTime, init_state)
+	promptBuilder := NewPromptBuilder(llmTime, init_state) //2s timer starts here
 
 	onDocumentUpdate := func(document stt.Document) {
 		transcriptionStream <- document
@@ -90,11 +90,12 @@ type PromptBuilder struct {
 
 // construct new PromptBuilder
 func NewPromptBuilder(interval time.Duration, init_state int) *PromptBuilder {
+	logger.Info("TIMER HAS STARTED!") // REMOVE AFTER DEBUG
 	return &PromptBuilder{
-		timer:        time.NewTimer(interval),
+		timer:        time.NewTimer(interval), // Timer starts at thie line
 		prompt:       "",
 		cancel:       make(chan int),
-		currentState: init_state, // Initial state is 0
+		currentState: init_state, // init_state is initialized by Ria's hello response's new_state
 	}
 }
 
@@ -111,6 +112,7 @@ func (p *PromptBuilder) UpdatePrompt(prompt string) {
 	p.prompt += prompt
 	p.timer.Stop()
 	p.timer.Reset(llmTime)
+	logger.Infof("TIMER RESET!!!")
 }
 
 // Stop building prompts and sending to Flask server
@@ -121,9 +123,10 @@ func (p *PromptBuilder) Stop() {
 // Start building prompts and sending to Flask server
 func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	for {
+		logger.Infof("Inside Start()'s infinite loop")
 		// wait for the timer to fire OR Stop() to be called
 		select {
-		case <-p.timer.C: // indicates firing of timer aka the timer has counted down
+		case <-p.timer.C: // indicates firing of timer aka the 2s timer has counted down
 			p.tryCallEngine(ae, rtc)
 		case <-p.cancel: // indicates calling of Stop()
 			logger.Info("shutting down llm interface")
