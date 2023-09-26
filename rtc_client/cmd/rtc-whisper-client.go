@@ -20,7 +20,7 @@ import (
 )
 
 // const llmTime = time.Second * 2
-const llmTime = time.Millisecond * 2000
+const llmTime = time.Millisecond * 1500
 
 var (
 	logger = logr.New()
