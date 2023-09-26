@@ -19,8 +19,9 @@ import (
 	// stt "github.com/infinityp913/rtc-go-server/stt/engine"
 )
 
-// const llmTime = time.Second * 2
-const llmTime = time.Millisecond * 2000
+const llmTime = time.Second * 2
+
+// const llmTime = time.Millisecond * 2000
 
 var (
 	logger = logr.New()
