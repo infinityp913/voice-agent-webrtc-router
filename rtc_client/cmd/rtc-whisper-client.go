@@ -172,7 +172,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.Lock()
 
 	// no prompt so wait again
-	if p.prompt == "" || p.prompt == " " {
+	if p.prompt == "" {
 		p.Unlock()
 		return
 	}
