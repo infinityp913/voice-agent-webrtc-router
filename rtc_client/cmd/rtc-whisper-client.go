@@ -20,7 +20,7 @@ import (
 )
 
 // const llmTime = time.Second * 2
-const llmTime = time.Millisecond * 1500
+const llmTime = time.Millisecond * 2000
 
 var (
 	logger = logr.New()
@@ -102,6 +102,12 @@ func NewPromptBuilder(interval time.Duration, init_state int) *PromptBuilder {
 
 // update the prompt and reset the timer
 func (p *PromptBuilder) UpdatePrompt(prompt string) {
+	// if strings.HasPrefix(prompt, "(") && strings.HasSuffix(prompt, ")") {
+	// 	return
+	// }
+	// if strings.HasPrefix(prompt, "*") && strings.HasSuffix(prompt, "*") {
+	// 	return
+	// }
 	logger.Infof("UPDATING QnA PROMPT %s", prompt)
 	p.Lock()
 	defer p.Unlock()
