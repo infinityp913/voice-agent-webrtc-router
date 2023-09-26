@@ -20,7 +20,7 @@ import (
 )
 
 // const llmTime = time.Second * 2
-const llmTime = time.Millisecond * 1500
+const llmTime = time.Millisecond * 2000
 
 var (
 	logger = logr.New()
@@ -166,7 +166,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.Lock()
 
 	// no prompt so wait again
-	if p.prompt == "" {
+	if p.prompt == "" || p.prompt == " " {
 		p.Unlock()
 		return
 	}
@@ -179,7 +179,6 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// *** Send currentPrompt to Flask server ***
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	url := "http://localhost:8000/get_response"       // Flask server running QnA NN + TTS NN is hosted here
-	logger.Info("currentPrompt: ", currentPrompt)     // REMOVE AFTER DEBUG
 
 	p.Lock() // locking since we're going to access p.currentState
 
