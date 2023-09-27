@@ -3,9 +3,11 @@ package rtc_client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"time"
 
 	stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
@@ -144,10 +146,21 @@ func convertOpusToSample(frame internal.OpusFrame) media.Sample {
 
 // decode reads over the in channel in a loop, decodes the RTP packets to raw PCM and sends the data on another channel
 func (a *AudioEngine) decode() {
+	var total_pcm_arr []float32 // REMOVE AFTER DEBUG
 	for {
 		pkt, ok := <-a.rtpIn
 		if !ok {
 			internal.Logger.Info("rtpIn channel closed...")
+			internal.Logger.Info("Writing pcm data to log file!") // REMOVE AFTER DEBUG
+			f, err := os.OpenFile("end_user_pcmdata.log",
+				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				log.Println(err)
+			}
+			defer f.Close()
+			for _, value := range total_pcm_arr {
+				fmt.Fprint(f, value) // print values to f, one per line
+			} // REMOVE AFTER DEBUG
 			return
 		}
 		if a.firstTimeStamp == 0 {
@@ -157,7 +170,9 @@ func (a *AudioEngine) decode() {
 
 		if _, err := a.decodePacket(pkt); err != nil {
 			internal.Logger.Error(err, "error decoding opus packet ")
+			total_pcm_arr = append(total_pcm_arr, a.pcm...) // REMOVE AFTER DEBUG
 		}
+
 	}
 }
 
