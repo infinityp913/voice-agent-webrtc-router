@@ -168,7 +168,7 @@ func (a *AudioEngine) decode() {
 		}
 		defer f.Close()
 		for _, value := range a.pcm {
-			fmt.Fprint(f, value) // print values to f, one per line
+			fmt.Fprintln(f, value) // print values to f, one per line
 		} // REMOVE AFTER DEBUG
 
 	}
