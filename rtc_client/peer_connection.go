@@ -36,47 +36,6 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 		},
 	}
 
-	// // opening secrets.json
-	// jsonFile, err := os.Open("secrets.json")
-	// if err != nil {
-	// 	logger.Error(err, "error reading secrets.json")
-	// }
-	// defer jsonFile.Close()
-
-	// // reading the user creds from it
-	// byteValue, _ := ioutil.ReadAll(jsonFile)
-	// var user User
-	// json.Unmarshal(byteValue, &user)
-	// logger.Info("username: ", user.Username, "end")
-	// logger.Info("pass: ", user.Pass, "end")
-
-	// config := webrtc.Configuration{
-	// 	ICEServers: []webrtc.ICEServer{
-	// 		webrtc.ICEServer{
-	// 			URLs: []string{"stun:stun.relay.metered.ca:80"},
-	// 		},
-	// 		webrtc.ICEServer{
-	// 			URLs:       []string{"turn:a.relay.metered.ca:80"},
-	// 			Username:   user.Username,
-	// 			Credential: user.Pass,
-	// 		},
-	// 		webrtc.ICEServer{
-	// 			URLs:       []string{"turn:a.relay.metered.ca:80?transport=tcp"},
-	// 			Username:   user.Username,
-	// 			Credential: user.Pass,
-	// 		},
-	// 		webrtc.ICEServer{
-	// 			URLs:       []string{"turn:a.relay.metered.ca:443"},
-	// 			Username:   user.Username,
-	// 			Credential: user.Pass,
-	// 		},
-	// 		webrtc.ICEServer{
-	// 			URLs:       []string{"turn:a.relay.metered.ca:443?transport=tcp"},
-	// 			Username:   user.Username,
-	// 			Credential: user.Pass,
-	// 		},
-	// 	},
-	// }
 	// Create a new RTCPeerConnection
 	peerConnection, err := webrtc.NewPeerConnection(config)
 	if err != nil {
@@ -93,13 +52,11 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	peerConnection.OnICECandidate(onICECandidate)
 
 	peerConnection.OnConnectionStateChange(func(s webrtc.PeerConnectionState) {
-		internal.Logger.Infof("Peer Connection State has changed: %s\n", s.String())
 
 		if s == webrtc.PeerConnectionStateFailed {
 			// Wait until PeerConnection has had no network activity for 30 seconds or another failure. It may be reconnected using an ICE Restart.
 			// Use webrtc.PeerConnectionStateDisconnected if you are interested in detecting faster timeout.
 			// Note that the PeerConnection may come back from PeerConnectionStateDisconnected.
-			internal.Logger.Info("Peer Connection has gone to failed exiting")
 			os.Exit(0)
 		}
 	})
