@@ -58,6 +58,37 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 		return nil, err
 	}
 
+	// take transcriptions from rtc.transcriptionStream
+	// feed them into ae.Encode()
+	// do `go rtc.processOutgoingMedia` this will trigger writing to rtc.audioTrack
+
+	// Logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
+	// // send POST req to the URL with user_input and get the json containing pcm
+	// url := "http://localhost:8000/get_response"
+	// var jsonStrByte = []byte(`{"end_user_input":"Hello.", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
+
+	// flaskResponse := new(FlaskResponse)
+	// getJson(url, jsonStrByte, flaskResponse)
+
+	// // extract pcm array from json
+	// var pcm_arr []float32 = flaskResponse.Pcm_arr
+	// Logger.Info("len(pcm_arr): ", len(pcm_arr))
+
+	// // padding the audio with some silence -- seeing if this fixes the partial audio problem
+
+	// data := make([]float32, 38050)
+	// data = append(data, pcm_arr...)
+	// pcm_arr = data
+
+	// Logger.Info("before encode") // REMOVE AFTER DEBUG
+
+	// ae.Encode(pcm_arr, 1, 22050)
+
+	// Logger.Info("after encode") // REMOVE AFTER DEBUG
+
+	// // Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	// go rtc.ProcessOutgoingMedia()
+
 	r := &RiaClient{
 		ws:     ws,
 		Rtc:    rtc,
@@ -87,14 +118,17 @@ func (r *RiaClient) OnOffer(offer webrtc.SessionDescription) error {
 }
 
 func (r *RiaClient) Start() error {
+	Logger.Info("before ws.connect")
 	if err := r.ws.Connect(); err != nil {
 		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
+	Logger.Info("before rtc.GetOffer")
 	offer, err := r.Rtc.GetOffer()
 	if err != nil {
 		Logger.Error(err, "error getting intial offer")
 	}
+	Logger.Info("before ws.join")
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
 		Logger.Error(err, "error joining room")
 		return err
@@ -103,5 +137,6 @@ func (r *RiaClient) Start() error {
 	r.Ae.Start()
 
 	r.ws.WaitForDone()
+	Logger.Info("Socket done goodbye")
 	return nil
 }

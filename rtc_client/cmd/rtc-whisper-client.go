@@ -70,6 +70,8 @@ func main() {
 	go promptBuilder.Start(rc.Ae, rc.Rtc)
 	defer promptBuilder.Stop()
 
+	logger.Info("Starting Ria Client...")
+
 	if err := rc.Start(); err != nil {
 		logger.Fatal(err, "error starting Ria Client")
 	}
@@ -88,6 +90,7 @@ type PromptBuilder struct {
 
 // construct new PromptBuilder
 func NewPromptBuilder(interval time.Duration, init_state int) *PromptBuilder {
+	logger.Info("TIMER HAS STARTED!") // REMOVE AFTER DEBUG
 	return &PromptBuilder{
 		timer:        time.NewTimer(interval), // Timer starts at thie line
 		prompt:       "",
@@ -98,6 +101,7 @@ func NewPromptBuilder(interval time.Duration, init_state int) *PromptBuilder {
 
 // update the prompt and reset the timer
 func (p *PromptBuilder) UpdatePrompt(prompt string) {
+	logger.Infof("UPDATING QnA PROMPT %s", prompt)
 	p.Lock()
 	defer p.Unlock()
 
@@ -108,6 +112,7 @@ func (p *PromptBuilder) UpdatePrompt(prompt string) {
 	p.prompt += prompt
 	p.timer.Stop()
 	p.timer.Reset(llmTime)
+	logger.Infof("TIMER RESET!!!")
 }
 
 // Stop building prompts and sending to Flask server
@@ -118,11 +123,13 @@ func (p *PromptBuilder) Stop() {
 // Start building prompts and sending to Flask server
 func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	for {
+		logger.Infof("Inside Start()'s infinite loop")
 		// wait for the timer to fire OR Stop() to be called
 		select {
 		case <-p.timer.C: // indicates firing of timer aka the 2s timer has counted down
 			p.tryCallEngine(ae, rtc)
 		case <-p.cancel: // indicates calling of Stop()
+			logger.Info("shutting down llm interface")
 			return
 		}
 	}
@@ -145,6 +152,7 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
+		logger.Info("Error at POST request!!")
 		panic(err)
 	}
 
@@ -168,9 +176,12 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.Unlock()
 
 	// *** Send currentPrompt to Flask server ***
-	url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
+	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
+	url := "http://localhost:8000/get_response"       // Flask server running QnA NN + TTS NN is hosted here
 
 	p.Lock() // locking since we're going to access p.currentState
+
+	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
 
 	jsonStr := `{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`
 	// var jsonStrByte = []byte(`{"end_user_input":"Oh, okay. Thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
@@ -187,20 +198,28 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.currentState = new_state
 	p.Unlock()
 
+	logger.Info("len(pcm_arr): ", len(pcm_arr))
+
 	// padding the audio with some silence -- seeing if this fixes the partial audio problem
 
 	data := make([]float32, 38050)
 	data = append(data, pcm_arr...)
 	pcm_arr = data
 
+	logger.Info("before encode") // REMOVE AFTER DEBUG
+
 	ae.Encode(pcm_arr, 1, 22050)
 
+	logger.Info("after encode") // REMOVE AFTER DEBUG
+
+	// Logger.Info("calling go rtc.processOutgoingMedia") // REMOVE AFTER DEBUG
 	go rtc.ProcessOutgoingMedia()
 
 	// *** End of sending currentPrompt to Flask server code ***
 }
 
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
+	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	// send POST req to the URL with user_input and get the json containing pcm
 	url := "http://localhost:8000/get_response"
 
@@ -214,6 +233,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
 	new_state := flaskResponse.New_state
+	logger.Info("len(pcm_arr): ", len(pcm_arr))
 
 	// padding the audio with some silence -- seeing if this fixes the partial audio problem
 
@@ -221,8 +241,13 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	data = append(data, pcm_arr...)
 	pcm_arr = data
 
+	logger.Info("before encode") // REMOVE AFTER DEBUG
+
 	ae.Encode(pcm_arr, 1, 22050)
 
+	logger.Info("after encode") // REMOVE AFTER DEBUG
+
+	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
 	go rtc.ProcessOutgoingMedia()
 	return new_state
 }

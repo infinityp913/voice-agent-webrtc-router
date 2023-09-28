@@ -105,6 +105,7 @@ func (a *AudioEngine) MediaOut() <-chan media.Sample {
 }
 
 func (a *AudioEngine) Start() {
+	internal.Logger.Info("Starting audio engine")
 	go a.decode()
 }
 
@@ -123,12 +124,16 @@ func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 // sendMedia turns opus frames into media samples and sends them on the channel
 func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	// REMOVE AFTER DEBUG
+	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
 		sample := convertOpusToSample(f)
+		internal.Logger.Info("DEBUG: Going to send sample to a.mediaOut")
 		a.mediaOut <- sample
+		internal.Logger.Info("DEBUG: Sent sample to a.mediaOut")
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
 	}
+	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
 func convertOpusToSample(frame internal.OpusFrame) media.Sample {
@@ -144,6 +149,7 @@ func (a *AudioEngine) decode() {
 	for {
 		pkt, ok := <-a.rtpIn
 		if !ok {
+			internal.Logger.Info("rtpIn channel closed...")
 			return
 		}
 		if a.firstTimeStamp == 0 {
@@ -154,6 +160,7 @@ func (a *AudioEngine) decode() {
 		if _, err := a.decodePacket(pkt); err != nil {
 			internal.Logger.Error(err, "error decoding opus packet ")
 		}
+		internal.Logger.Info("Writing pcm data to log file!") // REMOVE AFTER DEBUG
 		f, err := os.OpenFile("end_user_pcmdata.log",
 			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {

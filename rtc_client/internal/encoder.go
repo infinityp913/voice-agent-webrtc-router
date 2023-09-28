@@ -77,6 +77,8 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		opusFrames = append(opusFrames, opusFrame)
 	}
 
+	Logger.Infof("encoded %d opus frames", len(opusFrames))
+
 	return opusFrames, nil
 
 }
@@ -130,3 +132,4 @@ func (o *OpusEncoder) chunkPcm(pcm []float32, sampleRate int) []PcmFrame {
 
 	return frames
 }
+
