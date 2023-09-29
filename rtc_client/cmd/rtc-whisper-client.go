@@ -175,8 +175,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.Unlock()
 
 	// *** Send currentPrompt to Flask server ***
-	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
-	url := "http://localhost:8000/get_response"       // Flask server running QnA NN + TTS NN is hosted here
+
+	url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
 
 	p.Lock() // locking since we're going to access p.currentState
 
@@ -185,7 +185,10 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
 	p.Unlock()
 	flaskResponse := new(FlaskResponse)
+
+	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	getJson(url, jsonStrByte, flaskResponse)
+	logger.Info("Pcm Array Response Received")
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
