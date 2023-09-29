@@ -183,13 +183,14 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
 
 	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
-
+	p.Unlock()
 	flaskResponse := new(FlaskResponse)
 	getJson(url, jsonStrByte, flaskResponse)
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
 
+	p.Lock()
 	p.currentState = flaskResponse.New_state
 	p.Unlock()
 
