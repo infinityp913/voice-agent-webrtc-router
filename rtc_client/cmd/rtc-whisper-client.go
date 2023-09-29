@@ -92,7 +92,7 @@ type PromptBuilder struct {
 func NewPromptBuilder(interval time.Duration, init_state int) *PromptBuilder {
 	logger.Info("TIMER HAS STARTED!") // REMOVE AFTER DEBUG
 	return &PromptBuilder{
-		timer:        time.NewTimer(interval), // Timer starts at thie line
+		timer:        time.NewTimer(interval), // Timer starts at this line
 		prompt:       "",
 		cancel:       make(chan int),
 		currentState: init_state, // init_state is initialized by Ria's hello response's new_state
@@ -155,8 +155,7 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 		logger.Info("Error at POST request!!")
 		panic(err)
 	}
-
-	// defer resp.Body.Close()
+	defer resp.Body.Close()
 
 	return json.NewDecoder(resp.Body).Decode(target)
 }
@@ -183,24 +182,18 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
 
-	jsonStr := `{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`
-	// var jsonStrByte = []byte(`{"end_user_input":"Oh, okay. Thanks.", "curr_state":"4", "client_id":"1", "prompt_repeated_response":"0"}`)
-	// jsonStr := `{'text': ` + currentPrompt + `'}`
-	var jsonStrByte = []byte(jsonStr)
+	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
 
 	flaskResponse := new(FlaskResponse)
 	getJson(url, jsonStrByte, flaskResponse)
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
-	new_state := flaskResponse.New_state
 
-	p.currentState = new_state
+	p.currentState = flaskResponse.New_state
 	p.Unlock()
 
-	logger.Info("len(pcm_arr): ", len(pcm_arr))
-
-	// padding the audio with some silence -- seeing if this fixes the partial audio problem
+	// padding the audio with some silence
 
 	data := make([]float32, 38050)
 	data = append(data, pcm_arr...)
