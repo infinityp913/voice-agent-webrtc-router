@@ -3,11 +3,9 @@ package rtc_client
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math"
 	"net/http"
-	"os"
 	"time"
 
 	stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
@@ -160,16 +158,15 @@ func (a *AudioEngine) decode() {
 		if _, err := a.decodePacket(pkt); err != nil {
 			internal.Logger.Error(err, "error decoding opus packet ")
 		}
-		internal.Logger.Info("Writing pcm data to log file!") // REMOVE AFTER DEBUG
-		f, err := os.OpenFile("end_user_pcmdata.log",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Println(err)
-		}
-		defer f.Close()
-		for _, value := range a.pcm {
-			fmt.Fprintln(f, value) // print values to f, one per line
-		} // REMOVE AFTER DEBUG
+		// f, err := os.OpenFile("end_user_pcmdata.log",
+		// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		// if err != nil {
+		// 	log.Println(err)
+		// }
+		// defer f.Close()
+		// for _, value := range a.pcm {
+		// 	fmt.Fprintln(f, value) // print values to f, one per line
+		// } // REMOVE AFTER DEBUG
 
 	}
 }
