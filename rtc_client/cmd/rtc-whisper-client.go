@@ -12,11 +12,12 @@ import (
 	"time"
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
-	whisper "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp"
+	// whisper "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp"
+	whisper "github.com/infinityp913/rtc-go-server/stt/backends/whisper.cpp"
 
-	stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
+	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 	"github.com/infinityp913/rtc-go-server/rtc_client"
-	// stt "github.com/infinityp913/rtc-go-server/stt/engine"
+	stt "github.com/infinityp913/rtc-go-server/stt/engine"
 )
 
 const llmTime = time.Millisecond * 1500
