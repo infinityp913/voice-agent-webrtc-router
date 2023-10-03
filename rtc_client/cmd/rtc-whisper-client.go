@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -36,9 +37,9 @@ func main() {
 	transcriptionStream := make(chan stt.Document, 100)
 
 	documentComposer := stt.NewDocumentComposer()
-	// documentComposer.FilterSegment(func(ts stt.TranscriptionSegment) bool {
-	// 	return ts.Text[0] == '.' || strings.ContainsAny(ts.Text, "[]()")
-	// })
+	documentComposer.FilterSegment(func(ts stt.TranscriptionSegment) bool {
+		return ts.Text[0] == '.' || strings.ContainsAny(ts.Text, "[]()")
+	})
 
 	sttEngine, err := stt.New(stt.EngineParams{
 		Transcriber:      whisperCpp,
