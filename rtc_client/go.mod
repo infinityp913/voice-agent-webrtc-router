@@ -22,6 +22,8 @@ require (
 require (
 	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20230716200034-399846572185 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/infinityp913/rtc-go-server/stt/backends/whisper.cpp v0.0.0-20231003180621-4e22dde16b75 // indirect
+	github.com/infinityp913/rtc-go-server/stt/engine v0.0.0-20231003170449-571d9420218d // indirect
 	github.com/pion/datachannel v1.5.2 // indirect
 	github.com/pion/dtls/v2 v2.1.3 // indirect
 	github.com/pion/ice/v2 v2.2.2 // indirect
