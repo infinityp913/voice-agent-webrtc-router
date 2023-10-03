@@ -11,7 +11,7 @@ replace (
 require (
 	github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log v0.0.0-20230726165431-f1d355a1a072
 	// github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine v0.0.0-20230726165431-f1d355a1a072
-	github.com/infinityp913/rtc-go-server/stt/engine 
+	github.com/infinityp913/rtc-go-server/stt/engine v0.0.0-20230726165431-f1d355a1a072 // pseudo-version copied from above
 	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20230716200034-399846572185
 )
 
