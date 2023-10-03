@@ -1,3 +1,4 @@
 models/
 rtc_server/config.toml
 rtc_client/secrets.json
+rtc_client/end_user_pcmdata.log
