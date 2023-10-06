@@ -76,10 +76,10 @@ func readStallMsgs() {
 			}
 		}
 	}
-	fmt.Println(msgs[0][0])
-	fmt.Println(msgs[1][2])
-	fmt.Println(msgs[2][0])
-	fmt.Println("******************************* DONE ***************************")
+	logger.Info("", msgs[0][0])
+	logger.Info("", msgs[1][2])
+	logger.Info("", msgs[2][0])
+	logger.Info("******************************* DONE ***************************")
 }
 
 func main() {
