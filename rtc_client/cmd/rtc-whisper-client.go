@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,12 +25,67 @@ import (
 )
 
 const llmTime = time.Millisecond * 1500
+const NUM_STALL_MSGS = 3
 
 var (
 	logger = logr.New()
+	msgs   = make([][]float32, NUM_STALL_MSGS)
 )
 
+func readStallMsgs() {
+	stallMsgsFile, err := os.Open("msgs.txt")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer stallMsgsFile.Close()
+
+	// Create a scanner to read the file line by line
+	scanner := bufio.NewScanner(stallMsgsFile)
+
+	//the [...] instead of []: it ensures you get a (fixed size) array instead of a slice. So the values aren't fixed but the size is.
+	var expectedMsgLengths = [...]int{35072, 27392, 29696}
+
+	// Track the index of the stall message pcm array we're populating
+	stallMsgIdx := -1
+
+	// Track the index within the subarray
+	subarrayIdx := 0
+
+	// To store/track the "current" stall message pcm array
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line != "X" {
+			floatValue, err := strconv.ParseFloat(line, 32)
+			if err != nil {
+				fmt.Println("Error parsing float:", err)
+				return
+			}
+			msgs[stallMsgIdx][subarrayIdx] = float32(floatValue)
+			subarrayIdx++
+		} else {
+			// increment stallMsgIdx since a new subarray is gonna get populated and we start reading the next message's pcm array
+			stallMsgIdx++
+			if stallMsgIdx < NUM_STALL_MSGS {
+				// reset subArrayIdx to 0 since a new subarray is gonna get populated now
+				subarrayIdx = 0
+				msgs[stallMsgIdx] = make([]float32, expectedMsgLengths[stallMsgIdx])
+			} else {
+				break
+			}
+		}
+	}
+	fmt.Println(msgs[0][0])
+	fmt.Println(msgs[1][2])
+	fmt.Println(msgs[2][0])
+	fmt.Println("******************************* DONE ***************************")
+}
+
 func main() {
+	// Load the stall messages like "One moment pls" into memory via the msgs array
+	go readStallMsgs()
+
 	url := url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"}
 
 	whisperCpp, err := whisper.New("../models/ggml-base.en.bin")
@@ -244,4 +303,20 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
 	go rtc.ProcessOutgoingMedia()
 	return new_state
+}
+
+func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
+	randomIndex := rand.Intn(len(msgs))
+	chosen_msg := msgs[randomIndex]
+
+	// padding the audio with some silence -- seeing if this fixes the partial audio problem
+
+	data := make([]float32, 38050)
+	data = append(data, chosen_msg...)
+	chosen_msg = data
+
+	ae.Encode(chosen_msg, 1, 22050)
+
+	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	go rtc.ProcessOutgoingMedia()
 }
