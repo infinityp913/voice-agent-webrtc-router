@@ -33,7 +33,7 @@ var (
 )
 
 func readStallMsgs() {
-	stallMsgsFile, err := os.Open("msgs.txt")
+	stallMsgsFile, err := os.Open("stall_msgs_combined.txt")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
