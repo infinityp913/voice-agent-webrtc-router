@@ -123,7 +123,7 @@ func main() {
 	onDocumentUpdate := func(document stt.Document) {
 		if document.NewText != "" {
 			transcriptionStream <- document
-			promptBuilder.UpdatePrompt(document.NewText)
+			promptBuilder.UpdatePrompt(document.NewText, rc.Ae, rc.Rtc)
 		}
 	}
 
@@ -162,10 +162,14 @@ func NewPromptBuilder(interval time.Duration, init_state int) *PromptBuilder {
 }
 
 // update the prompt and reset the timer
-func (p *PromptBuilder) UpdatePrompt(prompt string) {
+func (p *PromptBuilder) UpdatePrompt(prompt string, ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	logger.Infof("UPDATING QnA PROMPT %s", prompt)
 	p.Lock()
 	defer p.Unlock()
+
+	// if p.prompt == "" {
+	// 	go sendStallMsg(ae, rtc)
+	// }
 
 	if p.prompt != "" {
 		p.prompt += " "
