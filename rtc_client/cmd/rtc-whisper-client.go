@@ -226,6 +226,12 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
+func (p *PromptBuilder) callStop() {
+	p.Stop()
+	logger.Info("CALLED STOP()!!")
+}
+
+// This function sends the current prompt (i.e., current message from the end user) to Flask
 func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	p.Lock()
 
@@ -275,6 +281,13 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	go rtc.ProcessOutgoingMedia()
 
 	// *** End of sending currentPrompt to Flask server code ***
+
+	// If the state sent back by the Flask server is 4 then end the inference after 30s
+	if true || flaskResponse.New_state == 4 {
+		time.AfterFunc(30*time.Second, p.callStop)
+		logger.Info("CALLED STOP()!!")
+	}
+
 }
 
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
