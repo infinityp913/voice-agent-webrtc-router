@@ -282,9 +282,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// *** End of sending currentPrompt to Flask server code ***
 
-	// If the state sent back by the Flask server is 4 then end the inference after 30s
+	// If the state sent back by the Flask server is 4 then end the inference after 10s
 	if true || flaskResponse.New_state == 4 {
-		time.AfterFunc(30*time.Second, p.callStop)
+		time.AfterFunc(15*time.Second, p.callStop)
 		logger.Info("CALLED STOP()!!")
 	}
 
