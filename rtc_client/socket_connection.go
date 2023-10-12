@@ -58,16 +58,12 @@ type SocketConnection struct {
 	onAnswer func(ans webrtc.SessionDescription) error
 	// called when we get a remote candidate
 	onTrickle func(candidate webrtc.ICECandidateInit, target int) error
-
-	// Channel to receive a stop signal to kill the readMessages goroutine
-	Stop chan int
 }
 
 func NewSocketConnection(url url.URL) *SocketConnection {
 	return &SocketConnection{
 		url:  url,
 		done: make(chan int),
-		Stop: make(chan int),
 	}
 }
 
@@ -119,101 +115,96 @@ func (s *SocketConnection) Join(room string, offer webrtc.SessionDescription) er
 
 func (s *SocketConnection) readMessages() error {
 	for {
-		select {
-		case <-s.Stop:
-			internal.Logger.Info("Stopping the goroutine in NewRTCConnection() inside rtc_connection!")
-			return nil
-		default:
-			_, message, err := s.ws.ReadMessage()
-			if err != nil {
-				internal.Logger.Error(err, "err reading message")
-				s.ws.Close()
-				close(s.done)
-				return err
-			}
-
-			var msg map[string]interface{}
-
-			json.Unmarshal(message, &msg)
-
-			// FIXME handle errors better
-			switch msg["method"] {
-			case "offer":
-				params, ok := msg["params"].(map[string]interface{})
-				if !ok {
-					internal.Logger.Infof("invalid params for offer %+v", msg["params"])
-					continue
-				}
-				ty, ok := params["type"].(string)
-				if !ok {
-					internal.Logger.Infof("invalid type for offer %+v", params["type"])
-					continue
-				}
-				sdp, ok := params["sdp"].(string)
-				if !ok {
-					internal.Logger.Infof("invalid sdp for offer %+v", params["sdp"])
-					continue
-				}
-
-				offer := webrtc.SessionDescription{Type: webrtc.NewSDPType(ty), SDP: sdp}
-
-				if s.onOffer != nil {
-					if err := s.onOffer(offer); err != nil {
-						internal.Logger.Errorf(err, "error calling onOffer with offer %+v", offer)
-					}
-				}
-			case "trickle":
-				params, ok := msg["params"].(map[string]interface{})
-				if !ok {
-					internal.Logger.Infof("invalid params for trickle %+v", msg["params"])
-					continue
-				}
-
-				paramsJson, err := json.Marshal(params)
-				if err != nil {
-					internal.Logger.Error(err, "error marshalling trickle params")
-					continue
-				}
-
-				var trickle Trickle
-
-				if err = json.Unmarshal(paramsJson, &trickle); err != nil {
-					internal.Logger.Error(err, "error unmarshalling trickle params")
-					continue
-				}
-
-				if s.onTrickle != nil {
-					if err := s.onTrickle(trickle.Candidate, trickle.Target); err != nil {
-						internal.Logger.Errorf(err, "error calling onTrickle with candidate %+v", trickle)
-					}
-				}
-
-			default:
-				res, ok := msg["result"].(map[string]interface{})
-				if !ok {
-					internal.Logger.Infof("got unhandled message: %+v", msg)
-					continue
-				}
-				sdp, ok := res["sdp"].(string)
-				if !ok {
-					internal.Logger.Infof("invalid sdp for answer %+v", res["sdp"])
-					continue
-				}
-				ty, ok := res["type"].(string)
-				if !ok {
-					internal.Logger.Infof("invalid sdp type for answer %+v", res["type"])
-					continue
-				}
-				answer := webrtc.SessionDescription{Type: webrtc.NewSDPType(ty), SDP: sdp}
-
-				if s.onAnswer != nil {
-					if err := s.onAnswer(answer); err != nil {
-						internal.Logger.Errorf(err, "error calling onAnswer with answer %+v", answer)
-					}
-				}
-
-			}
+		_, message, err := s.ws.ReadMessage()
+		if err != nil {
+			internal.Logger.Error(err, "err reading message")
+			s.ws.Close()
+			close(s.done)
+			return err
 		}
+
+		var msg map[string]interface{}
+
+		json.Unmarshal(message, &msg)
+
+		// FIXME handle errors better
+		switch msg["method"] {
+		case "offer":
+			params, ok := msg["params"].(map[string]interface{})
+			if !ok {
+				internal.Logger.Infof("invalid params for offer %+v", msg["params"])
+				continue
+			}
+			ty, ok := params["type"].(string)
+			if !ok {
+				internal.Logger.Infof("invalid type for offer %+v", params["type"])
+				continue
+			}
+			sdp, ok := params["sdp"].(string)
+			if !ok {
+				internal.Logger.Infof("invalid sdp for offer %+v", params["sdp"])
+				continue
+			}
+
+			offer := webrtc.SessionDescription{Type: webrtc.NewSDPType(ty), SDP: sdp}
+
+			if s.onOffer != nil {
+				if err := s.onOffer(offer); err != nil {
+					internal.Logger.Errorf(err, "error calling onOffer with offer %+v", offer)
+				}
+			}
+		case "trickle":
+			params, ok := msg["params"].(map[string]interface{})
+			if !ok {
+				internal.Logger.Infof("invalid params for trickle %+v", msg["params"])
+				continue
+			}
+
+			paramsJson, err := json.Marshal(params)
+			if err != nil {
+				internal.Logger.Error(err, "error marshalling trickle params")
+				continue
+			}
+
+			var trickle Trickle
+
+			if err = json.Unmarshal(paramsJson, &trickle); err != nil {
+				internal.Logger.Error(err, "error unmarshalling trickle params")
+				continue
+			}
+
+			if s.onTrickle != nil {
+				if err := s.onTrickle(trickle.Candidate, trickle.Target); err != nil {
+					internal.Logger.Errorf(err, "error calling onTrickle with candidate %+v", trickle)
+				}
+			}
+
+		default:
+			res, ok := msg["result"].(map[string]interface{})
+			if !ok {
+				internal.Logger.Infof("got unhandled message: %+v", msg)
+				continue
+			}
+			sdp, ok := res["sdp"].(string)
+			if !ok {
+				internal.Logger.Infof("invalid sdp for answer %+v", res["sdp"])
+				continue
+			}
+			ty, ok := res["type"].(string)
+			if !ok {
+				internal.Logger.Infof("invalid sdp type for answer %+v", res["type"])
+				continue
+			}
+			answer := webrtc.SessionDescription{Type: webrtc.NewSDPType(ty), SDP: sdp}
+
+			if s.onAnswer != nil {
+				if err := s.onAnswer(answer); err != nil {
+					internal.Logger.Errorf(err, "error calling onAnswer with answer %+v", answer)
+				}
+			}
+
+		}
+
 	}
 }
 

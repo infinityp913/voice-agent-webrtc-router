@@ -27,7 +27,7 @@ type RiaConfig struct {
 }
 
 type RiaClient struct {
-	Ws     *SocketConnection
+	ws     *SocketConnection
 	Rtc    *RTCConnection
 	config RiaConfig
 	Ae     *AudioEngine
@@ -90,15 +90,15 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	// go rtc.ProcessOutgoingMedia()
 
 	r := &RiaClient{
-		Ws:     ws,
+		ws:     ws,
 		Rtc:    rtc,
 		config: config,
 		Ae:     ae,
 	}
 
-	r.Ws.SetOnOffer(r.OnOffer)
-	r.Ws.SetOnAnswer(r.OnAnswer)
-	r.Ws.SetOnTrickle(r.Rtc.OnTrickle)
+	r.ws.SetOnOffer(r.OnOffer)
+	r.ws.SetOnAnswer(r.OnAnswer)
+	r.ws.SetOnTrickle(r.Rtc.OnTrickle)
 
 	return r, nil
 }
@@ -114,12 +114,12 @@ func (r *RiaClient) OnOffer(offer webrtc.SessionDescription) error {
 		return err
 	}
 
-	return r.Ws.SendAnswer(ans)
+	return r.ws.SendAnswer(ans)
 }
 
 func (r *RiaClient) Start() error {
-	Logger.Info("before Ws.connect")
-	if err := r.Ws.Connect(); err != nil {
+	Logger.Info("before ws.connect")
+	if err := r.ws.Connect(); err != nil {
 		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
@@ -128,15 +128,15 @@ func (r *RiaClient) Start() error {
 	if err != nil {
 		Logger.Error(err, "error getting intial offer")
 	}
-	Logger.Info("before Ws.join")
-	if err := r.Ws.Join(r.config.Room, offer); err != nil {
+	Logger.Info("before ws.join")
+	if err := r.ws.Join(r.config.Room, offer); err != nil {
 		Logger.Error(err, "error joining room")
 		return err
 	}
 
 	r.Ae.Start()
 
-	r.Ws.WaitForDone()
+	r.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
 	return nil
 }

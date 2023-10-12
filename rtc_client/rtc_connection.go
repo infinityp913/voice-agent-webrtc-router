@@ -27,8 +27,6 @@ type RTCConnection struct {
 	// channel to send outgoing audio samples to
 	mediaIn    <-chan media.Sample
 	audioTrack *webrtc.TrackLocalStaticSample
-	// Channel to receive a stop signal to kill the goroutine inside NewRTCConnection
-	Stop chan int
 }
 
 type RTCConnectionParams struct {
@@ -43,7 +41,6 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	rtc := &RTCConnection{
 		rtpIn:   params.rtpChan,
 		mediaIn: params.mediaIn,
-		Stop:    make(chan int),
 	}
 
 	rtc.sub = NewPeerConn(func(candidate *webrtc.ICECandidate) {
@@ -57,20 +54,12 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 			kind = "audio"
 			go func() {
 				for {
-					select {
-					case <-rtc.Stop:
-						internal.Logger.Info("Stopping the goroutine in NewRTCConnection() inside rtc_connection!")
+					pkt, _, err := t.ReadRTP()
+					if err != nil {
+						internal.Logger.Error(err, "err reading rtp")
 						return
-					default:
-						pkt, _, err := t.ReadRTP()
-						if err != nil {
-							internal.Logger.Error(err, "err reading rtp")
-							return
-						}
-						internal.Logger.Info("before rtpIn chan")
-						rtc.rtpIn <- pkt
-						internal.Logger.Info("after rtpIn chan")
 					}
+					rtc.rtpIn <- pkt
 				}
 			}()
 		}
