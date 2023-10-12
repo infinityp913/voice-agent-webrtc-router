@@ -228,8 +228,9 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 
 func (p *PromptBuilder) killGoroutines(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, ws *rtc_client.SocketConnection) {
 	p.Stop()
-	ws.Stop <- 1  // Kill the readMessages() goroutine
+
 	rtc.Stop <- 1 // Kill the goroutine inside NewRTCConnection()
+	ws.Stop <- 1  // Kill the readMessages() goroutine
 	ae.Stop <- 1  // Kill the ae.decode() goroutine
 	logger.Info("CALLED STOP()!!")
 }
