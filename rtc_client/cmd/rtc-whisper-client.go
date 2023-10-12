@@ -226,8 +226,16 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
-func killGoClient() {
+func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
+	return func() {
+		killGoClient(rtc)
+	}
+}
+
+func killGoClient(rtc *rtc_client.RTCConnection) {
 	logger.Info("CALLED killGoClient()!!")
+	rtc.Hungup <- 1
+	logger.Info("SENT SIGNAL TO BROWSER")
 	os.Exit(1)
 }
 
@@ -284,7 +292,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// If the state sent back by the Flask server is 4 then end the inference after 10s
 	if true || flaskResponse.New_state == 4 {
-		time.AfterFunc(15*time.Second, killGoClient)
+		f := callkillGoClient(rtc)
+		time.AfterFunc(15*time.Second, f)
 	}
 
 }

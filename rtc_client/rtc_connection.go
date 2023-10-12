@@ -27,6 +27,9 @@ type RTCConnection struct {
 	// channel to send outgoing audio samples to
 	mediaIn    <-chan media.Sample
 	audioTrack *webrtc.TrackLocalStaticSample
+
+	// channel to indicate the browser that Ria hung up
+	Hungup chan int
 }
 
 type RTCConnectionParams struct {
@@ -41,6 +44,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	rtc := &RTCConnection{
 		rtpIn:   params.rtpChan,
 		mediaIn: params.mediaIn,
+		Hungup:  make(chan int),
 	}
 
 	rtc.sub = NewPeerConn(func(candidate *webrtc.ICECandidate) {
@@ -131,6 +135,24 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	} else {
 		internal.Logger.Info("transcriptionStream not provided... transcription relay is disabled")
 	}
+
+	// Data channel to indicate to the browser that Ria hiung up aka Go client was exited via os.exit()
+	maxRetransmits := uint16(0)
+	ria_hangup_dc, err := rtc.pub.conn.CreateDataChannel(
+		"ria-hungup",
+		&webrtc.DataChannelInit{
+			MaxRetransmits: &maxRetransmits,
+		})
+	if err != nil {
+		return nil, err
+	}
+	ria_hangup_dc.OnOpen(func() {
+		select {
+		case <-rtc.Hungup:
+			ria_hangup_dc.Send([]byte{1})
+		default:
+		}
+	})
 
 	return rtc, nil
 }
