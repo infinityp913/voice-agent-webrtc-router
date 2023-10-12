@@ -148,14 +148,14 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		return nil, err
 	}
 	ria_hangup_dc.OnOpen(func() {
-		// select {
-		// case <-rtc.Hungup:
-		// 	ria_hangup_dc.Send([]byte{1})
-		// default:
-		// }
-		for data := range rtc.Hungup {
-			ria_hangup_dc.Send([]byte{byte(data)})
+		select {
+		case <-rtc.Hungup:
+			ria_hangup_dc.Send([]byte{1})
+		default:
 		}
+		// for data := range rtc.Hungup {
+		// 	ria_hangup_dc.Send([]byte{byte(data)})
+		// }
 	})
 
 	return rtc, nil
