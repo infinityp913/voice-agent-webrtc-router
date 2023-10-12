@@ -144,13 +144,17 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 			MaxRetransmits: &maxRetransmits,
 		})
 	if err != nil {
+		internal.Logger.Info("Error ocurred at hungup data channel creation!")
 		return nil, err
 	}
 	ria_hangup_dc.OnOpen(func() {
-		select {
-		case <-rtc.Hungup:
-			ria_hangup_dc.Send([]byte{1})
-		default:
+		// select {
+		// case <-rtc.Hungup:
+		// 	ria_hangup_dc.Send([]byte{1})
+		// default:
+		// }
+		for data := range rtc.Hungup {
+			ria_hangup_dc.Send([]byte{byte(data)})
 		}
 	})
 
