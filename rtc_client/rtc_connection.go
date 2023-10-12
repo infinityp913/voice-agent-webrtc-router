@@ -57,6 +57,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 			kind = "audio"
 			go func() {
 				for {
+					internal.Logger.Info("Inside the NewRTCConnection goroutine's infinite for loop!")
 					select {
 					case <-rtc.Stop:
 						internal.Logger.Info("Stopping the goroutine in NewRTCConnection() inside rtc_connection!")
