@@ -227,8 +227,8 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 }
 
 func killGoClient() {
-	os.Exit(1)
 	logger.Info("CALLED killGoClient()!!")
+	os.Exit(1)
 }
 
 // This function sends the current prompt (i.e., current message from the end user) to Flask
@@ -285,7 +285,6 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// If the state sent back by the Flask server is 4 then end the inference after 10s
 	if true || flaskResponse.New_state == 4 {
 		time.AfterFunc(15*time.Second, killGoClient)
-		logger.Info("CALLED KILLGOCLIENT()!!")
 	}
 
 }
