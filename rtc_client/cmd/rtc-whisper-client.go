@@ -129,7 +129,7 @@ func main() {
 
 	sttEngine.OnDocumentUpdate(onDocumentUpdate)
 
-	go promptBuilder.Start(rc.Ae, rc.Rtc)
+	go promptBuilder.Start(rc.Ae, rc.Rtc, rc.Ws)
 	defer promptBuilder.Stop()
 
 	logger.Info("Starting Ria Client...")
@@ -187,13 +187,13 @@ func (p *PromptBuilder) Stop() {
 }
 
 // Start building prompts and sending to Flask server
-func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
+func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, ws *rtc_client.SocketConnection) {
 	for {
 		logger.Infof("Inside Start()'s infinite loop")
 		// wait for the timer to fire OR Stop() to be called
 		select {
 		case <-p.timer.C: // indicates firing of timer aka the 2s timer has counted down
-			p.tryCallEngine(ae, rtc)
+			p.tryCallEngine(ae, rtc, ws)
 		case <-p.cancel: // indicates calling of Stop()
 			logger.Info("shutting down llm interface")
 			return
@@ -226,20 +226,22 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
-func (p *PromptBuilder) killGoroutines(ae *rtc_client.AudioEngine) {
+func (p *PromptBuilder) killGoroutines(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, ws *rtc_client.SocketConnection) {
 	p.Stop()
-	ae.Stop <- 1
+	ae.Stop <- 1  // Kill the ae.decode() goroutine
+	rtc.Stop <- 1 // Kill the goroutine inside NewRTCConnection()
+	ws.Stop <- 1  // Kill the readMessages() goroutine
 	logger.Info("CALLED STOP()!!")
 }
 
-func (p *PromptBuilder) callKillGoroutines(ae *rtc_client.AudioEngine) func() {
+func (p *PromptBuilder) callKillGoroutines(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, ws *rtc_client.SocketConnection) func() {
 	return func() {
-		p.killGoroutines(ae)
+		p.killGoroutines(ae, rtc, ws)
 	}
 }
 
 // This function sends the current prompt (i.e., current message from the end user) to Flask
-func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
+func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, ws *rtc_client.SocketConnection) {
 	p.Lock()
 
 	// no prompt so wait again
@@ -291,7 +293,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// If the state sent back by the Flask server is 4 then end the inference after 10s
 	if true || flaskResponse.New_state == 4 {
-		f := p.callKillGoroutines(ae)
+		f := p.callKillGoroutines(ae, rtc, ws)
 		time.AfterFunc(15*time.Second, f)
 		logger.Info("CALLED KILLGOROUTINES()!!")
 	}
