@@ -69,7 +69,9 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 							internal.Logger.Error(err, "err reading rtp")
 							return
 						}
+						internal.Logger.Info("before rtpIn chan")
 						rtc.rtpIn <- pkt
+						internal.Logger.Info("after rtpIn chan")
 					}
 				}
 			}()
