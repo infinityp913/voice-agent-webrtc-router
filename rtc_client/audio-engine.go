@@ -32,8 +32,12 @@ var frameSize = channels * frameSizeMs * sampleRate / 1000
 type AudioEngine struct {
 	// RTP Opus packets to be converted to PCM
 	rtpIn chan *rtp.Packet
+
 	// RTP Opus packets converted from PCM to be sent over WebRTC
 	mediaOut chan media.Sample
+
+	// channel to make the decode goroutine stop
+	Stop chan int
 
 	dec *internal.OpusDecoder
 	enc *internal.OpusEncoder
@@ -85,6 +89,7 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	ae := &AudioEngine{
 		rtpIn:          make(chan *rtp.Packet),
 		mediaOut:       make(chan media.Sample),
+		Stop:           make(chan int),
 		pcm:            make([]float32, frameSize),
 		buf:            make([]byte, frameSize*2),
 		dec:            dec,
@@ -148,6 +153,15 @@ func convertOpusToSample(frame internal.OpusFrame) media.Sample {
 func (a *AudioEngine) decode() {
 	for {
 		pkt, ok := <-a.rtpIn
+
+		// Non-blocking way to check if there's a value to read from chan [https://stackoverflow.com/questions/3398490/checking-if-a-channel-has-a-ready-to-read-value-using-go]
+		select {
+		case <-a.Stop:
+			internal.Logger.Info("Stopping decode() goroutine inside audio-engine!")
+			return
+		default:
+
+		}
 		if !ok {
 			internal.Logger.Info("rtpIn channel closed...")
 			return

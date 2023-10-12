@@ -226,9 +226,16 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
-func (p *PromptBuilder) callStop() {
+func (p *PromptBuilder) killGoroutines(ae *rtc_client.AudioEngine) {
 	p.Stop()
+	ae.Stop <- 1
 	logger.Info("CALLED STOP()!!")
+}
+
+func (p *PromptBuilder) callKillGoroutines(ae *rtc_client.AudioEngine) func() {
+	return func() {
+		p.killGoroutines(ae)
+	}
 }
 
 // This function sends the current prompt (i.e., current message from the end user) to Flask
@@ -284,8 +291,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// If the state sent back by the Flask server is 4 then end the inference after 10s
 	if true || flaskResponse.New_state == 4 {
-		time.AfterFunc(15*time.Second, p.callStop)
-		logger.Info("CALLED STOP()!!")
+		f := p.callKillGoroutines(ae)
+		time.AfterFunc(15*time.Second, f)
+		logger.Info("CALLED KILLGOROUTINES()!!")
 	}
 
 }
