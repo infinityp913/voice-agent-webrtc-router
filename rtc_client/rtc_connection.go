@@ -63,6 +63,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 						internal.Logger.Info("Stopping the goroutine in NewRTCConnection() inside rtc_connection!")
 						return
 					default:
+						internal.Logger.Info("Inside the default case of NewRTCConnection goroutine's infinite for loop!")
 						pkt, _, err := t.ReadRTP()
 						if err != nil {
 							internal.Logger.Error(err, "err reading rtp")
