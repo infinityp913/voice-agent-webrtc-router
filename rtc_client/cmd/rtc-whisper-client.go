@@ -235,6 +235,7 @@ func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
 func killGoClient(rtc *rtc_client.RTCConnection) {
 	logger.Info("CALLED killGoClient()!!")
 	go func() {
+		time.Sleep(time.Millisecond * 200)
 		rtc.Hungup <- 1
 	}()
 	rtc.SendHangupSignal()
