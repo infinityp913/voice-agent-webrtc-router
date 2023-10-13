@@ -235,7 +235,7 @@ func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
 func killGoClient(rtc *rtc_client.RTCConnection) {
 	logger.Info("CALLED killGoClient()!!")
 	go func() {
-		time.Sleep(time.Millisecond * 200)
+		time.Sleep(time.Millisecond * 100)
 		logger.Info("sending value to rtc.hungup")
 		rtc.Hungup <- 1
 		logger.Info("sent value to rtc.hungup!!")
@@ -243,7 +243,7 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 	rtc.SendHangupSignal()
 	// time.AfterFunc(time.Second, rtc.SendHangupSignal)
 	logger.Info("SENT SIGNAL TO BROWSER")
-	time.Sleep(time.Millisecond * 600)
+	time.Sleep(time.Millisecond * 500)
 	os.Exit(1)
 }
 
