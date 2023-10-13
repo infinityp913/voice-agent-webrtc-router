@@ -125,9 +125,7 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
 		sample := convertOpusToSample(f)
-		internal.Logger.Info("DEBUG: Going to send sample to a.mediaOut")
 		a.mediaOut <- sample
-		internal.Logger.Info("DEBUG: Sent sample to a.mediaOut")
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
 	}
