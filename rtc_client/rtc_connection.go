@@ -138,7 +138,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 
 	// Data channel to indicate to the browser that Ria hiung up aka Go client was exited via os.exit()
 	maxRetransmits := uint16(0)
-	ria_hangup_dc, err := rtc.pub.conn.CreateDataChannel(
+	ria_hungup_dc, err := rtc.pub.conn.CreateDataChannel(
 		"ria-hungup",
 		&webrtc.DataChannelInit{
 			MaxRetransmits: &maxRetransmits,
@@ -147,10 +147,10 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		internal.Logger.Info("Error ocurred at hungup data channel creation!")
 		return nil, err
 	}
-	ria_hangup_dc.OnOpen(func() {
+	ria_hungup_dc.OnOpen(func() {
 		select {
 		case <-rtc.Hungup:
-			ria_hangup_dc.Send([]byte{1})
+			ria_hungup_dc.Send([]byte{1})
 		default:
 		}
 		// for data := range rtc.Hungup {
