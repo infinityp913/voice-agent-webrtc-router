@@ -243,6 +243,7 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 	rtc.SendHangupSignal()
 	// time.AfterFunc(time.Second, rtc.SendHangupSignal)
 	logger.Info("SENT SIGNAL TO BROWSER")
+	time.Sleep(time.Millisecond * 600)
 	os.Exit(1)
 }
 
