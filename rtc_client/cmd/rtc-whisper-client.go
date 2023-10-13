@@ -234,15 +234,19 @@ func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
 
 func killGoClient(rtc *rtc_client.RTCConnection) {
 	logger.Info("CALLED killGoClient()!!")
+	// calling the following as a goroutine to enable sending the value (1) over the channel to rtc.SendHangupSignal(). Without a goroutine that has a sleep, the timing won't workout (inspiration: https://www.geeksforgeeks.org/select-statement-in-go-language/)
 	go func() {
+		// sleeping so that the value 1 is sent to the rtc.Hungup channel when control is blocked on the goroutine waiting for the value in the select-case block
+		// 100ms was chosen randomly to be short but enough time (this only adds to the time after Ria stops speakign before the UI i supdated to reflect hanign up)
 		time.Sleep(time.Millisecond * 100)
-		logger.Info("sending value to rtc.hungup")
-		rtc.Hungup <- 1
-		logger.Info("sent value to rtc.hungup!!")
+		rtc.Hungup <- 1 //this value serves as a signal to send data on the ria-hungup datachannel inside the rtc.SendHangupSignal() fn
 	}()
+
+	// this function creates the data channel and waits for the value(1) on the rtc.Hungup channel before sending the signal to the browser via the data channel
 	rtc.SendHangupSignal()
-	// time.AfterFunc(time.Second, rtc.SendHangupSignal)
 	logger.Info("SENT SIGNAL TO BROWSER")
+
+	// sleeping for 500ms before exiting so that the above logic runs before killing the whole go client
 	time.Sleep(time.Millisecond * 500)
 	os.Exit(1)
 }
