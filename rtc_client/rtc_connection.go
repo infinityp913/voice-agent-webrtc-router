@@ -136,6 +136,10 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		internal.Logger.Info("transcriptionStream not provided... transcription relay is disabled")
 	}
 
+	return rtc, nil
+}
+
+func (rtc *RTCConnection) SendHangupSignal() {
 	// Data channel to indicate to the browser that Ria hiung up aka Go client was exited via os.exit()
 	maxRetransmits := uint16(0)
 	ria_hungup_dc, err := rtc.pub.conn.CreateDataChannel(
@@ -145,21 +149,18 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		})
 	if err != nil {
 		internal.Logger.Info("Error ocurred at hungup data channel creation!")
-		return nil, err
+		return
 	}
 	ria_hungup_dc.OnOpen(func() {
 		internal.Logger.Info("ria_hungup_dc is open!!")
 		select {
 		case <-rtc.Hungup:
 			ria_hungup_dc.Send([]byte{1})
-		default:
 		}
 		// for data := range rtc.Hungup {
 		// 	ria_hangup_dc.Send([]byte{byte(data)})
 		// }
 	})
-
-	return rtc, nil
 }
 
 // processOutgoingMedia sends the provided samples on the audioTrack

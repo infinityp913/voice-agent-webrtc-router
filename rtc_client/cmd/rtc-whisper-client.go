@@ -234,7 +234,11 @@ func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
 
 func killGoClient(rtc *rtc_client.RTCConnection) {
 	logger.Info("CALLED killGoClient()!!")
-	rtc.Hungup <- 1
+	go func() {
+		rtc.Hungup <- 1
+	}()
+	rtc.SendHangupSignal()
+	// time.AfterFunc(time.Second, rtc.SendHangupSignal)
 	logger.Info("SENT SIGNAL TO BROWSER")
 	os.Exit(1)
 }
