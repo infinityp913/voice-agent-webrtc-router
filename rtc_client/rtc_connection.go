@@ -148,6 +148,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		return nil, err
 	}
 	ria_hungup_dc.OnOpen(func() {
+		internal.Logger.Info("ria_hungup_dc is open!!")
 		select {
 		case <-rtc.Hungup:
 			ria_hungup_dc.Send([]byte{1})
