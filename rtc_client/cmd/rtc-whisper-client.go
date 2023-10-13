@@ -236,7 +236,9 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 	logger.Info("CALLED killGoClient()!!")
 	go func() {
 		time.Sleep(time.Millisecond * 200)
+		logger.Info("sending value to rtc.hungup")
 		rtc.Hungup <- 1
+		logger.Info("sent value to rtc.hungup!!")
 	}()
 	rtc.SendHangupSignal()
 	// time.AfterFunc(time.Second, rtc.SendHangupSignal)
