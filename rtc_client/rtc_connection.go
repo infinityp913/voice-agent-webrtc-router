@@ -156,6 +156,7 @@ func (rtc *RTCConnection) SendHangupSignal() {
 		select {
 		case <-rtc.Hungup:
 			ria_hungup_dc.Send([]byte{1})
+			internal.Logger.Info("Sent the code on the dc!!")
 		}
 		// for data := range rtc.Hungup {
 		// 	ria_hangup_dc.Send([]byte{byte(data)})
