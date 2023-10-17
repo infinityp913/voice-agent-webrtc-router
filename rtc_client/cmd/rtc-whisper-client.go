@@ -116,6 +116,21 @@ func main() {
 		logger.Fatal(err, "error creating saturday client")
 	}
 
+	// Sending signal to Browser to start the Browser client!
+	logger.Info("Sending signal to RTCConn via a channel")
+	// calling the following as a goroutine to enable sending the value (1) over the channel to rtc.SendHangupSignal(). Without a goroutine that has a sleep, the timing won't workout (inspiration: https://www.geeksforgeeks.org/select-statement-in-go-language/)
+	go func() {
+		// sleeping so that the value 1 is sent to the rtc.Hungup channel when control is blocked on the goroutine waiting for the value in the select-case block
+		// Sleeping for 10ms
+		time.Sleep(time.Millisecond * 10)
+		rc.Rtc.StartBrowserClient <- 1 //this value serves as a signal to send data on the ria-hungup datachannel inside the rtc.SendHangupSignal() fn
+	}()
+
+	// this function creates the data channel and waits for the value(1) on the rtc.Hungup channel before sending the signal to the browser via the data channel
+	rc.Rtc.SendStartBClientSignal()
+	logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
+	// Done sending signal to start browser client
+
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
 	promptBuilder := NewPromptBuilder(llmTime, init_state) //2s timer starts here

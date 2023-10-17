@@ -30,6 +30,9 @@ type RTCConnection struct {
 
 	// channel to indicate the browser that Ria hung up
 	Hungup chan int
+
+	// channel to signal the browser to start the Browser Client
+	StartBrowserClient chan int
 }
 
 type RTCConnectionParams struct {
@@ -42,9 +45,10 @@ type RTCConnectionParams struct {
 // FIXME if transcriptionStream AND mediaIn are not provided this will blow up
 func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	rtc := &RTCConnection{
-		rtpIn:   params.rtpChan,
-		mediaIn: params.mediaIn,
-		Hungup:  make(chan int),
+		rtpIn:              params.rtpChan,
+		mediaIn:            params.mediaIn,
+		Hungup:             make(chan int),
+		StartBrowserClient: make(chan int),
 	}
 
 	rtc.sub = NewPeerConn(func(candidate *webrtc.ICECandidate) {
@@ -139,6 +143,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	return rtc, nil
 }
 
+// Function to send a signal to the browser to indicate that the Go client is about to be exited via os.exit()
 func (rtc *RTCConnection) SendHangupSignal() {
 	// Data channel to indicate to the browser that Ria hiung up aka Go client was exited via os.exit()
 	maxRetransmits := uint16(0)
@@ -156,11 +161,31 @@ func (rtc *RTCConnection) SendHangupSignal() {
 		select {
 		case <-rtc.Hungup:
 			ria_hungup_dc.Send([]byte{1})
-			internal.Logger.Info("Sent the code on the dc!!")
+			internal.Logger.Info("Sent the code on the ria_hungup_dc!!")
 		}
-		// for data := range rtc.Hungup {
-		// 	ria_hangup_dc.Send([]byte{byte(data)})
-		// }
+	})
+}
+
+// Function to signal the browser to start the Browser Client
+func (rtc *RTCConnection) SendStartBClientSignal() {
+	// Data channel to signal the browser to start the Browser Client
+	maxRetransmits := uint16(0)
+	bclient_start_dc, err := rtc.pub.conn.CreateDataChannel(
+		"bclient-start",
+		&webrtc.DataChannelInit{
+			MaxRetransmits: &maxRetransmits,
+		})
+	if err != nil {
+		internal.Logger.Info("Error ocurred at bclient_start_dc data channel creation!")
+		return
+	}
+	bclient_start_dc.OnOpen(func() {
+		internal.Logger.Info("bclient_start_dc is open!!")
+		select {
+		case <-rtc.StartBrowserClient:
+			bclient_start_dc.Send([]byte{1})
+			internal.Logger.Info("Sent the code on the bclient_start_dcc!!")
+		}
 	})
 }
 
