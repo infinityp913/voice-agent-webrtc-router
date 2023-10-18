@@ -130,7 +130,7 @@ func main() {
 	rc.Rtc.SendStartBClientSignal()
 	logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
 	// Done sending signal to start browser client
-	time.Sleep(1550 * time.Millisecond)
+	time.Sleep(2550 * time.Millisecond)
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
 	promptBuilder := NewPromptBuilder(llmTime, init_state) //2s timer starts here
