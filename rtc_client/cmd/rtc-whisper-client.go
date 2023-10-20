@@ -135,11 +135,10 @@ func main() {
 	promptBuilder := NewPromptBuilder(llmTime, init_state) //2s timer starts here
 
 	onDocumentUpdate := func(document stt.Document) {
-		if document.NewText == "" {
-			logger.Info("Empty text!!!!!!!!!!!!!!!!!!!!!!")
+		if document.NewText != "" {
+			transcriptionStream <- document
+			promptBuilder.UpdatePrompt(document.NewText, rc.Ae, rc.Rtc)
 		}
-		transcriptionStream <- document
-		promptBuilder.UpdatePrompt(document.NewText, rc.Ae, rc.Rtc)
 	}
 
 	sttEngine.OnDocumentUpdate(onDocumentUpdate)
