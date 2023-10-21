@@ -137,9 +137,10 @@ func main() {
 	onDocumentUpdate := func(document stt.Document) {
 		if document.NewText == "" {
 			logger.Info("Empty text!!!!!!!!!!!!!!!!!!!!!!")
+		} else {
+			transcriptionStream <- document
+			promptBuilder.UpdatePrompt(document.NewText, rc.Ae, rc.Rtc)
 		}
-		transcriptionStream <- document
-		promptBuilder.UpdatePrompt(document.NewText, rc.Ae, rc.Rtc)
 	}
 
 	sttEngine.OnDocumentUpdate(onDocumentUpdate)
