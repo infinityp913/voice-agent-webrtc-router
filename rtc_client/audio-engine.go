@@ -186,7 +186,7 @@ func (a *AudioEngine) decodePacket(pkt *rtp.Packet) (int, error) {
 	}
 }
 
-// This function converts f32le to s16le bytes for writing to a file
+// This function converts f32le (PCM 32-bit floating-point little-endian) to s16le (PCM signed 16-bit little-endian) bytes for writing to a file
 func convertToBytes(in []float32, out []byte) int {
 	currIndex := 0
 	for i := range in {
