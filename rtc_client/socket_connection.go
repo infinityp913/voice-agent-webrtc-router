@@ -3,6 +3,7 @@ package rtc_client
 import (
 	"encoding/json"
 	"net/url"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
@@ -58,6 +59,9 @@ type SocketConnection struct {
 	onAnswer func(ans webrtc.SessionDescription) error
 	// called when we get a remote candidate
 	onTrickle func(candidate webrtc.ICECandidateInit, target int) error
+
+	// @Ananth: to protect write with lock and unlock
+	mu sync.Mutex
 }
 
 func NewSocketConnection(url url.URL) *SocketConnection {
@@ -246,6 +250,10 @@ func (s *SocketConnection) sendMessage(msg any) error {
 		return err
 	}
 	internal.Logger.Debugf("Sending message %s", payload)
+
+	// locking and unlocking mutex for s.ws.WriteMessage to avoid concurrent writes by goroutines
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if err := s.ws.WriteMessage(websocket.TextMessage, payload); err != nil {
 		internal.Logger.Errorf(err, "Error sending websocket message %+v", msg)
 		return err
