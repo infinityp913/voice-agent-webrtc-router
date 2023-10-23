@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
 	"gopkg.in/hraban/opus.v2"
 )
 
@@ -10,7 +9,7 @@ type OpusDecoder struct {
 }
 
 func NewOpusDecoder(sampleRate, channels int) (*OpusDecoder, error) {
-	internal.Logger.Info("############ ALERT!!! NEW DECODER CREATED!!!###################")
+	Logger.Info("############ ALERT!!! NEW DECODER CREATED!!!###################")
 	dec, err := opus.NewDecoder(sampleRate, channels)
 	if err != nil {
 		return nil, err
