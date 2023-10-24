@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
@@ -44,6 +45,8 @@ type AudioEngine struct {
 
 	firstTimeStamp uint32
 	sttEngine      *stt.Engine
+
+	sync.Mutex // mutual exclusion lib to lock and unlock access to `prompt` by goroutines
 }
 
 type FlaskResponse struct {
