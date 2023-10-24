@@ -118,6 +118,9 @@ func (r *RiaClient) OnOffer(offer webrtc.SessionDescription) error {
 }
 
 func (r *RiaClient) Start() error {
+
+	// Setting up the Websocket connection
+
 	Logger.Info("before ws.connect")
 	if err := r.ws.Connect(); err != nil {
 		Logger.Error(err, "error connecting to websocket")
@@ -133,6 +136,8 @@ func (r *RiaClient) Start() error {
 		Logger.Error(err, "error joining room")
 		return err
 	}
+
+	// Starting the Media Exchange
 
 	r.Ae.Start()
 
