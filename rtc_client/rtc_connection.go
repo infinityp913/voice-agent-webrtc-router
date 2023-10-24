@@ -198,6 +198,7 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 
 	// Avoiding streams being sent simultaneously by mutex'ing ProcessOutgoingMedia()
 	r.Lock()
+	defer r.Unlock()
 
 	if r.mediaIn == nil {
 		internal.Logger.Info("MediaIn not provided... skipping relay")
@@ -213,11 +214,7 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 		}
 		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
-	lsample := <-r.mediaIn
-	r.Unlock()
-	internal.Logger.Info("Last sample: ", lsample)
-	internal.Logger.Info("FINAL Number of samples written to rtc.audioTrack:", i)
-	internal.Logger.Info("Samples RECEIVED from MediaIn and written to rtc.audioTrack")
+
 }
 
 func (r *RTCConnection) OnTrickle(candidate webrtc.ICECandidateInit, target int) error {
