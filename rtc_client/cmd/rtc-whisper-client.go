@@ -315,7 +315,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// Avoiding streams being sent simultaneously by mutex'ing ProcessOutgoingMedia()
 
+	rtc.Lock()
 	go rtc.ProcessOutgoingMedia()
+	rtc.Unlock()
 
 	// *** End of sending currentPrompt to Flask server code ***
 
