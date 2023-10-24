@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 
 	// "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
@@ -33,6 +34,8 @@ type RTCConnection struct {
 
 	// channel to signal the browser to start the Browser Client
 	StartBrowserClient chan int
+
+	sync.Mutex // mutual exclusion lib to lock and unlock access to `prompt` by goroutines
 }
 
 type RTCConnectionParams struct {
