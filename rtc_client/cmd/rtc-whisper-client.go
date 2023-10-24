@@ -309,13 +309,15 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	logger.Info("before encode") // REMOVE AFTER DEBUG
 
-	// Avoiding streams being sent simultaneously by mutex'ing Encode()
 	ae.Encode(pcm_arr, 1, 22050)
+
 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-	// Logger.Info("calling go rtc.processOutgoingMedia") // REMOVE AFTER DEBUG
-	go rtc.ProcessOutgoingMedia()
+	// Avoiding streams being sent simultaneously by mutex'ing ProcessOutgoingMedia()
 
+	p.Lock()
+	go rtc.ProcessOutgoingMedia()
+	p.Unlock()
 	// *** End of sending currentPrompt to Flask server code ***
 
 	// If the state sent back by the Flask server is 4 then end the inference after 15s
