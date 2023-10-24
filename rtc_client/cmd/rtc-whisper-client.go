@@ -315,9 +315,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// Avoiding streams being sent simultaneously by mutex'ing ProcessOutgoingMedia()
 
-	p.Lock()
 	go rtc.ProcessOutgoingMedia()
-	p.Unlock()
+
 	// *** End of sending currentPrompt to Flask server code ***
 
 	// If the state sent back by the Flask server is 4 then end the inference after 15s
