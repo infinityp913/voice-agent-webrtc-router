@@ -137,7 +137,7 @@ func (r *RiaClient) Start() error {
 		return err
 	}
 
-	// Starting the Media Reception
+	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
 
 	r.Ae.Start()
 
