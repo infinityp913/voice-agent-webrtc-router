@@ -137,7 +137,7 @@ func (r *RiaClient) Start() error {
 		return err
 	}
 
-	// Starting the Media Exchange
+	// Starting the Media Reception
 
 	r.Ae.Start()
 
