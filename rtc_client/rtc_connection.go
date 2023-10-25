@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	// "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
@@ -198,6 +199,7 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 
 	// Avoiding streams being sent simultaneously by mutex'ing ProcessOutgoingMedia()
 	r.Lock()
+	time.Sleep(50 * time.Millisecond)
 	defer r.Unlock()
 
 	if r.mediaIn == nil {
