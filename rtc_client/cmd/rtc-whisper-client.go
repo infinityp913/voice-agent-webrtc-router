@@ -309,11 +309,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	logger.Info("before encode") // REMOVE AFTER DEBUG
 
-	rtc.Lock()
-
 	ae.Encode(pcm_arr, 1, 22050)
-
-	rtc.Unlock()
 
 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
