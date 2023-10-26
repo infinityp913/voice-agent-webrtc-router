@@ -308,11 +308,15 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	pcm_arr = data
 
 	logger.Info("before encode") // REMOVE AFTER DEBUG
-	rtc.Lock()
+	ae.Lock()
 
 	ae.Encode(pcm_arr, 1, 22050)
 
+	ae.Unlock()
+
 	logger.Info("after encode") // REMOVE AFTER DEBUG
+
+	rtc.Lock()
 
 	go rtc.ProcessOutgoingMedia()
 
