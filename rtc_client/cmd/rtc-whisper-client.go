@@ -209,7 +209,9 @@ func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCCon
 		// wait for the timer to fire OR Stop() to be called
 		select {
 		case <-p.timer.C: // indicates firing of timer aka the 2s timer has counted down
+			p.Lock()
 			p.tryCallEngine(ae, rtc)
+			p.Unlock()
 		case <-p.cancel: // indicates calling of Stop()
 			logger.Info("shutting down llm interface")
 			return
@@ -308,19 +310,19 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	pcm_arr = data
 
 	logger.Info("before encode") // REMOVE AFTER DEBUG
-	ae.Lock()
+	// ae.Lock()
 
 	ae.Encode(pcm_arr, 1, 22050)
 
-	ae.Unlock()
+	// ae.Unlock()
 
 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-	rtc.Lock()
+	// rtc.Lock()
 
 	go rtc.ProcessOutgoingMedia()
 
-	rtc.Unlock()
+	// rtc.Unlock()
 
 	// *** End of sending currentPrompt to Flask server code ***
 
