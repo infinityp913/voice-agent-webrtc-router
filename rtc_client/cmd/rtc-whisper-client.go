@@ -318,11 +318,11 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-	rtc.Lock()
+	// rtc.Lock()
 
 	go rtc.ProcessOutgoingMedia()
 
-	rtc.Unlock()
+	// rtc.Unlock()
 
 	// *** End of sending currentPrompt to Flask server code ***
 
