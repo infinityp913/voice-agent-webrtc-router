@@ -209,9 +209,9 @@ func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCCon
 		// wait for the timer to fire OR Stop() to be called
 		select {
 		case <-p.timer.C: // indicates firing of timer aka the 2s timer has counted down
-			// p.Lock()
+			p.Lock()
 			p.tryCallEngine(ae, rtc)
-			// p.Unlock()
+			p.Unlock()
 		case <-p.cancel: // indicates calling of Stop()
 			logger.Info("shutting down llm interface")
 			return
