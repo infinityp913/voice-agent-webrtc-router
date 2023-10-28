@@ -103,6 +103,14 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	return r, nil
 }
 
+func (r *RiaClient) PauseRia() {
+	r.Ae.Pause()
+}
+
+func (r *RiaClient) UnpauseRia() {
+	r.Ae.Unpause()
+}
+
 func (r *RiaClient) OnAnswer(answer webrtc.SessionDescription) error {
 	return r.Rtc.SetAnswer(answer)
 }
