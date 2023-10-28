@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
@@ -45,6 +46,9 @@ type AudioEngine struct {
 
 	firstTimeStamp uint32
 	sttEngine      *stt.Engine
+
+	// shouldInfer determines if we should run listen for end user speech i.e., accept RTP packets from browser client ot not
+	shouldInfer atomic.Bool
 
 	sync.Mutex // mutual exclusion lib to lock and unlock access to `prompt` by goroutines
 }
@@ -85,6 +89,9 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 		return nil, err
 	}
 
+	var shouldInfer atomic.Bool
+	shouldInfer.Store(true)
+
 	ae := &AudioEngine{
 		rtpIn:          make(chan *rtp.Packet),
 		mediaOut:       make(chan media.Sample),
@@ -94,6 +101,7 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 		enc:            enc,
 		sttEngine:      sttEngine,
 		firstTimeStamp: 0,
+		shouldInfer:    shouldInfer,
 	}
 
 	return ae, nil
@@ -110,6 +118,18 @@ func (a *AudioEngine) MediaOut() <-chan media.Sample {
 func (a *AudioEngine) Start() {
 	internal.Logger.Info("Starting audio engine")
 	go a.decode()
+}
+
+// Pause stops the text to speech inference and simply drops incoming packets
+func (a *AudioEngine) Pause() {
+	Logger.Info("Pausing tts")
+	a.shouldInfer.Swap(false)
+}
+
+// Unpause restarts the text to speech inference
+func (a *AudioEngine) Unpause() {
+	Logger.Info("Unpausing tts")
+	a.shouldInfer.Swap(true)
 }
 
 // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
@@ -152,6 +172,9 @@ func (a *AudioEngine) decode() {
 		if !ok {
 			internal.Logger.Info("rtpIn channel closed...")
 			return
+		}
+		if !a.shouldInfer.Load() {
+			continue
 		}
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
