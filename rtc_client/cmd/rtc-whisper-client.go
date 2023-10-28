@@ -132,7 +132,15 @@ func main() {
 	// Done sending signal to start browser client
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
-	promptBuilder := NewPromptBuilder(llmTime, init_state) //2s timer starts here
+	pauseFunc := func() {
+		rc.PauseRia()
+	}
+
+	unpauseFunc := func() {
+		rc.UnpauseRia()
+	}
+
+	promptBuilder := NewPromptBuilder(llmTime, init_state, pauseFunc, unpauseFunc) //2s timer starts here
 
 	onDocumentUpdate := func(document stt.Document) {
 		if document.NewText == "" {
@@ -164,16 +172,23 @@ type PromptBuilder struct {
 	currentState int         // to store state for Ria's conversation
 
 	sync.Mutex // mutual exclusion lib to lock and unlock access to `prompt` by goroutines
+
+	// callback to pause Ria's listening i.e., stop processing RTP packets
+	pauseFunc func()
+	// callback to unpause Ria's listening i.e., stop processing RTP packets
+	unpauseFunc func()
 }
 
 // construct new PromptBuilder
-func NewPromptBuilder(interval time.Duration, init_state int) *PromptBuilder {
+func NewPromptBuilder(interval time.Duration, init_state int, pauseFunc func(), unpauseFunc func()) *PromptBuilder {
 	logger.Info("TIMER HAS STARTED!") // REMOVE AFTER DEBUG
 	return &PromptBuilder{
 		timer:        time.NewTimer(interval), // Timer starts at this line
 		prompt:       "",
 		cancel:       make(chan int),
-		currentState: init_state, // init_state is initialized by Ria's hello response's new_state
+		currentState: init_state,  // init_state is initialized by Ria's hello response's new_state
+		pauseFunc:    pauseFunc,   // to pause Ria listening to the end user i.e., stop processing RTP packets
+		unpauseFunc:  unpauseFunc, // to unpause Ria listening to the end user i.e., resume processing RTP packets
 	}
 }
 
@@ -284,6 +299,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	p.Unlock()
 
+	// pause Ria  listening so we dont interrupt the response streaming
+	p.pauseFunc()
+
 	// *** Send currentPrompt to Flask server ***
 
 	url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
@@ -323,6 +341,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	go rtc.ProcessOutgoingMedia()
 
 	// rtc.Unlock()
+
+	// resume Ria listening
+	p.unpauseFunc()
 
 	// *** End of sending currentPrompt to Flask server code ***
 
