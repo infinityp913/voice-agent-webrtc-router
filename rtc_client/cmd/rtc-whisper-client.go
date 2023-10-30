@@ -391,6 +391,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 }
 
 func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
+	logger.Info("CHOOSING stall message")
 	randomIndex := rand.Intn(len(msgs))
 	chosen_msg := msgs[randomIndex]
 
@@ -399,6 +400,8 @@ func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	data := make([]float32, 38050)
 	data = append(data, chosen_msg...)
 	chosen_msg = data
+
+	logger.Info("SENDING stall message")
 
 	ae.Encode(chosen_msg, 1, 22050)
 
