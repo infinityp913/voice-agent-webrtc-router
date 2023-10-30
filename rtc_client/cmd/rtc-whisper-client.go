@@ -322,7 +322,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.currentState = flaskResponse.New_state
 	p.Unlock()
 
-	// padding the audio with some silence -- this is important, without this the start of the idea gets cut off for some unkown reason
+	// padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
 
 	data := make([]float32, 38050)
 	data = append(data, pcm_arr...)
@@ -373,7 +373,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	new_state := flaskResponse.New_state
 	logger.Info("len(pcm_arr): ", len(pcm_arr))
 
-	// padding the audio with some silence -- this is important, without this the start of the idea gets cut off for some unkown reason
+	// padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
 
 	data := make([]float32, 38050)
 	data = append(data, pcm_arr...)
@@ -395,7 +395,7 @@ func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	randomIndex := rand.Intn(len(msgs))
 	chosen_msg := msgs[randomIndex]
 
-	// padding the audio with some silence -- this is important, without this the start of the idea gets cut off for some unkown reason
+	// padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
 
 	data := make([]float32, 38050)
 	data = append(data, chosen_msg...)
