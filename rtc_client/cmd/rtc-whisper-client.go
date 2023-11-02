@@ -44,7 +44,7 @@ func readStallMsgs() {
 	scanner := bufio.NewScanner(stallMsgsFile)
 
 	//the [...] instead of []: it ensures you get a (fixed size) array instead of a slice. So the values aren't fixed but the size is.
-	var expectedMsgLengths = [...]int{35072, 27392, 29696}
+	var expectedMsgLengths = [...]int{35072, 27392, 25088}
 
 	// Track the index of the stall message pcm array we're populating
 	stallMsgIdx := -1
