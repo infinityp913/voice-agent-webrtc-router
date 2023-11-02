@@ -76,10 +76,6 @@ func readStallMsgs() {
 			}
 		}
 	}
-	logger.Info("", msgs[0][0])
-	logger.Info("", msgs[1][2])
-	logger.Info("", msgs[2][0])
-	logger.Info("******************************* DONE ***************************")
 }
 
 func main() {
