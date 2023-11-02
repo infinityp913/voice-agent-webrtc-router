@@ -194,10 +194,10 @@ func (p *PromptBuilder) UpdatePrompt(prompt string, ae *rtc_client.AudioEngine, 
 	p.Lock()
 	defer p.Unlock()
 
-	// // p.prompt being empty indicates that it's the start of a new question/speech
-	// if p.prompt == "" {
-	// 	go sendStallMsg(ae, rtc)
-	// }
+	// p.prompt being empty indicates that it's the start of a new question/speech
+	if p.prompt == "" {
+		go sendStallMsg(ae, rtc)
+	}
 
 	if p.prompt != "" {
 		p.prompt += " "
