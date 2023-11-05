@@ -202,7 +202,7 @@ func (a *AudioEngine) decode() {
 		// ** DEBUG **
 
 		frtp, err := os.OpenFile("rtp_data.ogg",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
 			log.Println(err)
 		}
