@@ -23,6 +23,7 @@ require (
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/infinityp913/rtc-go-server v0.0.0-20231013160550-595ce60e58f1 // indirect
 	github.com/lucsky/cuid v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
