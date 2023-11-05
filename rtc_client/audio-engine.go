@@ -19,6 +19,7 @@ import (
 
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3/pkg/media"
+	"github.com/pion/webrtc/v4/pkg/media/ivfwriter"
 )
 
 const (
@@ -225,6 +226,35 @@ func (a *AudioEngine) decode() {
 		// }
 
 		// // ** END OF DEBUG **
+
+		// ** DEBUG **
+
+		frtp, err := os.OpenFile("rtp_data.ivf",
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Println(err)
+		}
+		defer frtp.Close()
+
+		ivfFile, err := ivfwriter.NewWith(frtp)
+		if err != nil {
+			frtp.Close()
+			log.Println(err)
+		}
+		defer ivfFile.Close()
+
+		// oggFile, err := oggwriter.New("output.ogg", 16000, 1)
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// defer oggFile.Close()
+
+		if err := ivfFile.WriteRTP(pkt); err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		// ** END OF DEBUG **
 
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
