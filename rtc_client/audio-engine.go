@@ -19,6 +19,8 @@ import (
 
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3/pkg/media"
+
+	"github.com/pion/webrtc/v4/pkg/media/oggwriter"
 )
 
 const (
@@ -196,6 +198,21 @@ func (a *AudioEngine) decode() {
 		// }
 
 		// // ** END OF DEBUG **
+
+		// ** DEBUG **
+
+		oggFile, err := oggwriter.New("output.ogg", 16000, 1)
+		if err != nil {
+			panic(err)
+		}
+		defer oggFile.Close()
+
+		if err := oggFile.WriteRTP(pkt); err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		// ** END OF DEBUG **
 
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
