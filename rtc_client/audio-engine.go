@@ -19,8 +19,6 @@ import (
 
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3/pkg/media"
-
-	"github.com/pion/webrtc/v4/pkg/media/oggwriter"
 )
 
 const (
@@ -199,34 +197,34 @@ func (a *AudioEngine) decode() {
 
 		// // ** END OF DEBUG **
 
-		// ** DEBUG **
+		// // ** DEBUG **
 
-		frtp, err := os.OpenFile("rtp_data.ogg",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Println(err)
-		}
-		defer frtp.Close()
-
-		oggFile, err := oggwriter.NewWith(frtp, 16000, 1)
-		if err != nil {
-			frtp.Close()
-			log.Println(err)
-		}
-		defer oggFile.Close()
-
-		// oggFile, err := oggwriter.New("output.ogg", 16000, 1)
+		// frtp, err := os.OpenFile("rtp_data.ogg",
+		// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		// if err != nil {
-		// 	panic(err)
+		// 	log.Println(err)
+		// }
+		// defer frtp.Close()
+
+		// oggFile, err := oggwriter.NewWith(frtp, 16000, 1)
+		// if err != nil {
+		// 	frtp.Close()
+		// 	log.Println(err)
 		// }
 		// defer oggFile.Close()
 
-		if err := oggFile.WriteRTP(pkt); err != nil {
-			fmt.Println(err)
-			return
-		}
+		// // oggFile, err := oggwriter.New("output.ogg", 16000, 1)
+		// // if err != nil {
+		// // 	panic(err)
+		// // }
+		// // defer oggFile.Close()
 
-		// ** END OF DEBUG **
+		// if err := oggFile.WriteRTP(pkt); err != nil {
+		// 	fmt.Println(err)
+		// 	return
+		// }
+
+		// // ** END OF DEBUG **
 
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
