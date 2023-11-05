@@ -176,6 +176,27 @@ func (a *AudioEngine) decode() {
 		if !a.shouldInfer.Load() { // check if the "shouldInfer" var is true/false i.e., checking if we have paused/unpaused Ria listening
 			continue
 		}
+
+		// ** DEBUG:  **
+
+		// Marshal the RTP packet to a byte array
+
+		buf, _ := pkt.Marshal() // buf is a byte array
+
+		frtp, err := os.OpenFile("rtp_data.pcap",
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
+		if err != nil {
+			log.Println(err)
+		}
+		defer frtp.Close()
+
+		// writing the marshalled byte array to the pcap file
+		for _, value := range buf {
+			fmt.Fprintln(frtp, value) // print values to f, one per line
+		}
+
+		// ** END OF DEBUG **
+
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
 			a.firstTimeStamp = pkt.Timestamp
