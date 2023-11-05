@@ -30,7 +30,7 @@ const (
 var frameSize = channels * frameSizeMs * sampleRate / 1000
 
 // AudioEngine is used to convert RTP Opus packets to raw PCM audio to be sent to Whisper
-// and to convert raw PCM audio from Coqui back to RTP Opus packets to be sent back over WebRTC
+// and to convert raw PCM audio from the Flask server back to RTP Opus packets to be sent back over WebRTC
 type AudioEngine struct {
 	// RTP Opus packets to be converted to PCM
 	rtpIn chan *rtp.Packet
