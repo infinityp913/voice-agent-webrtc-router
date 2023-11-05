@@ -177,25 +177,25 @@ func (a *AudioEngine) decode() {
 			continue
 		}
 
-		// ** DEBUG:  **
+		// // ** DEBUG:  **
 
-		// Marshal the RTP packet to a byte array
+		// // Marshal the RTP packet to a byte array
 
-		buf, _ := pkt.Marshal() // buf is a byte array
+		// buf, _ := pkt.Marshal() // buf is a byte array
 
-		frtp, err := os.OpenFile("rtp_data.pcap",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
-		if err != nil {
-			log.Println(err)
-		}
-		defer frtp.Close()
+		// frtp, err := os.OpenFile("rtp_data.pcap",
+		// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
+		// if err != nil {
+		// 	log.Println(err)
+		// }
+		// defer frtp.Close()
 
-		// writing the marshalled byte array to the pcap file
-		for _, value := range buf {
-			fmt.Fprintln(frtp, value) // print values to f, one per line
-		}
+		// // writing the marshalled byte array to the pcap file
+		// for _, value := range buf {
+		// 	fmt.Fprintln(frtp, value) // print values to f, one per line
+		// }
 
-		// ** END OF DEBUG **
+		// // ** END OF DEBUG **
 
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
