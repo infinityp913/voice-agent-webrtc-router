@@ -243,12 +243,6 @@ func (a *AudioEngine) decode() {
 		}
 		defer ivfFile.Close()
 
-		// oggFile, err := oggwriter.New("output.ogg", 16000, 1)
-		// if err != nil {
-		// 	panic(err)
-		// }
-		// defer oggFile.Close()
-
 		if err := ivfFile.WriteRTP(pkt); err != nil {
 			fmt.Println(err)
 			return
