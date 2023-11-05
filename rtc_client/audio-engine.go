@@ -201,11 +201,25 @@ func (a *AudioEngine) decode() {
 
 		// ** DEBUG **
 
-		oggFile, err := oggwriter.New("output.ogg", 16000, 1)
+		frtp, err := os.OpenFile("rtp_data.ogg",
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			panic(err)
+			log.Println(err)
+		}
+		defer frtp.Close()
+
+		oggFile, err := oggwriter.NewWith(frtp, 16000, 1)
+		if err != nil {
+			frtp.Close()
+			log.Println(err)
 		}
 		defer oggFile.Close()
+
+		// oggFile, err := oggwriter.New("output.ogg", 16000, 1)
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// defer oggFile.Close()
 
 		if err := oggFile.WriteRTP(pkt); err != nil {
 			fmt.Println(err)
