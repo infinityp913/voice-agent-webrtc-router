@@ -168,19 +168,19 @@ func convertOpusToSample(frame internal.OpusFrame) media.Sample {
 // decode reads over the in channel in a loop, decodes the RTP packets to raw PCM and sends the data on another channel
 func (a *AudioEngine) decode() {
 	for {
-		pkt, ok := <-a.rtpIn
+		pkt, ok := <-a.rtpIn // pkt is the RTP packet received
 		if !ok {
 			internal.Logger.Info("rtpIn channel closed...")
 			return
 		}
-		if !a.shouldInfer.Load() {
+		if !a.shouldInfer.Load() { // check if the "shouldInfer" var is true/false i.e., checking if we have paused/unpaused Ria listening
 			continue
 		}
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
 			a.firstTimeStamp = pkt.Timestamp
 		}
-
+		// here the RTP packet is decoded (using VAD) into pcm and stored in a.pcm
 		if _, err := a.decodePacket(pkt); err != nil {
 			internal.Logger.Error(err, "error decoding opus packet ")
 		}
