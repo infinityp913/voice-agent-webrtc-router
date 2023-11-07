@@ -19,6 +19,7 @@ import (
 
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3/pkg/media"
+	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
 )
 
 const (
@@ -177,48 +178,48 @@ func (a *AudioEngine) decode() {
 			continue
 		}
 
-		// ** DEBUG:  **
+		// // ** DEBUG:  **
 
-		// Marshal the RTP packet to a byte array
+		// // Marshal the RTP packet to a byte array
 
-		buf, _ := pkt.Marshal() // buf is a byte array
+		// buf, _ := pkt.Marshal() // buf is a byte array
 
-		frtp, err := os.OpenFile("rtp_data.pcap",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
-		if err != nil {
-			log.Println(err)
-		}
-		defer frtp.Close()
-
-		// writing the marshalled byte array to the pcap file
-		for _, value := range buf {
-			fmt.Fprintln(frtp, value) // print values to f, one per line
-		}
-
-		// ** END OF DEBUG **
-
-		// // ** DEBUG **
-
-		// frtp, err := os.OpenFile("rtp_data.ogg",
-		// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		// frtp, err := os.OpenFile("rtp_data.pcap",
+		// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
 		// if err != nil {
 		// 	log.Println(err)
 		// }
 		// defer frtp.Close()
 
-		// oggFile, err := oggwriter.NewWith(frtp, 16000, 1)
-		// if err != nil {
-		// 	frtp.Close()
-		// 	log.Println(err)
-		// }
-		// defer oggFile.Close()
-
-		// if err := oggFile.WriteRTP(pkt); err != nil {
-		// 	fmt.Println(err)
-		// 	return
+		// // writing the marshalled byte array to the pcap file
+		// for _, value := range buf {
+		// 	fmt.Fprintln(frtp, value) // print values to f, one per line
 		// }
 
 		// // ** END OF DEBUG **
+
+		// ** DEBUG **
+
+		frtp, err := os.OpenFile("rtp_data.ogg",
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Println(err)
+		}
+		defer frtp.Close()
+
+		oggFile, err := oggwriter.NewWith(frtp, 16000, 2)
+		if err != nil {
+			frtp.Close()
+			log.Println(err)
+		}
+		defer oggFile.Close()
+
+		if err := oggFile.WriteRTP(pkt); err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		// ** END OF DEBUG **
 
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
