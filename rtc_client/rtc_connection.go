@@ -86,13 +86,13 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 						internal.Logger.Error(err, "err reading rtp")
 						return
 					}
+					rtc.rtpIn <- pkt
 					// ** START OF DEBUG CODE **
 					if err := oggFile.WriteRTP(pkt); err != nil {
 						fmt.Println(err)
 						return
 					}
 					// ** END OF DEBUG CODE **
-					rtc.rtpIn <- pkt
 				}
 			}()
 		}
