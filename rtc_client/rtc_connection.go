@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
-	"os"
 	"sync"
 
 	// "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
@@ -20,7 +18,6 @@ import (
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
-	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
 )
 
 type RTCConnection struct {
@@ -50,19 +47,6 @@ type RTCConnectionParams struct {
 
 // FIXME if transcriptionStream AND mediaIn are not provided this will blow up
 func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
-	frtp, err := os.OpenFile("rtp_data.ogg",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-	defer frtp.Close()
-
-	oggFile, err := oggwriter.NewWith(frtp, 48000, 2)
-	if err != nil {
-		frtp.Close()
-		log.Println(err)
-	}
-	defer oggFile.Close()
 	rtc := &RTCConnection{
 		rtpIn:              params.rtpChan,
 		mediaIn:            params.mediaIn,
@@ -87,12 +71,6 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 						return
 					}
 					rtc.rtpIn <- pkt
-					// ** START OF DEBUG CODE **
-					if err := oggFile.WriteRTP(pkt); err != nil {
-						fmt.Println(err)
-						return
-					}
-					// ** END OF DEBUG CODE **
 				}
 			}()
 		}
