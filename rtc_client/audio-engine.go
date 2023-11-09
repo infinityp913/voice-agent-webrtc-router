@@ -175,7 +175,7 @@ func (a *AudioEngine) decode() {
 	}
 	defer frtp.Close()
 
-	oggFile, err := oggwriter.NewWith(frtp, 16000, 1)
+	oggFile, err := oggwriter.NewWith(frtp, 624981346, 1)
 	if err != nil {
 		frtp.Close()
 		log.Println(err)
