@@ -65,7 +65,7 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	}
 	frames := o.chunkPcm(pcm, opusSampleRate)
 
-	opusFrames := make([]OpusFrame, 0, len(frames))
+	// opusFrames := make([]OpusFrame, 0, len(frames))
 
 	// for _, frame := range frames {
 	// 	opusFrame, err := o.encodeToOpus(frame)
@@ -76,6 +76,8 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 
 	// 	opusFrames = append(opusFrames, opusFrame)
 	// }
+
+	opusFrames := make([]OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
 	for idx, frame := range frames {
 
 		go func(idx int, frame PcmFrame) {
