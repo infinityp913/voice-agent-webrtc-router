@@ -3,11 +3,9 @@ package rtc_client
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math"
 	"net/http"
-	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -19,7 +17,6 @@ import (
 
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3/pkg/media"
-	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
 )
 
 const (
@@ -168,19 +165,23 @@ func convertOpusToSample(frame internal.OpusFrame) media.Sample {
 
 // decode reads over the in channel in a loop, decodes the RTP packets to raw PCM and sends the data on another channel
 func (a *AudioEngine) decode() {
-	frtp, err := os.OpenFile("rtp_data.ogg",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-	defer frtp.Close()
 
-	oggFile, err := oggwriter.NewWith(frtp, 16000, 1)
-	if err != nil {
-		frtp.Close()
-		log.Println(err)
-	}
-	defer oggFile.Close()
+	// // ** DEBUG **
+	// frtp, err := os.OpenFile("rtp_data.ogg",
+	// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// defer frtp.Close()
+
+	// oggFile, err := oggwriter.NewWith(frtp, 16000, 1)
+	// if err != nil {
+	// 	frtp.Close()
+	// 	log.Println(err)
+	// }
+	// defer oggFile.Close()
+	// // ** END OF DEBUG **
+
 	for {
 		pkt, ok := <-a.rtpIn // pkt is the RTP packet received
 		if !ok {
@@ -191,14 +192,14 @@ func (a *AudioEngine) decode() {
 			continue
 		}
 
-		// ** DEBUG **
+		// // ** DEBUG **
 
-		if err := oggFile.WriteRTP(pkt); err != nil {
-			fmt.Println(err)
-			return
-		}
+		// if err := oggFile.WriteRTP(pkt); err != nil {
+		// 	fmt.Println(err)
+		// 	return
+		// }
 
-		// ** END OF DEBUG **
+		// // ** END OF DEBUG **
 
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
@@ -208,16 +209,17 @@ func (a *AudioEngine) decode() {
 		if _, err := a.decodePacket(pkt); err != nil {
 			internal.Logger.Error(err, "error decoding opus packet ")
 		}
-		// ** DEBUG: the following is debug code to write the pcm data to a file **
-		f, err := os.OpenFile("end_user_pcmdata.log",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
-		if err != nil {
-			log.Println(err)
-		}
-		defer f.Close()
-		for _, value := range a.pcm {
-			fmt.Fprintln(f, value) // print values to f, one per line
-		}
+		// // ** DEBUG: the following is debug code to write the pcm data to a file **
+		// f, err := os.OpenFile("end_user_pcmdata.log",
+		// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
+		// if err != nil {
+		// 	log.Println(err)
+		// }
+		// defer f.Close()
+		// for _, value := range a.pcm {
+		// 	fmt.Fprintln(f, value) // print values to f, one per line
+		// }
+		// // ** END OF DEBUG **
 	}
 }
 
