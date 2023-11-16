@@ -65,16 +65,28 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	}
 	frames := o.chunkPcm(pcm, opusSampleRate)
 
-	opusFrames := make([]OpusFrame, 0, len(frames))
+	// opusFrames := make([]OpusFrame, 0, len(frames))
 
-	for _, frame := range frames {
-		opusFrame, err := o.encodeToOpus(frame)
-		if err != nil {
-			Logger.Error(err, "error encoding opus frame")
-			return opusFrames, err
-		}
+	// for _, frame := range frames {
+	// 	opusFrame, err := o.encodeToOpus(frame)
+	// 	if err != nil {
+	// 		Logger.Error(err, "error encoding opus frame")
+	// 		return opusFrames, err
+	// 	}
 
-		opusFrames = append(opusFrames, opusFrame)
+	// 	opusFrames = append(opusFrames, opusFrame)
+	// }
+
+	opusFrames := make([]OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
+	for idx, frame := range frames {
+
+		go func(idx int, frame PcmFrame) {
+			opusFrame, _ := o.encodeToOpus(frame)
+			// if err != nil {
+			// 	Logger.Error(err, "error encoding opus frame") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
+			// }
+			opusFrames[idx] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
+		}(idx, frame)
 	}
 
 	Logger.Infof("encoded %d opus frames", len(opusFrames))
