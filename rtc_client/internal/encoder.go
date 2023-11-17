@@ -80,7 +80,7 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	opusFrames := make([]OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
 	for idx, frame := range frames {
 
-		func(idx int, frame PcmFrame) {
+		go func(idx int, frame PcmFrame) {
 			opusFrame, _ := o.encodeToOpus(frame)
 			// if err != nil {
 			// 	Logger.Error(err, "error encoding opus frame") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
