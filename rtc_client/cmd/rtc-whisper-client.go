@@ -324,30 +324,30 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	data = append(data, pcm_arr...)
 	pcm_arr = data
 
-	// logger.Info("before encode") // REMOVE AFTER DEBUG
-	// // ae.Lock()
+	logger.Info("before encode") // REMOVE AFTER DEBUG
+	// ae.Lock()
 
-	// ae.Encode(pcm_arr, 1, 22050)
+	ae.Encode(pcm_arr, 1, 22050)
 
-	// // ae.Unlock()
+	// ae.Unlock()
 
-	// logger.Info("after encode") // REMOVE AFTER DEBUG
+	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-	// // rtc.Lock()
+	// rtc.Lock()
 
-	// go rtc.ProcessOutgoingMedia()
+	go rtc.ProcessOutgoingMedia()
 
-	go func() {
-		logger.Info("before encode") // REMOVE AFTER DEBUG
+	// go func() {
+	// 	logger.Info("before encode") // REMOVE AFTER DEBUG
 
-		ae.Encode(pcm_arr, 1, 22050)
+	// 	ae.Encode(pcm_arr, 1, 22050)
 
-		logger.Info("after encode") // REMOVE AFTER DEBUG
+	// 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-		// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	// 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
 
-		rtc.ProcessOutgoingMedia()
-	}()
+	// 	rtc.ProcessOutgoingMedia()
+	// }()
 
 	// rtc.Unlock()
 
@@ -387,26 +387,26 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	data = append(data, pcm_arr...)
 	pcm_arr = data
 
-	// logger.Info("before encode") // REMOVE AFTER DEBUG
+	logger.Info("before encode") // REMOVE AFTER DEBUG
 
-	// ae.Encode(pcm_arr, 1, 22050)
+	ae.Encode(pcm_arr, 1, 22050)
 
-	// logger.Info("after encode") // REMOVE AFTER DEBUG
+	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-	// // Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	// go rtc.ProcessOutgoingMedia()
+	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	go rtc.ProcessOutgoingMedia()
 
-	go func() {
-		logger.Info("before encode") // REMOVE AFTER DEBUG
+	// go func() {
+	// 	logger.Info("before encode") // REMOVE AFTER DEBUG
 
-		ae.Encode(pcm_arr, 1, 22050)
+	// 	ae.Encode(pcm_arr, 1, 22050)
 
-		logger.Info("after encode") // REMOVE AFTER DEBUG
+	// 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-		// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	// 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
 
-		rtc.ProcessOutgoingMedia()
-	}()
+	// 	rtc.ProcessOutgoingMedia()
+	// }()
 
 	return new_state
 }
