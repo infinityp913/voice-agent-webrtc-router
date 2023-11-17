@@ -382,7 +382,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	rtc.ProcessOutgoingMedia()
+	go rtc.ProcessOutgoingMedia()
 	return new_state
 }
 
