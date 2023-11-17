@@ -3,7 +3,6 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"sync"
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
 	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util"
@@ -77,12 +76,9 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 
 	// 	opusFrames = append(opusFrames, opusFrame)
 	// }
-	var wg sync.WaitGroup
 	opusFrames := make([]OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
 	for idx, frame := range frames {
-		wg.Add(1)
 		go func(idx int, frame PcmFrame) {
-			defer wg.Done()
 			opusFrame, _ := o.encodeToOpus(frame)
 			// if err != nil {
 			// 	Logger.Error(err, "error encoding opus frame") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
