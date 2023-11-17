@@ -375,14 +375,27 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	data = append(data, pcm_arr...)
 	pcm_arr = data
 
-	logger.Info("before encode") // REMOVE AFTER DEBUG
+	// logger.Info("before encode") // REMOVE AFTER DEBUG
 
-	ae.Encode(pcm_arr, 1, 22050)
+	// ae.Encode(pcm_arr, 1, 22050)
 
-	logger.Info("after encode") // REMOVE AFTER DEBUG
+	// logger.Info("after encode") // REMOVE AFTER DEBUG
 
-	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	go rtc.ProcessOutgoingMedia()
+	// // Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+	// go rtc.ProcessOutgoingMedia()
+
+	go func() {
+		logger.Info("before encode") // REMOVE AFTER DEBUG
+
+		ae.Encode(pcm_arr, 1, 22050)
+
+		logger.Info("after encode") // REMOVE AFTER DEBUG
+
+		// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+
+		rtc.ProcessOutgoingMedia()
+	}()
+
 	return new_state
 }
 
