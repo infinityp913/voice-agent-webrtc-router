@@ -1,8 +1,6 @@
 package rtc_client
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"os"
 	"sync"
 
@@ -29,56 +27,56 @@ type User struct {
 
 func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	// Prepare the configuration
-	// config := webrtc.Configuration{
-	// 	ICEServers: []webrtc.ICEServer{
-	// 		{
-	// 			URLs: []string{"stun:stun.l.google.com:19302"},
-	// 			// URLs: []string{"stun:stun.relay.metered.ca:80"},
-	// 		},
-	// 	},
-	// }
-
-	// opening secrets.json
-	jsonFile, err := os.Open("secrets.json")
-	if err != nil {
-		logger.Error(err, "error reading secrets.json")
-	}
-	defer jsonFile.Close()
-
-	// reading the user creds from it
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	var user User
-	json.Unmarshal(byteValue, &user)
-	logger.Info("username: ", user.Username, "end")
-	logger.Info("pass: ", user.Pass, "end")
-
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
-			webrtc.ICEServer{
-				URLs: []string{"stun:stun.relay.metered.ca:80"},
-			},
-			webrtc.ICEServer{
-				URLs:       []string{"turn:a.relay.metered.ca:80"},
-				Username:   user.Username,
-				Credential: user.Pass,
-			},
-			webrtc.ICEServer{
-				URLs:       []string{"turn:a.relay.metered.ca:80?transport=tcp"},
-				Username:   user.Username,
-				Credential: user.Pass,
-			},
-			webrtc.ICEServer{
-				URLs:       []string{"turn:a.relay.metered.ca:443"},
-				Username:   user.Username,
-				Credential: user.Pass,
-			},
-			webrtc.ICEServer{
-				URLs:       []string{"turn:a.relay.metered.ca:443?transport=tcp"},
-				Username:   user.Username,
-				Credential: user.Pass,
+			{
+				URLs: []string{"stun:stun.l.google.com:19302"},
+				// URLs: []string{"stun:stun.relay.metered.ca:80"},
 			},
 		},
 	}
+
+	// // opening secrets.json
+	// jsonFile, err := os.Open("secrets.json")
+	// if err != nil {
+	// 	logger.Error(err, "error reading secrets.json")
+	// }
+	// defer jsonFile.Close()
+
+	// // reading the user creds from it
+	// byteValue, _ := ioutil.ReadAll(jsonFile)
+	// var user User
+	// json.Unmarshal(byteValue, &user)
+	// logger.Info("username: ", user.Username, "end")
+	// logger.Info("pass: ", user.Pass, "end")
+
+	// config := webrtc.Configuration{
+	// 	ICEServers: []webrtc.ICEServer{
+	// 		webrtc.ICEServer{
+	// 			URLs: []string{"stun:stun.relay.metered.ca:80"},
+	// 		},
+	// 		webrtc.ICEServer{
+	// 			URLs:       []string{"turn:a.relay.metered.ca:80"},
+	// 			Username:   user.Username,
+	// 			Credential: user.Pass,
+	// 		},
+	// 		webrtc.ICEServer{
+	// 			URLs:       []string{"turn:a.relay.metered.ca:80?transport=tcp"},
+	// 			Username:   user.Username,
+	// 			Credential: user.Pass,
+	// 		},
+	// 		webrtc.ICEServer{
+	// 			URLs:       []string{"turn:a.relay.metered.ca:443"},
+	// 			Username:   user.Username,
+	// 			Credential: user.Pass,
+	// 		},
+	// 		webrtc.ICEServer{
+	// 			URLs:       []string{"turn:a.relay.metered.ca:443?transport=tcp"},
+	// 			Username:   user.Username,
+	// 			Credential: user.Pass,
+	// 		},
+	// 	},
+	// }
 	// Create a new RTCPeerConnection
 	peerConnection, err := webrtc.NewPeerConnection(config)
 	if err != nil {
