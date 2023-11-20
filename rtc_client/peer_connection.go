@@ -57,26 +57,26 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 			webrtc.ICEServer{
 				URLs: []string{"stun:stun.relay.metered.ca:80"},
 			},
-			webrtc.ICEServer{
-				URLs:       []string{"turn:a.relay.metered.ca:80"},
-				Username:   user.Username,
-				Credential: user.Pass,
-			},
-			webrtc.ICEServer{
-				URLs:       []string{"turn:a.relay.metered.ca:80?transport=tcp"},
-				Username:   user.Username,
-				Credential: user.Pass,
-			},
+			// webrtc.ICEServer{
+			// 	URLs:       []string{"turn:a.relay.metered.ca:80"},
+			// 	Username:   user.Username,
+			// 	Credential: user.Pass,
+			// },
+			// webrtc.ICEServer{
+			// 	URLs:       []string{"turn:a.relay.metered.ca:80?transport=tcp"},
+			// 	Username:   user.Username,
+			// 	Credential: user.Pass,
+			// },
 			webrtc.ICEServer{
 				URLs:       []string{"turn:a.relay.metered.ca:443"},
 				Username:   user.Username,
 				Credential: user.Pass,
 			},
-			webrtc.ICEServer{
-				URLs:       []string{"turn:a.relay.metered.ca:443?transport=tcp"},
-				Username:   user.Username,
-				Credential: user.Pass,
-			},
+			// webrtc.ICEServer{
+			// 	URLs:       []string{"turn:a.relay.metered.ca:443?transport=tcp"},
+			// 	Username:   user.Username,
+			// 	Credential: user.Pass,
+			// },
 		},
 	}
 	// Create a new RTCPeerConnection
