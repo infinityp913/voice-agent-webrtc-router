@@ -196,10 +196,6 @@ func (rtc *RTCConnection) SendStartBClientSignal() {
 func (r *RTCConnection) ProcessOutgoingMedia() {
 	internal.Logger.Info("Inside processOutgoingMedia")
 
-	// Avoiding streams being sent simultaneously by mutex'ing ProcessOutgoingMedia()
-	// r.Lock()
-	// defer r.Unlock()
-
 	if r.mediaIn == nil {
 		internal.Logger.Info("MediaIn not provided... skipping relay")
 		return
