@@ -388,7 +388,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	pcm_arr = data
 
 	logger.Info("before encode") // REMOVE AFTER DEBUG
-	time.Sleep(100 * time.Millisecond)
+	// time.Sleep(100 * time.Millisecond)
 
 	ae.Encode(pcm_arr, 1, 22050)
 
