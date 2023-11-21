@@ -78,7 +78,7 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	// 	opusFrames = append(opusFrames, opusFrame)
 	// }
 	opusFrames := make([]OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
-	var wg sync.WaitGroup                        // the wait group hat the main goroutine waits for all the spawned goroutines to finish before continuing, preventing the program from exiting prematurely.
+	var wg sync.WaitGroup                        // the wait group makes sure that the main goroutine waits for all the spawned goroutines to finish before continuing, preventing the program from exiting prematurely.
 	for idx, frame := range frames {
 		wg.Add(1)
 		go func(idx int, frame PcmFrame) {
@@ -90,6 +90,7 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 			opusFrames[idx] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
 		}(idx, frame)
 	}
+	wg.Wait()
 
 	Logger.Infof("encoded %d opus frames", len(opusFrames))
 
