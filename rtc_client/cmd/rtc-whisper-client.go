@@ -305,7 +305,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
 	p.Lock() // locking since we're going to access p.currentState
-	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
+	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"2", "prompt_repeated_response":"0"}`)
 	flaskResponse := new(FlaskResponse)
 
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
@@ -371,7 +371,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	// Sending curr_state 0 signal to flask along with a hard-coded hello (content of endu_user_input doesn't matter)
 	// This is to get the intro as response
-	var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
+	var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"2", "prompt_repeated_response":"0"}`)
 
 	flaskResponse := new(FlaskResponse)
 	getJson(url, jsonStrByte, flaskResponse)
