@@ -87,6 +87,7 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 			opusFrame, err := o.encodeToOpus(frame)
 			if err != nil {
 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.encodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
+				return
 			}
 			// Use a mutex to synchronize access to opusFrames.
 			mu.Lock()
