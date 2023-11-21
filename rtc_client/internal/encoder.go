@@ -3,7 +3,6 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
 	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util"
@@ -79,13 +78,12 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	// }
 	opusFrames := make([]OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
 	for idx, frame := range frames {
-		go func(idx int, frame PcmFrame) {
+		func(idx int, frame PcmFrame) {
 			opusFrame, _ := o.encodeToOpus(frame)
 			// if err != nil {
 			// 	Logger.Error(err, "error encoding opus frame") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
 			// }
 			opusFrames[idx] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
-			time.Sleep(time.Millisecond * 20)
 		}(idx, frame)
 	}
 
