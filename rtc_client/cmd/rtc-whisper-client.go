@@ -127,7 +127,7 @@ func main() {
 	logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
 	// Done sending signal to start browser client
 
-	time.Sleep(6000 * time.Millisecond) // NOVE 22 UPDATE
+	// time.Sleep(6000 * time.Millisecond) // NOVE 22 UPDATE
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
 	pauseFunc := func() {
