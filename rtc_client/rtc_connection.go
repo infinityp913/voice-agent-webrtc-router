@@ -247,16 +247,3 @@ func (r *RTCConnection) OnOffer(offer webrtc.SessionDescription) (webrtc.Session
 	}
 	return answer, nil
 }
-
-func (r *RTCConnection) CreateOfferAndSetLocalDescription() (webrtc.SessionDescription, error) {
-	// Create an offer
-	offer, err := r.pub.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
-	if err != nil {
-		return offer, err
-	}
-
-	// TODO: Send the offer to the remote peer
-	// return offer, err and then at the time of calling in ria-whisper-client, send the offer to the remote peer
-
-	return offer, nil
-}

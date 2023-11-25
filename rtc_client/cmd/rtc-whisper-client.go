@@ -127,10 +127,13 @@ func main() {
 	logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
 	// Done sending signal to start browser client
 
-	rc.Rtc.CreateOfferAndSetLocalDescription() //nov 24
-
 	// time.Sleep(6000 * time.Millisecond) // NOVE 22 UPDATE
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
+
+	//nov 24
+	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
+		logger.Fatal(err, "error creating offer")
+	}
 
 	pauseFunc := func() {
 		rc.PauseRia()

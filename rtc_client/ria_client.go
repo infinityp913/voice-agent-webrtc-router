@@ -153,3 +153,19 @@ func (r *RiaClient) Start() error {
 	Logger.Info("Socket done goodbye")
 	return nil
 }
+
+func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
+	// Create an offer
+	offer, err := r.Rtc.pub.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
+	if err != nil {
+		return err
+	}
+
+	//send offer to remote peer
+	if err := r.ws.Join(r.config.Room, offer); err != nil {
+		logger.Error(err, "error joining room")
+		return err
+	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
+
+	return nil
+}
