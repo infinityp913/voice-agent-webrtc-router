@@ -161,6 +161,10 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 		return err
 	}
 
+	// DEBUG
+	Logger.Info("Offer: ", offer)
+	// END OF DEBUG
+
 	//send offer to remote peer
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
 		logger.Error(err, "error joining room")
