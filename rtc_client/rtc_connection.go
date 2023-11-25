@@ -247,3 +247,21 @@ func (r *RTCConnection) OnOffer(offer webrtc.SessionDescription) (webrtc.Session
 	}
 	return answer, nil
 }
+
+func (r *RTCConnection) CreateOfferAndSetLocalDescription() error {
+	// Create an offer
+	offer, err := r.pub.GetOffer()
+	if err != nil {
+		return err
+	}
+
+	// Set the created offer as the local description
+	err = r.pub.conn.SetLocalDescription(offer)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Send the offer to the remote peer
+
+	return nil
+}
