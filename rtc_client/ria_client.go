@@ -171,5 +171,8 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 		return err
 	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
 
+	r.ws.WaitForDone()
+	Logger.Info("Socket done goodbye")
+
 	return nil
 }
