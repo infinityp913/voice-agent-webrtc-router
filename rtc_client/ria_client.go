@@ -156,7 +156,7 @@ func (r *RiaClient) Start() error {
 
 func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 	// Create an offer
-	offer, err := r.Rtc.pub.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
+	offer, err := r.Rtc.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
 	if err != nil {
 		return err
 	}
