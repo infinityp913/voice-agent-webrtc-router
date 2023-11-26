@@ -168,11 +168,11 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 	if err != nil {
 		Logger.Error(err, "error getting intial offer")
 	}
-	Logger.Info("before ws.join")
-	if err := r.ws.Join(r.config.Room, offer); err != nil {
-		Logger.Error(err, "error joining room")
-		return err
-	}
+	// Logger.Info("before ws.join")
+	// if err := r.ws.Join(r.config.Room, offer); err != nil {
+	// 	Logger.Error(err, "error joining room")
+	// 	return err
+	// }
 
 	// Logger.Info("before ws.connect")
 	// if err := r.ws.Connect(); err != nil {
@@ -190,11 +190,11 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 	// Logger.Info("Offer: ", offer)
 	// // END OF DEBUG
 
-	// //send offer to remote peer
-	// if err := r.ws.Join(r.config.Room, offer); err != nil {
-	// 	Logger.Error(err, "error joining room")
-	// 	return err
-	// } // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
+	//send offer to remote peer
+	if err := r.ws.Join(r.config.Room, offer); err != nil {
+		Logger.Error(err, "error joining room")
+		return err
+	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
 
 	r.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
