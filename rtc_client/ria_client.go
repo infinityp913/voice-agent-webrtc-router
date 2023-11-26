@@ -158,11 +158,11 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 
 	// Setting up the Websocket connection
 
-	Logger.Info("before ws.connect")
-	if err := r.ws.Connect(); err != nil {
-		Logger.Error(err, "error connecting to websocket")
-		return err
-	}
+	// Logger.Info("before ws.connect")
+	// if err := r.ws.Connect(); err != nil {
+	// 	Logger.Error(err, "error connecting to websocket")
+	// 	return err
+	// }
 	// Logger.Info("before rtc.GetOffer")
 	// offer, err := r.Rtc.GetOffer()
 	// if err != nil {
@@ -174,11 +174,11 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 	// 	return err
 	// }
 
-	// Logger.Info("before ws.connect")
-	// if err := r.ws.Connect(); err != nil {
-	// 	Logger.Error(err, "error connecting to websocket")
-	// 	return err
-	// }
+	Logger.Info("before ws.connect")
+	if err := r.ws.Connect(); err != nil {
+		Logger.Error(err, "error connecting to websocket")
+		return err
+	}
 
 	// Create an offer
 	offer, err := r.Rtc.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
