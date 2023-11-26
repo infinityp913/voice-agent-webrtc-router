@@ -163,11 +163,11 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
-	Logger.Info("before rtc.GetOffer")
-	offer, err := r.Rtc.GetOffer()
-	if err != nil {
-		Logger.Error(err, "error getting intial offer")
-	}
+	// Logger.Info("before rtc.GetOffer")
+	// offer, err := r.Rtc.GetOffer()
+	// if err != nil {
+	// 	Logger.Error(err, "error getting intial offer")
+	// }
 	// Logger.Info("before ws.join")
 	// if err := r.ws.Join(r.config.Room, offer); err != nil {
 	// 	Logger.Error(err, "error joining room")
@@ -180,11 +180,11 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 	// 	return err
 	// }
 
-	// // Create an offer
-	// offer, err := r.Rtc.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
-	// if err != nil {
-	// 	return err
-	// }
+	// Create an offer
+	offer, err := r.Rtc.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
+	if err != nil {
+		return err
+	}
 
 	// // DEBUG
 	// Logger.Info("Offer: ", offer)
