@@ -146,7 +146,6 @@ func (r *RiaClient) Start() error {
 	}
 
 	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
-
 	r.Ae.Start()
 
 	r.ws.WaitForDone()
@@ -178,6 +177,9 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 		Logger.Error(err, "error joining room")
 		return err
 	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
+
+	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
+	r.Ae.Start()
 
 	r.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
