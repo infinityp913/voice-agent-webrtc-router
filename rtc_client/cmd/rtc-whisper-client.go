@@ -131,7 +131,7 @@ func main() {
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
 	//nov 24
-	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
+	if err := rc.Start(); err != nil {
 		logger.Fatal(err, "error creating offer")
 	}
 
