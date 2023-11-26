@@ -155,6 +155,13 @@ func (r *RiaClient) Start() error {
 }
 
 func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
+
+	Logger.Info("before ws.connect")
+	if err := r.ws.Connect(); err != nil {
+		Logger.Error(err, "error connecting to websocket")
+		return err
+	}
+
 	// Create an offer
 	offer, err := r.Rtc.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
 	if err != nil {
@@ -167,7 +174,7 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 
 	//send offer to remote peer
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
-		logger.Error(err, "error joining room")
+		Logger.Error(err, "error joining room")
 		return err
 	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
 
