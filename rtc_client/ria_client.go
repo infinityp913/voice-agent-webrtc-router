@@ -44,6 +44,8 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	}
 
 	ws := NewSocketConnection(config.Url)
+	// NOV 27
+	ws.Connect()
 
 	rtc, err := NewRTCConnection(RTCConnectionParams{
 		trickleFn: func(candidate *webrtc.ICECandidate, target int) error {
