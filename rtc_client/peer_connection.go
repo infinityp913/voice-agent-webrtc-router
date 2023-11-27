@@ -3,6 +3,7 @@ package rtc_client
 import (
 	"encoding/json"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"sync"
 
@@ -108,6 +109,18 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 
 	peerConnection.OnNegotiationNeeded(func() {
 		internal.Logger.Info("%%%%%%%%%%%%%%%%%%%%% INSIDE OnNegotiationNeeded %%%%%%%%%%%%%%%%%%%%%%")
+		// Create offer and set the local description
+		offer, err := pc.GetOffer()
+		if err != nil {
+			internal.Logger.Info("Error in creating offer, exiting")
+			os.Exit(0)
+		}
+
+		// VERY EXPERIMENTAL, don't know if a new, separate socketConnection object will work here
+		sc := NewSocketConnection(url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"})
+
+		// send description to remote peer
+		sc.SendAnswer(offer)
 	})
 
 	return pc
