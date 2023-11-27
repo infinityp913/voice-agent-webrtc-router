@@ -106,6 +106,10 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 		}
 	})
 
+	peerConnection.OnNegotiationNeeded(func() {
+		internal.Logger.Info("%%%%%%%%%%%%%%%%%%%%% INSIDE OnNegotiationNeeded %%%%%%%%%%%%%%%%%%%%%%")
+	})
+
 	return pc
 	// defer func() {
 	// 	if err := peerConnection.Close(); err != nil {
