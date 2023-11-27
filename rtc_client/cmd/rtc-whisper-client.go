@@ -130,10 +130,10 @@ func main() {
 	// time.Sleep(6000 * time.Millisecond) // NOVE 22 UPDATE
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
-	// nov 27
-	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
-		logger.Fatal(err, "error creating offer")
-	}
+	// // nov 27 - commented nov 27
+	// if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
+	// 	logger.Fatal(err, "error creating offer")
+	// }
 	//nov 24
 	// if err := rc.Start(); err != nil {
 	// 	logger.Fatal(err, "error creating offer")
