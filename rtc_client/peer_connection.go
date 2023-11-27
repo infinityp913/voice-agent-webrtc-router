@@ -118,7 +118,8 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 
 		// VERY EXPERIMENTAL, don't know if a new, separate socketConnection object will work here
 		sc := NewSocketConnection(url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"})
-
+		// to populate the conneciton Conn object of sc
+		sc.Connect()
 		// send description to remote peer
 		sc.SendAnswer(offer)
 	})
