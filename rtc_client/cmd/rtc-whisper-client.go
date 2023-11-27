@@ -172,6 +172,7 @@ func main() {
 
 	// nov 27 -- for media reception
 	rc.Ae.Start()
+	rc.WaitForDone() // nov 27
 }
 
 // Struct to handle gathering STT output and passing to the Flask Server

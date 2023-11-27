@@ -181,8 +181,14 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
 	// r.Ae.Start()
 
-	r.ws.WaitForDone()
+	// commented nov 27 -- this is prob blocking control
+	// r.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
 
 	return nil
+}
+
+// nov 27
+func (r *RiaClient) WaitForDone() {
+	r.ws.WaitForDone()
 }
