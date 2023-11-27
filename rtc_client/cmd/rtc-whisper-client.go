@@ -166,13 +166,14 @@ func main() {
 	logger.Info("Starting Ria Client...")
 
 	// commented nov 27
-	// if err := rc.Start(); err != nil {
-	// 	logger.Fatal(err, "error starting Ria Client")
-	// }
+	if err := rc.Start(); err != nil {
+		logger.Fatal(err, "error starting Ria Client")
+	}
 
-	// nov 27 -- for media reception
-	rc.Ae.Start()
-	rc.WaitForDone() // nov 27
+	// commented nov 27
+	// // nov 27 -- for media reception
+	// rc.Ae.Start()
+	// rc.WaitForDone() // nov 27
 }
 
 // Struct to handle gathering STT output and passing to the Flask Server
