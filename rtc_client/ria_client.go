@@ -179,7 +179,7 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
 
 	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
-	r.Ae.Start()
+	// r.Ae.Start()
 
 	r.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
