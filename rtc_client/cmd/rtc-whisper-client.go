@@ -128,13 +128,12 @@ func main() {
 	// Done sending signal to start browser client
 
 	// time.Sleep(6000 * time.Millisecond) // NOVE 22 UPDATE
-	// init_state := riaSaysHello(rc.Ae, rc.Rtc) // commented nov 27
+	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
 	// nov 27
 	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
 		logger.Fatal(err, "error creating offer")
 	}
-	init_state := riaSaysHello(rc.Ae, rc.Rtc) // nov 27
 	//nov 24
 	// if err := rc.Start(); err != nil {
 	// 	logger.Fatal(err, "error creating offer")
