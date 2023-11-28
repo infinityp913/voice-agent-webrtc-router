@@ -143,7 +143,7 @@ func (r *RiaClient) Start() error {
 		Logger.Error(err, "error getting intial offer")
 	}
 
-	// ********** DEBUG **********
+	// ********** DEBUG ********** nov 27
 	Logger.Info("Initial Offer.SDP: ", offer.SDP)
 	// ********** END OF DEBUG **********
 
