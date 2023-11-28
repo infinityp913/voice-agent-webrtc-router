@@ -136,11 +136,12 @@ func (r *RiaClient) Start() error {
 		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
-	Logger.Info("before rtc.GetOffer")
-	offer, err := r.Rtc.GetOffer()
-	if err != nil {
-		Logger.Error(err, "error getting intial offer")
-	}
+	// commented nov 27
+	// Logger.Info("before rtc.GetOffer")
+	// offer, err := r.Rtc.GetOffer()
+	// if err != nil {
+	// 	Logger.Error(err, "error getting intial offer")
+	// }
 	Logger.Info("before ws.join")
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
 		Logger.Error(err, "error joining room")
