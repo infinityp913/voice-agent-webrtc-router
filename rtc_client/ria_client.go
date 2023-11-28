@@ -142,11 +142,11 @@ func (r *RiaClient) Start() error {
 	// if err != nil {
 	// 	Logger.Error(err, "error getting intial offer")
 	// }
-	Logger.Info("before ws.join")
-	if err := r.ws.Join(r.config.Room, offer); err != nil {
-		Logger.Error(err, "error joining room")
-		return err
-	}
+	// Logger.Info("before ws.join")
+	// if err := r.ws.Join(r.config.Room, offer); err != nil {
+	// 	Logger.Error(err, "error joining room")
+	// 	return err
+	// }
 
 	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
 	r.Ae.Start()
