@@ -117,6 +117,7 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 		}
 		// ** DEBUG **
 		offer.SDP = offer.SDP + "ANANTH"
+		internal.Logger.Info("Offer.SDP: ", offer.SDP)
 		// ** END OF DEBUG **
 		// VERY EXPERIMENTAL, don't know if a new, separate socketConnection object will work here
 		sc := NewSocketConnection(url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"})
