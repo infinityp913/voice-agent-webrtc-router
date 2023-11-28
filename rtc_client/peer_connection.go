@@ -115,7 +115,9 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 			internal.Logger.Info("Error in creating offer, exiting")
 			os.Exit(0)
 		}
-
+		// ** DEBUG **
+		offer.SDP = offer.SDP + "ANANTH"
+		// ** END OF DEBUG **
 		// VERY EXPERIMENTAL, don't know if a new, separate socketConnection object will work here
 		sc := NewSocketConnection(url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"})
 		// to populate the conneciton Conn object of sc
