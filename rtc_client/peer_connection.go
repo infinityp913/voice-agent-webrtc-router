@@ -121,7 +121,9 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 		// to populate the conneciton Conn object of sc
 		sc.Connect()
 		// send description to remote peer
-		sc.SendAnswer(offer)
+		if err := sc.SendAnswer(offer); err != nil {
+			internal.Logger.Error(err, "error sending description to remote peer in OnNegotiationNeeded")
+		}
 	})
 
 	return pc

@@ -165,7 +165,6 @@ func main() {
 
 	logger.Info("Starting Ria Client...")
 
-	// commented nov 27
 	if err := rc.Start(); err != nil {
 		logger.Fatal(err, "error starting Ria Client")
 	}
