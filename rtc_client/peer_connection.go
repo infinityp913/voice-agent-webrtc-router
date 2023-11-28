@@ -120,13 +120,13 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 		sc := NewSocketConnection(url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"})
 		// to populate the conneciton Conn object of sc
 		sc.Connect()
-		// calling Join()
-		Logger.Info("before ws.join")
-		// TODO: change the room name to the config room name from RiaClient
-		if err := sc.Join("", offer); err != nil {
-			Logger.Error(err, "error joining room")
-			os.Exit(0)
-		}
+		// // calling Join()
+		// Logger.Info("before ws.join")
+		// // TODO: change the room name to the config room name from RiaClient
+		// if err := sc.Join("", offer); err != nil {
+		// 	Logger.Error(err, "error joining room")
+		// 	os.Exit(0)
+		// }
 
 		// send description to remote peer
 		if err := sc.SendAnswer(offer); err != nil {

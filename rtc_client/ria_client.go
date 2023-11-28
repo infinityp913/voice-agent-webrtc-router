@@ -137,16 +137,16 @@ func (r *RiaClient) Start() error {
 		return err
 	}
 	// commented nov 27
-	// Logger.Info("before rtc.GetOffer")
-	// offer, err := r.Rtc.GetOffer()
-	// if err != nil {
-	// 	Logger.Error(err, "error getting intial offer")
-	// }
-	// Logger.Info("before ws.join")
-	// if err := r.ws.Join(r.config.Room, offer); err != nil {
-	// 	Logger.Error(err, "error joining room")
-	// 	return err
-	// }
+	Logger.Info("before rtc.GetOffer")
+	offer, err := r.Rtc.GetOffer()
+	if err != nil {
+		Logger.Error(err, "error getting intial offer")
+	}
+	Logger.Info("before ws.join")
+	if err := r.ws.Join(r.config.Room, offer); err != nil {
+		Logger.Error(err, "error joining room")
+		return err
+	}
 
 	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
 	r.Ae.Start()
