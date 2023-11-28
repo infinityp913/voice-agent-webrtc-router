@@ -191,6 +191,9 @@ func (c PeerConn) GetOffer() (webrtc.SessionDescription, error) {
 }
 
 func (c PeerConn) SetAnswer(answer webrtc.SessionDescription) error {
+	// nov 27 DEBUG
+	internal.Logger.Info("Answer.SDP: ", answer.SDP)
+	// END OF DEBUG
 	if err := c.conn.SetRemoteDescription(answer); err != nil {
 		return err
 	}
