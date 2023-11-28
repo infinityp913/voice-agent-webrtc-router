@@ -123,7 +123,7 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 		// calling Join()
 		Logger.Info("before ws.join")
 		// TODO: change the room name to the config room name from RiaClient
-		if err := sc.Join("test", offer); err != nil {
+		if err := sc.Join("", offer); err != nil {
 			Logger.Error(err, "error joining room")
 			os.Exit(0)
 		}
