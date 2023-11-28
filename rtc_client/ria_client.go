@@ -142,6 +142,11 @@ func (r *RiaClient) Start() error {
 	if err != nil {
 		Logger.Error(err, "error getting intial offer")
 	}
+
+	// ********** DEBUG **********
+	Logger.Info("Initial Offer.SDP: ", offer.SDP)
+	// ********** END OF DEBUG **********
+
 	Logger.Info("before ws.join")
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
 		Logger.Error(err, "error joining room")
