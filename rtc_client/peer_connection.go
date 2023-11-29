@@ -187,6 +187,8 @@ func (c PeerConn) GetOffer() (webrtc.SessionDescription, error) {
 	if err != nil {
 		return offer, err
 	}
+	// nov 29 DEBUG
+	internal.Logger.Info("Inside GetOffer")
 	return offer, c.conn.SetLocalDescription(offer)
 }
 
