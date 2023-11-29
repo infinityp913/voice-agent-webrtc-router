@@ -138,13 +138,13 @@ func main() {
 	// 	logger.Fatal(err, "error creating offer")
 	// } //NOV 28
 
-	// time.Sleep(500 * time.Millisecond) // NOV 28 -- LET THE BROWSER CLIENT ANSWER
-
+	time.Sleep(10000 * time.Millisecond) // NOV 28 -- LET THE BROWSER CLIENT ANSWER
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
-	// nov 29
-	f := callRiaSaysHello(rc)
-	time.AfterFunc(10000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
+	// commented nov 29
+	// f := callRiaSaysHello(rc)
+	// time.AfterFunc(10000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
+	// time.Sleep(10 * time.Second)              // nov 29
 
 	// // nov 27 - commented nov 27
 	// if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
