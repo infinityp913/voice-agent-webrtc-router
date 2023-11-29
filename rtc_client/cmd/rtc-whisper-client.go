@@ -144,7 +144,7 @@ func main() {
 
 	// nov 29
 	f := callRiaSaysHello(rc)
-	time.AfterFunc(1000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
+	time.AfterFunc(10000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
 
 	// // nov 27 - commented nov 27
 	// if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
