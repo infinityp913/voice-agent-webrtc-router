@@ -118,9 +118,6 @@ func main() {
 		logger.Fatal(err, "error creating offer")
 	}
 
-	// NOV 28
-	time.Sleep(500 * time.Millisecond) // NOV 28 -- LET THE BROWSER CLIENT ANSWER
-
 	// Sending signal to Browser to start the Browser client!
 	logger.Info("Sending signal to RTCConn via a channel")
 	// calling the following as a goroutine to enable sending the value (1) over the channel to rtc.SendHangupSignal(). Without a goroutine that has a sleep, the timing won't workout (inspiration: https://www.geeksforgeeks.org/select-statement-in-go-language/)
@@ -145,12 +142,12 @@ func main() {
 
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
+	// nov 29
+	f := callRiaSaysHello(rc)
+	time.AfterFunc(1000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
+
 	// // nov 27 - commented nov 27
 	// if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
-	// 	logger.Fatal(err, "error creating offer")
-	// }
-	//nov 24
-	// if err := rc.Start(); err != nil {
 	// 	logger.Fatal(err, "error creating offer")
 	// }
 
@@ -189,6 +186,13 @@ func main() {
 	// nov 27 -- for media reception
 	rc.Ae.Start()
 	rc.WaitForDone() // nov 27
+}
+
+// nov 29
+func callRiaSaysHello(rc *rtc_client.RiaClient) func() {
+	return func() {
+		riaSaysHello(rc.Ae, rc.Rtc)
+	}
 }
 
 // Struct to handle gathering STT output and passing to the Flask Server
