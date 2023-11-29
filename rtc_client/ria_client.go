@@ -177,9 +177,9 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 		return err
 	}
 
-	// // DEBUG
-	// Logger.Info("Offer: ", offer)
-	// // END OF DEBUG
+	// DEBUG
+	Logger.Info("INITIAL Offer FROM COSLD: ", offer)
+	// END OF DEBUG
 
 	//send offer to remote peer
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
@@ -188,7 +188,7 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
 
 	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
-	// r.Ae.Start()
+	// r.Ae.Start() // commented this so that it's called after promptbuilder, etc in the main() function
 
 	// commented nov 27 -- this is prob blocking control
 	// r.ws.WaitForDone()

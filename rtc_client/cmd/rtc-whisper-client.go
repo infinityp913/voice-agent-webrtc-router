@@ -127,7 +127,11 @@ func main() {
 	logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
 	// Done sending signal to start browser client
 
-	// time.Sleep(6000 * time.Millisecond) // NOVE 22 UPDATE
+	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
+		logger.Fatal(err, "error creating offer")
+	} //NOV 28
+
+	time.Sleep(500 * time.Millisecond) // NOV 28 -- LET THE BROWSER CLIENT ANSWER
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
 	// // nov 27 - commented nov 27
@@ -165,14 +169,15 @@ func main() {
 
 	logger.Info("Starting Ria Client...")
 
-	if err := rc.Start(); err != nil {
-		logger.Fatal(err, "error starting Ria Client")
-	}
+	// COMMENTED NOV 28
+	// if err := rc.Start(); err != nil {
+	// 	logger.Fatal(err, "error starting Ria Client")
+	// }
 
-	// commented nov 27
+	// UNCOMMENTED NOV 28 commented nov 27
 	// nov 27 -- for media reception
-	// rc.Ae.Start()
-	// rc.WaitForDone() // nov 27
+	rc.Ae.Start()
+	rc.WaitForDone() // nov 27
 }
 
 // Struct to handle gathering STT output and passing to the Flask Server
