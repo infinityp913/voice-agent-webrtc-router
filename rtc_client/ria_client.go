@@ -171,11 +171,13 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 		return err
 	}
 
+	Logger.Info("before cosld getoffer")
 	// Create an offer
 	offer, err := r.Rtc.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
 	if err != nil {
 		return err
 	}
+	Logger.Info("after cosld getoffer")
 
 	// DEBUG
 	Logger.Info("INITIAL Offer FROM COSLD: ", offer)
