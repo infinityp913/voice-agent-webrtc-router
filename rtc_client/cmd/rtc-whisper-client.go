@@ -112,12 +112,6 @@ func main() {
 		logger.Fatal(err, "error creating saturday client")
 	}
 
-	// NOV 28
-	logger.Info("Creating initial offer and setting local description...")
-	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
-		logger.Fatal(err, "error creating offer")
-	}
-
 	// Sending signal to Browser to start the Browser client!
 	logger.Info("Sending signal to RTCConn via a channel")
 	// calling the following as a goroutine to enable sending the value (1) over the channel to rtc.SendHangupSignal(). Without a goroutine that has a sleep, the timing won't workout (inspiration: https://www.geeksforgeeks.org/select-statement-in-go-language/)
@@ -134,9 +128,9 @@ func main() {
 	// Done sending signal to start browser client
 
 	// COMMENTED NOV 28
-	// if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
-	// 	logger.Fatal(err, "error creating offer")
-	// } //NOV 28
+	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
+		logger.Fatal(err, "error creating offer")
+	} //NOV 28
 
 	time.Sleep(10000 * time.Millisecond) // NOV 28 -- LET THE BROWSER CLIENT ANSWER
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
