@@ -127,6 +127,7 @@ func main() {
 	logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
 	// Done sending signal to start browser client
 
+	time.Sleep(5000 * time.Millisecond) // NOV 29 -- LET THE BROWSER CLIENT get set up
 	// COMMENTED NOV 28
 	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
 		logger.Fatal(err, "error creating offer")
