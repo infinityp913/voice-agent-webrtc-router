@@ -134,7 +134,7 @@ func main() {
 	// 	logger.Fatal(err, "error creating offer")
 	// } //NOV 28
 
-	// time.Sleep(10000 * time.Millisecond) // DEC2 - COMMENTED TO TEST WORKIGN CODE NOV 28 -- LET THE BROWSER CLIENT ANSWER
+	time.Sleep(10000 * time.Millisecond) // -- LET THE BROWSER CLIENT ANSWER
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
 	// commented nov 29
