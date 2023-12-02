@@ -129,10 +129,10 @@ func main() {
 
 	// commented dec 1 -- no need to delay for setup, go client starts in the then block
 	// time.Sleep(5000 * time.Millisecond) // NOV 29 -- LET THE BROWSER CLIENT get set up
-	// COMMENTED NOV 28
-	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
-		logger.Fatal(err, "error creating offer")
-	} //NOV 28
+	// COMMENTED DEC 2
+	// if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
+	// 	logger.Fatal(err, "error creating offer")
+	// } //NOV 28
 
 	time.Sleep(10000 * time.Millisecond) // NOV 28 -- LET THE BROWSER CLIENT ANSWER
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
@@ -142,10 +142,10 @@ func main() {
 	// time.AfterFunc(10000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
 	// time.Sleep(10 * time.Second)              // nov 29
 
-	// // nov 27 - commented nov 27
-	// if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
-	// 	logger.Fatal(err, "error creating offer")
-	// }
+	// COLSD AFTER RIASAYSHELLO - DEC 2
+	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
+		logger.Fatal(err, "error creating offer")
+	}
 
 	pauseFunc := func() {
 		rc.PauseRia()
