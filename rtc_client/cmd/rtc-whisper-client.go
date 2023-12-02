@@ -128,7 +128,7 @@ func main() {
 	// Done sending signal to start browser client
 
 	// commented dec 1 -- no need to delay for setup, go client starts in the then block
-	time.Sleep(5000 * time.Millisecond) // NOV 29 -- LET THE BROWSER CLIENT get set up
+	// time.Sleep(5000 * time.Millisecond) // NOV 29 -- LET THE BROWSER CLIENT get set up
 	// COMMENTED NOV 28
 	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
 		logger.Fatal(err, "error creating offer")
