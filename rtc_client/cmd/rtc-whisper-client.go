@@ -122,13 +122,11 @@ func main() {
 		rc.Rtc.StartBrowserClient <- 1 //this value serves as a signal to send data on the ria-hungup datachannel inside the rtc.SendHangupSignal() fn
 	}()
 
-	// this function creates the data channel and waits for the value(1) on the rtc.Hungup channel before sending the signal to the browser via the data channel
-	rc.Rtc.SendStartBClientSignal()
-	logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
+	// // this function creates the data channel and waits for the value(1) on the rtc.Hungup channel before sending the signal to the browser via the data channel
+	// rc.Rtc.SendStartBClientSignal()
+	// logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
 	// Done sending signal to start browser client
 
-	// commented dec 1 -- no need to delay for setup, go client starts in the then block
-	// time.Sleep(5000 * time.Millisecond) // NOV 29 -- LET THE BROWSER CLIENT get set up
 	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
 		logger.Fatal(err, "error creating offer")
 	} //NOV 28
@@ -140,11 +138,6 @@ func main() {
 	// f := callRiaSaysHello(rc)
 	// time.AfterFunc(10000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
 	// time.Sleep(10 * time.Second)              // nov 29
-
-	// COMMENTED - DEC 2
-	// if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
-	// 	logger.Fatal(err, "error creating offer")
-	// }
 
 	pauseFunc := func() {
 		rc.PauseRia()
@@ -177,7 +170,6 @@ func main() {
 	// 	logger.Fatal(err, "error starting Ria Client")
 	// }
 
-	// UNCOMMENTED NOV 28 commented nov 27
 	// nov 27 -- for media reception
 	rc.Ae.Start()
 	rc.WaitForDone() // nov 27
