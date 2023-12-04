@@ -92,13 +92,13 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		// defer conn.Close()
+		defer conn.Close()
 
 		p := ws.NewConnection(sfu.NewPeer(s), logger)
 		// p = {PeerLocal (NewPeer creates a new PeerLocal for signaling with the given SFU)
 		// , logger}
 
-		// defer p.Close()
+		defer p.Close()
 
 		jc := jsonrpc2.NewConn(r.Context(), websocketjsonrpc2.NewObjectStream(conn), p)
 		<-jc.DisconnectNotify()
