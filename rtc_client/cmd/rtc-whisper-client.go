@@ -131,7 +131,6 @@ func main() {
 		logger.Fatal(err, "error creating offer")
 	} //NOV 28
 
-	// time.Sleep(10000 * time.Millisecond) // -- LET THE BROWSER CLIENT ANSWER
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
 
 	// commented nov 29
