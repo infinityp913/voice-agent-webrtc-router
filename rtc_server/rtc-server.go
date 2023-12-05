@@ -135,7 +135,7 @@ func main() {
 		peer.Close()
 		// close the RiaClient per
 		peerMap["RiaClient"].Close()
-		// delete the peer from the peerMap
+		// delete the peer and RiaClient from the peerMap
 		delete(peerMap, peer_id)
 		delete(peerMap, "RiaClient")
 	})
