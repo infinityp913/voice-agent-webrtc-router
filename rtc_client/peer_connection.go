@@ -106,6 +106,37 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 		}
 	})
 
+	// commented nov 29
+	// peerConnection.OnNegotiationNeeded(func() {
+	// 	internal.Logger.Info("%%%%%%%%%%%%%%%%%%%%% INSIDE OnNegotiationNeeded %%%%%%%%%%%%%%%%%%%%%%")
+	// 	// Create offer and set the local description
+	// 	offer, err := pc.GetOffer()
+	// 	if err != nil {
+	// 		internal.Logger.Info("Error in creating offer, exiting")
+	// 		os.Exit(0)
+	// 	}
+	// 	// ** DEBUG **
+	// 	offer.SDP = offer.SDP + "ANANTH"
+	// 	internal.Logger.Info("Offer.SDP: ", offer.SDP)
+	// 	// ** END OF DEBUG **
+	// 	// VERY EXPERIMENTAL, don't know if a new, separate socketConnection object will work here
+	// 	sc := NewSocketConnection(url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"})
+	// 	// to populate the conneciton Conn object of sc
+	// 	sc.Connect()
+	// 	// // calling Join()
+	// 	// Logger.Info("before ws.join")
+	// 	// // TODO: change the room name to the config room name from RiaClient
+	// 	// if err := sc.Join("", offer); err != nil {
+	// 	// 	Logger.Error(err, "error joining room")
+	// 	// 	os.Exit(0)
+	// 	// }
+
+	// 	// send description to remote peer
+	// 	if err := sc.SendAnswer(offer); err != nil {
+	// 		internal.Logger.Error(err, "error sending description to remote peer in OnNegotiationNeeded")
+	// 	}
+	// })
+
 	return pc
 	// defer func() {
 	// 	if err := peerConnection.Close(); err != nil {
@@ -156,10 +187,15 @@ func (c PeerConn) GetOffer() (webrtc.SessionDescription, error) {
 	if err != nil {
 		return offer, err
 	}
+	// nov 29 DEBUG
+	internal.Logger.Info("Inside GetOffer")
 	return offer, c.conn.SetLocalDescription(offer)
 }
 
 func (c PeerConn) SetAnswer(answer webrtc.SessionDescription) error {
+	// nov 27 DEBUG
+	internal.Logger.Info("Answer.SDP: ", answer.SDP)
+	// END OF DEBUG
 	if err := c.conn.SetRemoteDescription(answer); err != nil {
 		return err
 	}

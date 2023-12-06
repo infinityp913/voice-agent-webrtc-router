@@ -44,6 +44,8 @@ func NewRiaClient(config RiaConfig) (*RiaClient, error) {
 	}
 
 	ws := NewSocketConnection(config.Url)
+	// NOV 27
+	// ws.Connect()
 
 	rtc, err := NewRTCConnection(RTCConnectionParams{
 		trickleFn: func(candidate *webrtc.ICECandidate, target int) error {
@@ -134,11 +136,18 @@ func (r *RiaClient) Start() error {
 		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
+	// commented nov 27
 	Logger.Info("before rtc.GetOffer")
 	offer, err := r.Rtc.GetOffer()
 	if err != nil {
 		Logger.Error(err, "error getting intial offer")
 	}
+
+	// ********** DEBUG ********** nov 27
+	offer.SDP = offer.SDP + "INITIAL OFFER"
+	Logger.Info("Initial Offer.SDP: ", offer.SDP)
+	// ********** END OF DEBUG **********
+
 	Logger.Info("before ws.join")
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
 		Logger.Error(err, "error joining room")
@@ -146,10 +155,51 @@ func (r *RiaClient) Start() error {
 	}
 
 	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
-
 	r.Ae.Start()
 
 	r.ws.WaitForDone()
 	Logger.Info("Socket done goodbye")
 	return nil
+}
+
+func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
+
+	// Setting up the Websocket connection
+	Logger.Info("before ws.connect")
+	if err := r.ws.Connect(); err != nil {
+		Logger.Error(err, "error connecting to websocket")
+		return err
+	}
+
+	Logger.Info("before cosld getoffer")
+	// Create an offer
+	offer, err := r.Rtc.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
+	if err != nil {
+		return err
+	}
+	Logger.Info("after cosld getoffer")
+
+	// DEBUG
+	Logger.Info("INITIAL Offer FROM COSLD: ", offer)
+	// END OF DEBUG
+
+	//send offer to remote peer
+	if err := r.ws.Join(r.config.Room, offer); err != nil {
+		Logger.Error(err, "error joining room")
+		return err
+	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
+
+	// Starting the Media Reception (sending is done by tryCallEngine and riaSaysHello() in rtc-whisper-client)
+	// r.Ae.Start() // commented this so that it's called after promptbuilder, etc in the main() function
+
+	// commented nov 27 -- this is prob blocking control
+	// r.ws.WaitForDone()
+	Logger.Info("Socket done goodbye")
+
+	return nil
+}
+
+// nov 27
+func (r *RiaClient) WaitForDone() {
+	r.ws.WaitForDone()
 }

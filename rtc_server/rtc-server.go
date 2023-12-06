@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -16,8 +17,9 @@ import (
 )
 
 var (
-	conf   = sfu.Config{}
-	logger = log.New()
+	conf    = sfu.Config{}
+	logger  = log.New()
+	peerMap = make(map[string]*sfu.PeerLocal)
 )
 
 // formatRequest generates ascii representation of a request
@@ -45,6 +47,10 @@ func formatRequest(r *http.Request) string {
 	}
 	// Return the request as a string
 	return strings.Join(request, "\n")
+}
+
+type peerID struct {
+	Peer_id string `json:"peer_id"`
 }
 
 func main() {
@@ -92,16 +98,46 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		// defer conn.Close()
+		defer conn.Close()
 
-		p := ws.NewConnection(sfu.NewPeer(s), logger)
+		newPeer := sfu.NewPeer(s)
+		// add the created peer to the peerMap
+		peerMap[newPeer.ID()] = newPeer
+
+		p := ws.NewConnection(newPeer, logger)
 		// p = {PeerLocal (NewPeer creates a new PeerLocal for signaling with the given SFU)
 		// , logger}
 
-		// defer p.Close()
+		defer p.Close()
 
 		jc := jsonrpc2.NewConn(r.Context(), websocketjsonrpc2.NewObjectStream(conn), p)
 		<-jc.DisconnectNotify()
+	})
+
+	// Endpoint to close a Peer, given the peer_id, and the associated RiaClient peer
+	http.HandleFunc("/close-peer-by-id", func(w http.ResponseWriter, r *http.Request) {
+
+		var p peerID
+
+		// Try to decode the request body into the struct. If there is an error,
+		// respond to the client with the error message and a 400 status code.
+		err := json.NewDecoder(r.Body).Decode(&p)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		// get the peer_id from the POST request body
+		peer_id := p.Peer_id
+		// get the peer from the peerMap
+		peer := peerMap[peer_id]
+		// close the peer
+		peer.Close()
+		// close the RiaClient per
+		peerMap["RiaClient"].Close()
+		// delete the peer and RiaClient from the peerMap
+		delete(peerMap, peer_id)
+		delete(peerMap, "RiaClient")
 	})
 
 	// Start the server and listen on port 8080.

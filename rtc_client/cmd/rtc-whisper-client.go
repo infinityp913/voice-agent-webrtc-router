@@ -122,11 +122,23 @@ func main() {
 		rc.Rtc.StartBrowserClient <- 1 //this value serves as a signal to send data on the ria-hungup datachannel inside the rtc.SendHangupSignal() fn
 	}()
 
-	// this function creates the data channel and waits for the value(1) on the rtc.Hungup channel before sending the signal to the browser via the data channel
-	rc.Rtc.SendStartBClientSignal()
-	logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
+	// // this function creates the data channel and waits for the value(1) on the rtc.Hungup channel before sending the signal to the browser via the data channel
+	// rc.Rtc.SendStartBClientSignal()
+	// logger.Info("SENT SIGNAL TO START BROWSER CLIENT")
 	// Done sending signal to start browser client
+
+	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
+		logger.Fatal(err, "error creating offer")
+	} //NOV 28
+
+	// time.Sleep(400 * time.Millisecond)
+
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
+
+	// commented nov 29
+	// f := callRiaSaysHello(rc)
+	// time.AfterFunc(10000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
+	// time.Sleep(10 * time.Second)              // nov 29
 
 	pauseFunc := func() {
 		rc.PauseRia()
@@ -154,8 +166,20 @@ func main() {
 
 	logger.Info("Starting Ria Client...")
 
-	if err := rc.Start(); err != nil {
-		logger.Fatal(err, "error starting Ria Client")
+	// COMMENTED NOV 28
+	// if err := rc.Start(); err != nil {
+	// 	logger.Fatal(err, "error starting Ria Client")
+	// }
+
+	// nov 27 -- for media reception
+	rc.Ae.Start()
+	rc.WaitForDone() // nov 27
+}
+
+// nov 29
+func callRiaSaysHello(rc *rtc_client.RiaClient) func() {
+	return func() {
+		riaSaysHello(rc.Ae, rc.Rtc)
 	}
 }
 
@@ -325,31 +349,12 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	pcm_arr = data
 
 	logger.Info("before encode") // REMOVE AFTER DEBUG
-	// ae.Lock()
 
-	ae.Encode(pcm_arr, 1, 22050)
-
-	// ae.Unlock()
+	ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
-	// rtc.Lock()
-
 	go rtc.ProcessOutgoingMedia()
-
-	// go func() {
-	// 	logger.Info("before encode") // REMOVE AFTER DEBUG
-
-	// 	ae.Encode(pcm_arr, 1, 22050)
-
-	// 	logger.Info("after encode") // REMOVE AFTER DEBUG
-
-	// 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-
-	// 	rtc.ProcessOutgoingMedia()
-	// }()
-
-	// rtc.Unlock()
 
 	// resume Ria listening
 	p.unpauseFunc()
@@ -390,7 +395,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	logger.Info("before encode") // REMOVE AFTER DEBUG
 	// time.Sleep(100 * time.Millisecond)
 
-	ae.Encode(pcm_arr, 1, 22050)
+	ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
 	logger.Info("after encode") // REMOVE AFTER DEBUG
 
@@ -425,7 +430,7 @@ func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 
 	logger.Info("SENDING stall message")
 
-	ae.Encode(chosen_msg, 1, 22050)
+	ae.Encode(chosen_msg, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
 	go rtc.ProcessOutgoingMedia()

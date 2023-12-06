@@ -102,7 +102,6 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		// REMOVED POM FROM HERE
 		// go rtc.processOutgoingMedia()
 
-		// internal.Logger.Info("Executed processOutgoingMedia") // REMOVE AFTER DEBUG
 	} else {
 		internal.Logger.Info("mediaIn not provided... audio relay is disabled")
 	}
@@ -195,10 +194,6 @@ func (rtc *RTCConnection) SendStartBClientSignal() {
 // processOutgoingMedia sends the provided samples on the audioTrack
 func (r *RTCConnection) ProcessOutgoingMedia() {
 	internal.Logger.Info("Inside processOutgoingMedia")
-
-	// Avoiding streams being sent simultaneously by mutex'ing ProcessOutgoingMedia()
-	// r.Lock()
-	// defer r.Unlock()
 
 	if r.mediaIn == nil {
 		internal.Logger.Info("MediaIn not provided... skipping relay")

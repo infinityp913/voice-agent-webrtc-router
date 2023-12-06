@@ -103,7 +103,7 @@ func (s *SocketConnection) Join(room string, offer webrtc.SessionDescription) er
 		Method: "join",
 		Params: Join{
 			SID:   room,
-			UID:   "SaturdayClient",
+			UID:   "RiaClient",
 			Offer: offer,
 		},
 	}
