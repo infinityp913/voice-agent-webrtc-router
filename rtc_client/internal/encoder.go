@@ -82,16 +82,16 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	var mu sync.Mutex                            //to ensure that access to the opusFrames slice (liek by audio-engine's sendMedia()) is serialized, preventing race conditions and potential data corruption.
 	for idx, frame := range frames {
 		wg.Add(1)
-		go func(idx int, frame PcmFrame) {
+		go func(idx_ int, frame_ PcmFrame) {
 			defer wg.Done()
-			opusFrame, err := o.encodeToOpus(frame)
+			opusFrame, err := o.encodeToOpus(frame_)
 			if err != nil {
 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.encodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
 				return
 			}
 			// Use a mutex to synchronize access to opusFrames.
 			mu.Lock()
-			opusFrames[idx] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
+			opusFrames[idx_] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
 			mu.Unlock()
 		}(idx, frame)
 	}
