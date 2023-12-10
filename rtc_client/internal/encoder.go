@@ -82,6 +82,8 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	var mu sync.Mutex                            //to ensure that access to the opusFrames slice (liek by audio-engine's sendMedia()) is serialized, preventing race conditions and potential data corruption.
 	for idx, frame := range frames {
 		wg.Add(1)
+		frame := frame
+		idx := idx
 		go func(idx_ int, frame_ PcmFrame) {
 			defer wg.Done()
 			opusFrame, err := o.encodeToOpus(frame_)
