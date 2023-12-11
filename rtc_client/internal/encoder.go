@@ -92,9 +92,9 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 				return
 			}
 			// Use a mutex to synchronize access to opusFrames.
-			mu.Lock()
+			// mu.Lock()
 			opusFrames[idx_] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
-			mu.Unlock()
+			// mu.Unlock()
 		}(idx, frame)
 	}
 	wg.Wait()
