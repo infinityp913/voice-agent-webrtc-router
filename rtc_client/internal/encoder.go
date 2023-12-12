@@ -107,18 +107,15 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 }
 
 func (o *OpusEncoder) encodeToOpus(frame PcmFrame) (OpusFrame, error) {
-	var mu sync.Mutex
 	opusFrame := OpusFrame{Index: frame.index}
 	data := make([]byte, 1000)
 
-	mu.Lock()
 	n, err := o.enc.EncodeFloat32(frame.data, data)
 	if err != nil {
 		Logger.Errorf(err, "error encoding frame %+v", err)
 		return opusFrame, err
 	}
 	opusFrame.Data = data[:n]
-	mu.Unlock()
 
 	return opusFrame, nil
 }
