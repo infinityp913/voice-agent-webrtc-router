@@ -85,7 +85,7 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		frame := frame
 		idx := idx
 		// opusFrame, err := o.encodeToOpus(frame)
-		func(idx_ int, frame_ PcmFrame) {
+		go func(idx_ int, frame_ PcmFrame) {
 			defer wg.Done()
 			opusFrame, err := o.encodeToOpus(frame_)
 			if err != nil {
