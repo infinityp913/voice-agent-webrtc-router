@@ -117,8 +117,8 @@ func (o *OpusEncoder) encodeToOpus(frame PcmFrame) (OpusFrame, error) {
 		Logger.Errorf(err, "error encoding frame %+v", err)
 		return opusFrame, err
 	}
-	mu.Unlock()
 	opusFrame.Data = data[:n]
+	mu.Unlock()
 
 	return opusFrame, nil
 }
