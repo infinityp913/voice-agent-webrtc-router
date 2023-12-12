@@ -84,10 +84,10 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		wg.Add(1)
 		frame := frame
 		idx := idx
-		opusFrame, err := o.encodeToOpus(frame)
+		// opusFrame, err := o.encodeToOpus(frame)
 		go func(idx_ int, frame_ PcmFrame) {
 			defer wg.Done()
-			// opusFrame, err := o.encodeToOpus(frame_)
+			opusFrame, err := o.encodeToOpus(frame_)
 			if err != nil {
 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.encodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
 				return
@@ -107,14 +107,17 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 }
 
 func (o *OpusEncoder) encodeToOpus(frame PcmFrame) (OpusFrame, error) {
+	var mu sync.Mutex
 	opusFrame := OpusFrame{Index: frame.index}
 	data := make([]byte, 1000)
 
+	mu.Lock()
 	n, err := o.enc.EncodeFloat32(frame.data, data)
 	if err != nil {
 		Logger.Errorf(err, "error encoding frame %+v", err)
 		return opusFrame, err
 	}
+	mu.Unlock()
 	opusFrame.Data = data[:n]
 
 	return opusFrame, nil
