@@ -3,7 +3,6 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"sync"
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
 	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util"
@@ -78,15 +77,15 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	// 	opusFrames = append(opusFrames, opusFrame)
 	// }
 	opusFrames := make([]OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
-	var wg sync.WaitGroup                        // the wait group makes sure that the main goroutine waits for all the spawned goroutines to finish before continuing, preventing the program from exiting prematurely.
+	// var wg sync.WaitGroup                        // the wait group makes sure that the main goroutine waits for all the spawned goroutines to finish before continuing, preventing the program from exiting prematurely.
 	// var mu sync.Mutex                            //to ensure that access to the opusFrames slice (liek by audio-engine's sendMedia()) is serialized, preventing race conditions and potential data corruption.
 	for idx, frame := range frames {
-		wg.Add(1)
+		// wg.Add(1)
 		frame := frame
 		idx := idx
 		// opusFrame, err := o.encodeToOpus(frame)
 		go func(idx_ int, frame_ PcmFrame) {
-			defer wg.Done()
+			// defer wg.Done()
 			opusFrame, err := o.encodeToOpus(frame_)
 			if err != nil {
 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.encodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
@@ -98,7 +97,7 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 			// mu.Unlock()
 		}(idx, frame)
 	}
-	wg.Wait()
+	// wg.Wait()
 
 	Logger.Infof("encoded %d opus frames", len(opusFrames))
 
