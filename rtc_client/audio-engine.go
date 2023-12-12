@@ -137,7 +137,7 @@ func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		internal.Logger.Error(err, "error encoding pcm")
 	}
 
-	a.sendMedia(opusFrames)
+	go a.sendMedia(opusFrames)
 
 	return nil
 }
