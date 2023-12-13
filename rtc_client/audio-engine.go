@@ -167,12 +167,8 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 		// wg.Add(1)
 		frame := frame
 		idx := idx
-		// opusFrame, err := o.encodeToOpus(frame)
-		// o_copy, err := NewOpusEncoder(2, 20)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		go func(idx_ int, frame_ internal.PcmFrame) {
+
+		func(idx_ int, frame_ internal.PcmFrame) {
 			// defer wg.Done()
 			Logger.Info("%%%%%%%%%%%%% o contents: %v %v %v %%%%%%%%%%%%%%%", o.Channels)
 			opusFrame, err := o.EncodeToOpus(frame_)
@@ -181,13 +177,13 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.EncodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
 				return
 			}
+			// sendMedia's logic
 			Logger.Info("converting opus to sample")
 			sample := convertOpusToSample(opusFrame)
 			a.mediaOut <- sample
 			time.Sleep(time.Millisecond * 20)
 			// end of sendMedia's logic
 
-			// Use a mutex to synchronize access to opusFrames.
 			// mu.Lock()
 			// opusFrames[idx_] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
 			// mu.Unlock()
@@ -203,20 +199,18 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 
 // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
 func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
-	// opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
-	// _, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate, a)
-	// _, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
-	// if err != nil {
-	// 	internal.Logger.Error(err, "error encoding pcm")
-	// }
-	go func() {
-		_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
-		if err != nil {
-			internal.Logger.Error(err, "error encoding pcm")
-		}
-	}()
+	opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
+	if err != nil {
+		internal.Logger.Error(err, "error encoding pcm")
+	}
+	// go func() {
+	// 	_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
+	// 	if err != nil {
+	// 		internal.Logger.Error(err, "error encoding pcm")
+	// 	}
+	// }()
 
-	// go a.sendMedia(opusFrames)
+	go a.sendMedia(opusFrames)
 
 	return nil
 }
