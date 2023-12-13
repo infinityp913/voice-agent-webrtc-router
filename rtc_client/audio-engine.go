@@ -183,10 +183,12 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 			}
 
 			// inserting sendMedia's logic here
-			sample := convertOpusToSample(opusFrame)
-			a.mediaOut <- sample
-			// this is important to properly pace the samples
-			time.Sleep(time.Millisecond * 20)
+			go func() {
+				sample := convertOpusToSample(opusFrame)
+				a.mediaOut <- sample
+				// this is important to properly pace the samples
+				time.Sleep(time.Millisecond * 20)
+			}()
 			// end of sendMedia's logic
 
 			// Use a mutex to synchronize access to opusFrames.
