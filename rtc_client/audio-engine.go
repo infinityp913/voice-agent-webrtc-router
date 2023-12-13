@@ -190,7 +190,7 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 				// this is important to properly pace the samples
 				// time.Sleep(time.Millisecond * 100)
 			}()
-			time.Sleep(time.Millisecond * 40)
+			time.Sleep(time.Millisecond * 20)
 			// end of sendMedia's logic
 
 			// Use a mutex to synchronize access to opusFrames.
