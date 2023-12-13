@@ -3,9 +3,11 @@ package internal
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
 	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util"
+	"github.com/infinityp913/rtc-go-server/rtc_client"
 
 	"gopkg.in/hraban/opus.v2"
 )
@@ -50,7 +52,7 @@ func NewOpusEncoder(channels, frameSizeMs int) (*OpusEncoder, error) {
 }
 
 // Encode will resample and encode the provided pcm audio to 48khz Opus
-func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate int) ([]OpusFrame, error) {
+func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate int, a rtc_client.AudioEngine) ([]OpusFrame, error) {
 	if inputChannelCount != 1 && inputChannelCount != 2 {
 		return []OpusFrame{}, errors.New(fmt.Sprintf("invalid inputChannelCount expected 1 or 2 got %d", inputChannelCount))
 	}
@@ -97,6 +99,13 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.encodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
 				return
 			}
+
+			// inserting sendMedia's logic here
+			sample := rtc_client.convertOpusToSample(opusFrame)
+			a.mediaOut <- sample
+			// this is important to properly pace the samples
+			time.Sleep(time.Millisecond * 20)
+
 			// Use a mutex to synchronize access to opusFrames.
 			// mu.Lock()
 			opusFrames[idx_] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]

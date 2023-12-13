@@ -133,7 +133,7 @@ func (a *AudioEngine) Unpause() {
 // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
 func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
 	// opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
-	_, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
+	_, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate, a)
 	if err != nil {
 		internal.Logger.Error(err, "error encoding pcm")
 	}
