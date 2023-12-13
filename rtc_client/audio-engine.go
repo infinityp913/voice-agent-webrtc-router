@@ -187,7 +187,7 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 				sample := convertOpusToSample(opusFrame)
 				a.mediaOut <- sample
 				// this is important to properly pace the samples
-				time.Sleep(time.Millisecond * 40)
+				time.Sleep(time.Millisecond * 100)
 			}()
 			// end of sendMedia's logic
 
