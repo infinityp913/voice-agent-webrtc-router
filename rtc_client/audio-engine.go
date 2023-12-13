@@ -174,7 +174,7 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 		// }
 		func(idx_ int, frame_ internal.PcmFrame) {
 			// defer wg.Done()
-			// Logger.Info("%%%%%%%%%%%%% o contents: %v %v %v %%%%%%%%%%%%%%%", o.channels, o.frameSizeMs, o.sampleRate)
+			Logger.Info("%%%%%%%%%%%%% o contents: %v %v %v %%%%%%%%%%%%%%%", o.Channels)
 			opusFrame, err := o.EncodeToOpus(frame_)
 			// opusFrame, err := o_copy.encodeToOpus(frame_)
 			if err != nil {
