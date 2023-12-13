@@ -172,7 +172,7 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 		// if err != nil {
 		// 	return nil, err
 		// }
-		func(idx_ int, frame_ internal.PcmFrame) {
+		go func(idx_ int, frame_ internal.PcmFrame) {
 			// defer wg.Done()
 			Logger.Info("%%%%%%%%%%%%% o contents: %v %v %v %%%%%%%%%%%%%%%", o.Channels)
 			opusFrame, err := o.EncodeToOpus(frame_)
