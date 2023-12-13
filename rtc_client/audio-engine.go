@@ -210,10 +210,16 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
 	// opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
 	// _, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate, a)
-	_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
-	if err != nil {
-		internal.Logger.Error(err, "error encoding pcm")
-	}
+	// _, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
+	// if err != nil {
+	// 	internal.Logger.Error(err, "error encoding pcm")
+	// }
+	go func() {
+		_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
+		if err != nil {
+			internal.Logger.Error(err, "error encoding pcm")
+		}
+	}()
 
 	// go a.sendMedia(opusFrames)
 
