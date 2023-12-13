@@ -96,14 +96,6 @@ func NewOpusEncoder(channels, frameSizeMs int) (*OpusEncoder, error) {
 // 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.encodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
 // 				return
 // 			}
-
-// 			// inserting sendMedia's logic here
-// 			sample := rtc_client.convertOpusToSample(opusFrame)
-// 			a.mediaOut <- sample
-// 			// this is important to properly pace the samples
-// 			time.Sleep(time.Millisecond * 20)
-// 			// end of sendMedia's logic
-
 // 			// Use a mutex to synchronize access to opusFrames.
 // 			// mu.Lock()
 // 			opusFrames[idx_] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]

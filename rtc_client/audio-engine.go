@@ -181,15 +181,6 @@ func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSamp
 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.EncodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
 				return
 			}
-
-			// // inserting sendMedia's logic here
-			// go func() {
-			// 	Logger.Info("converting opus to sample")
-			// 	sample := convertOpusToSample(opusFrame)
-			// 	a.mediaOut <- sample
-			// 	// this is important to properly pace the samples
-			// 	// time.Sleep(time.Millisecond * 100)
-			// }()
 			Logger.Info("converting opus to sample")
 			sample := convertOpusToSample(opusFrame)
 			a.mediaOut <- sample
