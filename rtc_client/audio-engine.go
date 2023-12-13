@@ -3,6 +3,8 @@ package rtc_client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -11,6 +13,7 @@ import (
 	"time"
 
 	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
+	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util"
 	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
 
 	stt "github.com/infinityp913/rtc-go-server/stt/engine"
@@ -130,10 +133,81 @@ func (a *AudioEngine) Unpause() {
 	a.shouldInfer.Swap(true)
 }
 
+// Encode will resample and encode the provided pcm audio to 48khz Opus
+func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSampleRate int, a *AudioEngine) ([]internal.OpusFrame, error) {
+	if inputChannelCount != 1 && inputChannelCount != 2 {
+		return []internal.OpusFrame{}, errors.New(fmt.Sprintf("invalid inputChannelCount expected 1 or 2 got %d", inputChannelCount))
+	}
+	if inputChannelCount == 2 && o.Channels == 1 {
+		return []internal.OpusFrame{}, errors.New("cannot currently downsample channels consider encoding to 2 channel")
+	}
+	if inputChannelCount == 1 && o.Channels == 2 {
+		pcm = util.ConvertToDualChannel(pcm)
+	}
+	if inputSampleRate != 48000 {
+		pcm = internal.Resample(pcm, inputSampleRate, 48000)
+	}
+	frames := o.ChunkPcm(pcm, 48000)
+
+	// opusFrames := make([]OpusFrame, 0, len(frames))
+
+	// for _, frame := range frames {
+	// 	opusFrame, err := o.encodeToOpus(frame)
+	// 	if err != nil {
+	// 		Logger.Error(err, "error encoding opus frame")
+	// 		return opusFrames, err
+	// 	}
+
+	// 	opusFrames = append(opusFrames, opusFrame)
+	// }
+	opusFrames := make([]internal.OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
+	// var wg sync.WaitGroup                        // the wait group makes sure that the main goroutine waits for all the spawned goroutines to finish before continuing, preventing the program from exiting prematurely.
+	// var mu sync.Mutex                            //to ensure that access to the opusFrames slice (liek by audio-engine's sendMedia()) is serialized, preventing race conditions and potential data corruption.
+	for idx, frame := range frames {
+		// wg.Add(1)
+		frame := frame
+		idx := idx
+		// opusFrame, err := o.encodeToOpus(frame)
+		// o_copy, err := NewOpusEncoder(2, 20)
+		// if err != nil {
+		// 	return nil, err
+		// }
+		func(idx_ int, frame_ internal.PcmFrame) {
+			// defer wg.Done()
+			// Logger.Info("%%%%%%%%%%%%% o contents: %v %v %v %%%%%%%%%%%%%%%", o.channels, o.frameSizeMs, o.sampleRate)
+			opusFrame, err := o.EncodeToOpus(frame_)
+			// opusFrame, err := o_copy.encodeToOpus(frame_)
+			if err != nil {
+				Logger.Error(err, "$$$$$$$$$ ERROR IN o.EncodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
+				return
+			}
+
+			// inserting sendMedia's logic here
+			sample := convertOpusToSample(opusFrame)
+			a.mediaOut <- sample
+			// this is important to properly pace the samples
+			time.Sleep(time.Millisecond * 20)
+			// end of sendMedia's logic
+
+			// Use a mutex to synchronize access to opusFrames.
+			// mu.Lock()
+			opusFrames[idx_] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
+			// mu.Unlock()
+		}(idx, frame)
+	}
+	// wg.Wait()
+
+	Logger.Infof("encoded %d opus frames", len(opusFrames))
+
+	return opusFrames, nil
+
+}
+
 // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
 func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
 	// opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
-	_, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate, a)
+	// _, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate, a)
+	_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
 	if err != nil {
 		internal.Logger.Error(err, "error encoding pcm")
 	}
