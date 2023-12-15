@@ -220,18 +220,18 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	// REMOVE AFTER DEBUG
 	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
-		go func() {
-			internal.Logger.Info("converting opus to sample")
-			sample := convertOpusToSample(f)
-			a.mediaOut <- sample
-			// this is important to properly pace the samples
-			time.Sleep(time.Millisecond * 20)
-		}()
-		// internal.Logger.Info("converting opus to sample")
-		// sample := convertOpusToSample(f)
-		// a.mediaOut <- sample
-		// // this is important to properly pace the samples
-		// time.Sleep(time.Millisecond * 20)
+		// go func() {
+		// 	internal.Logger.Info("converting opus to sample")
+		// 	sample := convertOpusToSample(f)
+		// 	a.mediaOut <- sample
+		// 	// this is important to properly pace the samples
+		// 	time.Sleep(time.Millisecond * 20)
+		// }()
+		internal.Logger.Info("converting opus to sample")
+		sample := convertOpusToSample(f)
+		a.mediaOut <- sample
+		// this is important to properly pace the samples
+		time.Sleep(time.Millisecond * 20)
 	}
 	internal.Logger.Info("DEBUG: End of sendMedia")
 }
