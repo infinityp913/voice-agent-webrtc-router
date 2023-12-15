@@ -338,6 +338,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// extract pcm array from json
 	var pcm_arr []float32 = flaskResponse.Pcm_arr
+	logger.Info("len(pcm_arr): ", len(pcm_arr))
 
 	p.currentState = flaskResponse.New_state
 	p.Unlock()
