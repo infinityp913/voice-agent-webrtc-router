@@ -233,18 +233,14 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 func (a *AudioEngine) SendMediaBytes(frames []byte) {
 	// REMOVE AFTER DEBUG
 	internal.Logger.Info("DEBUG: Printing the media samples")
-	// for _, f := range frames {
-	// 	internal.Logger.Info("converting wav byte array to sample")
-	// 	sample := convertWavByteToSample(f)
-	// 	a.mediaOut <- sample
-	// 	// this is important to properly pace the samples
-	// 	time.Sleep(time.Millisecond * 20)
-	// }
-	internal.Logger.Info("converting wav byte array to sample")
-	sample := convertWavByteToSample(frames)
-	a.mediaOut <- sample
-	// this is important to properly pace the samples
-	time.Sleep(time.Millisecond * 20)
+	for _, f := range frames {
+		internal.Logger.Info("converting wav byte array to sample")
+		f_byte_arr := []byte{f}
+		sample := convertWavByteToSample(f_byte_arr)
+		a.mediaOut <- sample
+		// this is important to properly pace the samples
+		time.Sleep(time.Millisecond * 20)
+	}
 	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
