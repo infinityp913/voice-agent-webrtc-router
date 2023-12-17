@@ -229,9 +229,36 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
+// sendMedia turns opus frames into media samples and sends them on the channel
+func (a *AudioEngine) SendMediaBytes(frames []byte) {
+	// REMOVE AFTER DEBUG
+	internal.Logger.Info("DEBUG: Printing the media samples")
+	// for _, f := range frames {
+	// 	internal.Logger.Info("converting wav byte array to sample")
+	// 	sample := convertWavByteToSample(f)
+	// 	a.mediaOut <- sample
+	// 	// this is important to properly pace the samples
+	// 	time.Sleep(time.Millisecond * 20)
+	// }
+	internal.Logger.Info("converting wav byte array to sample")
+	sample := convertWavByteToSample(frames)
+	a.mediaOut <- sample
+	// this is important to properly pace the samples
+	time.Sleep(time.Millisecond * 20)
+	internal.Logger.Info("DEBUG: End of sendMedia")
+}
+
 func convertOpusToSample(frame internal.OpusFrame) media.Sample {
 	return media.Sample{
 		Data:               frame.Data,
+		PrevDroppedPackets: 0, // FIXME support dropping packets
+		Duration:           time.Millisecond * 20,
+	}
+}
+
+func convertWavByteToSample(frame []byte) media.Sample {
+	return media.Sample{
+		Data:               frame,
 		PrevDroppedPackets: 0, // FIXME support dropping packets
 		Duration:           time.Millisecond * 20,
 	}

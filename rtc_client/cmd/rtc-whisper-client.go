@@ -257,8 +257,8 @@ func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCCon
 
 type FlaskResponse struct {
 	// TODO: uncomment and use new_state
-	New_state int       `json:"new_state"`
-	Pcm_arr   []float32 `json:"response"`
+	New_state int    `json:"new_state"`
+	Wav_arr   []byte `json:"response"`
 }
 
 var client = &http.Client{Timeout: 10 * time.Second}
@@ -337,24 +337,25 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("Pcm Array Response Received")
 
 	// extract pcm array from json
-	var pcm_arr []float32 = flaskResponse.Pcm_arr
-	logger.Info("len(pcm_arr): ", len(pcm_arr))
+	var wav_arr []byte = flaskResponse.Wav_arr
+	logger.Info("len(wav_arr): ", len(wav_arr))
 
 	p.currentState = flaskResponse.New_state
 	p.Unlock()
 
-	// padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
+	// // padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
 
-	data := make([]float32, 38050)
-	data = append(data, pcm_arr...)
-	pcm_arr = data
+	// data := make([]float32, 38050)
+	// data = append(data, pcm_arr...)
+	// pcm_arr = data
 
-	logger.Info("before encode") // REMOVE AFTER DEBUG
+	// logger.Info("before encode") // REMOVE AFTER DEBUG
 
-	ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
+	// ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
-	logger.Info("after encode") // REMOVE AFTER DEBUG
+	// logger.Info("after encode") // REMOVE AFTER DEBUG
 
+	go ae.SendMediaBytes(wav_arr)
 	go rtc.ProcessOutgoingMedia()
 
 	// resume Ria listening
@@ -373,7 +374,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	// send POST req to the URL with user_input and get the json containing pcm
-	url := "http://localhost:8000/get_response"
+	url := "http://localhost:8000/get_response_fast"
 
 	// Sending curr_state 0 signal to flask along with a hard-coded hello (content of endu_user_input doesn't matter)
 	// This is to get the intro as response
@@ -383,24 +384,26 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	getJson(url, jsonStrByte, flaskResponse)
 
 	// extract pcm array from json
-	var pcm_arr []float32 = flaskResponse.Pcm_arr
+	var wav_arr []byte = flaskResponse.Wav_arr
 	new_state := flaskResponse.New_state
-	logger.Info("len(pcm_arr): ", len(pcm_arr))
+	logger.Info("len(wav_arr): ", len(wav_arr))
 
-	// padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
+	// // padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
 
-	data := make([]float32, 38050)
-	data = append(data, pcm_arr...)
-	pcm_arr = data
+	// data := make([]float32, 38050)
+	// data = append(data, pcm_arr...)
+	// pcm_arr = data
 
-	logger.Info("before encode") // REMOVE AFTER DEBUG
-	// time.Sleep(100 * time.Millisecond)
+	// logger.Info("before encode") // REMOVE AFTER DEBUG
+	// // time.Sleep(100 * time.Millisecond)
 
-	ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
+	// ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
-	logger.Info("after encode") // REMOVE AFTER DEBUG
+	// logger.Info("after encode") // REMOVE AFTER DEBUG
 
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+
+	go ae.SendMediaBytes(wav_arr)
 	go rtc.ProcessOutgoingMedia()
 
 	// go func() {
