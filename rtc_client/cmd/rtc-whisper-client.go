@@ -258,7 +258,7 @@ func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCCon
 type FlaskResponse struct {
 	// TODO: uncomment and use new_state
 	New_state int    `json:"new_state"`
-	Wav_arr   []byte `json:"response"`
+	Wav_arr   string `json:"response"`
 }
 
 var client = &http.Client{Timeout: 10 * time.Second}
