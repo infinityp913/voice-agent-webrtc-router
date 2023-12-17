@@ -325,7 +325,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// *** Send currentPrompt to Flask server ***
 
-	url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
+	url := "http://localhost:8000/get_response_fast" // Flask server running QnA NN + TTS NN is hosted here
 
 	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
 	p.Lock() // locking since we're going to access p.currentState
