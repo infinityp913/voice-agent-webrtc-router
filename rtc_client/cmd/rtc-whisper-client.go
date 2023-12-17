@@ -337,7 +337,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("Pcm Array Response Received")
 
 	// extract pcm array from json
-	var wav_arr []byte = flaskResponse.Wav_arr
+	var wav_arr []byte = []byte(flaskResponse.Wav_arr)
 	logger.Info("len(wav_arr): ", len(wav_arr))
 
 	p.currentState = flaskResponse.New_state
@@ -384,7 +384,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	getJson(url, jsonStrByte, flaskResponse)
 
 	// extract pcm array from json
-	var wav_arr []byte = flaskResponse.Wav_arr
+	var wav_arr []byte = []byte(flaskResponse.Wav_arr)
 	new_state := flaskResponse.New_state
 	logger.Info("len(wav_arr): ", len(wav_arr))
 
