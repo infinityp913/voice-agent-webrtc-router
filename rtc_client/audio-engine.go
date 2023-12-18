@@ -236,6 +236,7 @@ func (a *AudioEngine) SendMediaBytes(frames []byte) {
 	for _, f := range frames {
 		internal.Logger.Info("converting wav byte array to sample")
 		f_byte_arr := []byte{f}
+		internal.Logger.Info("what wav encoded byte array looks like: ", f_byte_arr)
 		sample := convertWavByteToSample(f_byte_arr)
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
