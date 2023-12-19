@@ -59,6 +59,11 @@ type FlaskResponse struct {
 	Pcm_arr []float32 `json:"response"`
 }
 
+type WavFrame struct {
+	Index int
+	Data  []byte
+}
+
 var client = &http.Client{Timeout: 10 * time.Second}
 
 func getJson(url string, jsonStrByte []byte, target interface{}) error {
@@ -230,13 +235,12 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 }
 
 // sendMedia turns opus frames into media samples and sends them on the channel
-func (a *AudioEngine) SendMediaBytes(frames []byte) {
+func (a *AudioEngine) SendMediaWav(frames []WavFrame) {
 	// REMOVE AFTER DEBUG
 	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
 		internal.Logger.Info("converting wav byte array to sample")
-		f_byte_arr := []byte{f}
-		sample := convertWavByteToSample(f_byte_arr)
+		sample := convertWavToSample(f)
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
@@ -252,9 +256,9 @@ func convertOpusToSample(frame internal.OpusFrame) media.Sample {
 	}
 }
 
-func convertWavByteToSample(frame []byte) media.Sample {
+func convertWavToSample(frame WavFrame) media.Sample {
 	return media.Sample{
-		Data:               frame,
+		Data:               frame.Data,
 		PrevDroppedPackets: 0, // FIXME support dropping packets
 		Duration:           time.Millisecond * 20,
 	}

@@ -305,6 +305,47 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 	os.Exit(1)
 }
 
+// type WavFrame struct {
+// 	Index int
+// 	Data  []byte
+// }
+
+// chunkWav will split the provided wav audio into properly sized frames
+func ChunkWav(wav []byte, sampleRate int) []rtc_client.WavFrame {
+	// the amount of samples that fit into a frame
+	outputFrameSize := 1 * 20 * 22050 / 1000
+	// TODO make sure this rounds up
+	totalFrames := len(wav) / outputFrameSize
+
+	frames := make([]rtc_client.WavFrame, 0, totalFrames)
+
+	idx := 0
+	for idx <= totalFrames {
+		wavLen := len(wav)
+		// we have at least a full frame left
+		if wavLen > outputFrameSize {
+			logger.Debug("Got a full frame")
+			frames = append(frames, rtc_client.WavFrame{Index: idx, Data: wav[:outputFrameSize]})
+			// chop frame off of input
+			wav = wav[outputFrameSize:]
+			idx++
+		} else {
+			// we have less than a full frame so lets pad with silence
+			sampleDelta := outputFrameSize - wavLen
+			silence := make([]byte, sampleDelta)
+
+			logger.Debugf("Got a partial frame len %d padding with %d silence samples", wavLen, len(silence))
+
+			frames = append(frames, rtc_client.WavFrame{Index: idx, Data: append(wav, silence...)})
+			break
+		}
+	}
+
+	logger.Debugf("got %d frames", len(frames))
+
+	return frames
+}
+
 // This function sends the current prompt (i.e., current message from the end user) to Flask
 func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	p.Lock()
@@ -354,8 +395,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
 	// logger.Info("after encode") // REMOVE AFTER DEBUG
-
-	go ae.SendMediaBytes(wav_arr)
+	wavFrames := ChunkWav(wav_arr, 22050)
+	go ae.SendMediaWav(wavFrames)
 	go rtc.ProcessOutgoingMedia()
 
 	// resume Ria listening
@@ -402,8 +443,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// logger.Info("after encode") // REMOVE AFTER DEBUG
 
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-
-	go ae.SendMediaBytes(wav_arr)
+	wavFrames := ChunkWav(wav_arr, 22050)
+	go ae.SendMediaWav(wavFrames)
 	go rtc.ProcessOutgoingMedia()
 
 	// go func() {
