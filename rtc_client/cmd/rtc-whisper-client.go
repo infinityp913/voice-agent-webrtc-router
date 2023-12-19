@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -22,6 +21,8 @@ import (
 	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 	"github.com/infinityp913/rtc-go-server/rtc_client"
 	stt "github.com/infinityp913/rtc-go-server/stt/engine"
+
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
 const llmTime = time.Millisecond * 1500
@@ -311,32 +312,68 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 // }
 
 // chunkWav will split the provided wav audio into properly sized frames
-func ChunkWav(wav []byte, sampleRate int) []rtc_client.WavFrame {
+// func ChunkWav(wav []byte, sampleRate int) []rtc_client.WavFrame {
+// 	// the amount of samples that fit into a frame
+// 	outputFrameSize := 1 * 20 * 22050 / 1000
+// 	// TODO make sure this rounds up
+// 	totalFrames := len(wav) / outputFrameSize
+
+// 	frames := make([]rtc_client.WavFrame, 0, totalFrames)
+
+// 	idx := 0
+// 	for idx <= totalFrames {
+// 		wavLen := len(wav)
+// 		// we have at least a full frame left
+// 		if wavLen > outputFrameSize {
+// 			logger.Debug("Got a full frame")
+// 			frames = append(frames, rtc_client.WavFrame{Index: idx, Data: wav[:outputFrameSize]})
+// 			// chop frame off of input
+// 			wav = wav[outputFrameSize:]
+// 			idx++
+// 		} else {
+// 			// we have less than a full frame so lets pad with silence
+// 			sampleDelta := outputFrameSize - wavLen
+// 			silence := make([]byte, sampleDelta)
+
+// 			logger.Debugf("Got a partial frame len %d padding with %d silence samples", wavLen, len(silence))
+
+// 			frames = append(frames, rtc_client.WavFrame{Index: idx, Data: append(wav, silence...)})
+// 			break
+// 		}
+// 	}
+
+// 	logger.Debugf("got %d frames", len(frames))
+
+// 	return frames
+// }
+
+// chunkOpus will split the provided opus audio into properly sized frames
+func ChunkOpus(opus []byte, sampleRate int) []rtc_client.OpusFrame {
 	// the amount of samples that fit into a frame
 	outputFrameSize := 1 * 20 * 22050 / 1000
 	// TODO make sure this rounds up
-	totalFrames := len(wav) / outputFrameSize
+	totalFrames := len(opus) / outputFrameSize
 
-	frames := make([]rtc_client.WavFrame, 0, totalFrames)
+	frames := make([]rtc_client.OpusFrame, 0, totalFrames)
 
 	idx := 0
 	for idx <= totalFrames {
-		wavLen := len(wav)
+		opusLen := len(opus)
 		// we have at least a full frame left
-		if wavLen > outputFrameSize {
+		if opusLen > outputFrameSize {
 			logger.Debug("Got a full frame")
-			frames = append(frames, rtc_client.WavFrame{Index: idx, Data: wav[:outputFrameSize]})
+			frames = append(frames, rtc_client.OpusFrame{Index: idx, Data: opus[:outputFrameSize]})
 			// chop frame off of input
-			wav = wav[outputFrameSize:]
+			opus = opus[outputFrameSize:]
 			idx++
 		} else {
 			// we have less than a full frame so lets pad with silence
-			sampleDelta := outputFrameSize - wavLen
+			sampleDelta := outputFrameSize - opusLen
 			silence := make([]byte, sampleDelta)
 
-			logger.Debugf("Got a partial frame len %d padding with %d silence samples", wavLen, len(silence))
+			logger.Debugf("Got a partial frame len %d padding with %d silence samples", opusLen, len(silence))
 
-			frames = append(frames, rtc_client.WavFrame{Index: idx, Data: append(wav, silence...)})
+			frames = append(frames, rtc_client.OpusFrame{Index: idx, Data: append(opus, silence...)})
 			break
 		}
 	}
@@ -395,8 +432,31 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
 	// logger.Info("after encode") // REMOVE AFTER DEBUG
-	wavFrames := ChunkWav(wav_arr, 22050)
-	go ae.SendMediaWav(wavFrames)
+	// wavFrames := ChunkWav(wav_arr, 22050)
+	// go ae.SendMediaWav(wavFrames)
+
+	err := ffmpeg.Input("pipe:0").
+		Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2}).
+		Run()
+	if err != nil {
+		logger.Info("Error at ffmpeg.Input()!!", err)
+	}
+	// write wav_arr to std_in
+	_, err = os.Stdin.Write(wav_arr)
+	if err != nil {
+		logger.Info("Error at os.Stdin.Write()!!", err)
+	}
+	opus_byte_arr := make([]byte, 100000000)
+	n, err := os.Stdout.Read(opus_byte_arr)
+	if n > 0 {
+		logger.Info("length of wav bytes converted to opus:", n)
+		valid_opus_byte_arr := opus_byte_arr[:n]
+		// chunk opus_byte_arr into frames
+		opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
+		// convert opus frames to media samples
+		go ae.SendMedia(opusFrames)
+	}
+
 	go rtc.ProcessOutgoingMedia()
 
 	// resume Ria listening
@@ -443,27 +503,51 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// logger.Info("after encode") // REMOVE AFTER DEBUG
 
 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	wavFrames := ChunkWav(wav_arr, 22050)
-	go ae.SendMediaWav(wavFrames)
+
+	// wavFrames := ChunkWav(wav_arr, 22050)
+	// go ae.SendMediaWav(wavFrames)
+
+	err := ffmpeg.Input("pipe:0").
+		Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2}).
+		Run()
+	if err != nil {
+		logger.Info("Error at ffmpeg.Input()!!", err)
+	}
+	// write wav_arr to std_in
+	_, err = os.Stdin.Write(wav_arr)
+	if err != nil {
+		logger.Info("Error at os.Stdin.Write()!!", err)
+	}
+	opus_byte_arr := make([]byte, 100000000)
+	n, err := os.Stdout.Read(opus_byte_arr)
+	if n > 0 {
+		logger.Info("length of wav bytes converted to opus:", n)
+		valid_opus_byte_arr := opus_byte_arr[:n]
+		// chunk opus_byte_arr into frames
+		opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
+		// convert opus frames to media samples
+		go ae.SendMedia(opusFrames)
+	}
+
 	go rtc.ProcessOutgoingMedia()
 	return new_state
 }
 
-func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
-	logger.Info("CHOOSING stall message")
-	randomIndex := rand.Intn(len(msgs))
-	chosen_msg := msgs[randomIndex]
+// func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
+// 	logger.Info("CHOOSING stall message")
+// 	randomIndex := rand.Intn(len(msgs))
+// 	chosen_msg := msgs[randomIndex]
 
-	// padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
+// 	// padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
 
-	data := make([]float32, 38050)
-	data = append(data, chosen_msg...)
-	chosen_msg = data
+// 	data := make([]float32, 38050)
+// 	data = append(data, chosen_msg...)
+// 	chosen_msg = data
 
-	logger.Info("SENDING stall message")
+// 	logger.Info("SENDING stall message")
 
-	ae.Encode(chosen_msg, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
+// 	ae.Encode(chosen_msg, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
-	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-	go rtc.ProcessOutgoingMedia()
-}
+// 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
+// 	go rtc.ProcessOutgoingMedia()
+// }

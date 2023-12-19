@@ -3,8 +3,6 @@ package rtc_client
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -13,7 +11,7 @@ import (
 	"time"
 
 	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
-	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util"
+
 	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
 
 	stt "github.com/infinityp913/rtc-go-server/stt/engine"
@@ -59,9 +57,15 @@ type FlaskResponse struct {
 	Pcm_arr []float32 `json:"response"`
 }
 
-type WavFrame struct {
-	Index int
+// type WavFrame struct {
+// 	Index int
+// 	Data  []byte
+// }
+
+// OpusFrame contains and encoded opus frame
+type OpusFrame struct {
 	Data  []byte
+	Index int
 }
 
 var client = &http.Client{Timeout: 10 * time.Second}
@@ -138,90 +142,104 @@ func (a *AudioEngine) Unpause() {
 	a.shouldInfer.Swap(true)
 }
 
-// Encode will resample and encode the provided pcm audio to 48khz Opus
-func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSampleRate int, a *AudioEngine) ([]internal.OpusFrame, error) {
-	if inputChannelCount != 1 && inputChannelCount != 2 {
-		return []internal.OpusFrame{}, errors.New(fmt.Sprintf("invalid inputChannelCount expected 1 or 2 got %d", inputChannelCount))
-	}
-	if inputChannelCount == 2 && o.Channels == 1 {
-		return []internal.OpusFrame{}, errors.New("cannot currently downsample channels consider encoding to 2 channel")
-	}
-	if inputChannelCount == 1 && o.Channels == 2 {
-		pcm = util.ConvertToDualChannel(pcm)
-	}
-	if inputSampleRate != 48000 {
-		pcm = internal.Resample(pcm, inputSampleRate, 48000)
-	}
-	frames := o.ChunkPcm(pcm, 48000)
+// // Encode will resample and encode the provided pcm audio to 48khz Opus
+// func Encode(o *internal.OpusEncoder, pcm []float32, inputChannelCount, inputSampleRate int, a *AudioEngine) ([]internal.OpusFrame, error) {
+// 	if inputChannelCount != 1 && inputChannelCount != 2 {
+// 		return []internal.OpusFrame{}, errors.New(fmt.Sprintf("invalid inputChannelCount expected 1 or 2 got %d", inputChannelCount))
+// 	}
+// 	if inputChannelCount == 2 && o.Channels == 1 {
+// 		return []internal.OpusFrame{}, errors.New("cannot currently downsample channels consider encoding to 2 channel")
+// 	}
+// 	if inputChannelCount == 1 && o.Channels == 2 {
+// 		pcm = util.ConvertToDualChannel(pcm)
+// 	}
+// 	if inputSampleRate != 48000 {
+// 		pcm = internal.Resample(pcm, inputSampleRate, 48000)
+// 	}
+// 	frames := o.ChunkPcm(pcm, 48000)
 
-	// opusFrames := make([]OpusFrame, 0, len(frames))
+// 	// opusFrames := make([]OpusFrame, 0, len(frames))
 
-	// for _, frame := range frames {
-	// 	opusFrame, err := o.encodeToOpus(frame)
-	// 	if err != nil {
-	// 		Logger.Error(err, "error encoding opus frame")
-	// 		return opusFrames, err
-	// 	}
+// 	// for _, frame := range frames {
+// 	// 	opusFrame, err := o.encodeToOpus(frame)
+// 	// 	if err != nil {
+// 	// 		Logger.Error(err, "error encoding opus frame")
+// 	// 		return opusFrames, err
+// 	// 	}
 
-	// 	opusFrames = append(opusFrames, opusFrame)
-	// }
-	// opusFrames := make([]internal.OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
-	// var wg sync.WaitGroup                        // the wait group makes sure that the main goroutine waits for all the spawned goroutines to finish before continuing, preventing the program from exiting prematurely.
-	// var mu sync.Mutex                            //to ensure that access to the opusFrames slice (liek by audio-engine's sendMedia()) is serialized, preventing race conditions and potential data corruption.
-	for idx, frame := range frames {
-		// wg.Add(1)
-		frame := frame
-		idx := idx
+// 	// 	opusFrames = append(opusFrames, opusFrame)
+// 	// }
+// 	// opusFrames := make([]internal.OpusFrame, len(frames)) // made the opusFrames a slice of fixed length and capacity, cap=len to enable indexing below
+// 	// var wg sync.WaitGroup                        // the wait group makes sure that the main goroutine waits for all the spawned goroutines to finish before continuing, preventing the program from exiting prematurely.
+// 	// var mu sync.Mutex                            //to ensure that access to the opusFrames slice (liek by audio-engine's sendMedia()) is serialized, preventing race conditions and potential data corruption.
+// 	for idx, frame := range frames {
+// 		// wg.Add(1)
+// 		frame := frame
+// 		idx := idx
 
-		func(idx_ int, frame_ internal.PcmFrame) {
-			// defer wg.Done()
-			Logger.Info("%%%%%%%%%%%%% o contents: %v %v %v %%%%%%%%%%%%%%%", o.Channels)
-			opusFrame, err := o.EncodeToOpus(frame_)
-			// opusFrame, err := o_copy.encodeToOpus(frame_)
-			if err != nil {
-				Logger.Error(err, "$$$$$$$$$ ERROR IN o.EncodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
-				return
-			}
-			// sendMedia's logic
-			Logger.Info("converting opus to sample")
-			sample := convertOpusToSample(opusFrame)
-			a.mediaOut <- sample
-			time.Sleep(time.Millisecond * 20)
-			// end of sendMedia's logic
+// 		func(idx_ int, frame_ internal.PcmFrame) {
+// 			// defer wg.Done()
+// 			Logger.Info("%%%%%%%%%%%%% o contents: %v %v %v %%%%%%%%%%%%%%%", o.Channels)
+// 			opusFrame, err := o.EncodeToOpus(frame_)
+// 			// opusFrame, err := o_copy.encodeToOpus(frame_)
+// 			if err != nil {
+// 				Logger.Error(err, "$$$$$$$$$ ERROR IN o.EncodeToOpus $$$$$$$$$$$$$$") // RISK: WE'RE NOT RETURNING THE ERROR OVER HERE
+// 				return
+// 			}
+// 			// sendMedia's logic
+// 			Logger.Info("converting opus to sample")
+// 			sample := convertOpusToSample(opusFrame)
+// 			a.mediaOut <- sample
+// 			time.Sleep(time.Millisecond * 20)
+// 			// end of sendMedia's logic
 
-			// mu.Lock()
-			// opusFrames[idx_] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
-			// mu.Unlock()
-		}(idx, frame)
-	}
-	// wg.Wait()
+// 			// mu.Lock()
+// 			// opusFrames[idx_] = opusFrame // Since all goroutines write to different memory locations (coz of indexing) this isn't racy. [inspiration: https://stackoverflow.com/questions/18499352/golang-concurrency-how-to-append-to-the-same-slice-from-different-goroutines]
+// 			// mu.Unlock()
+// 		}(idx, frame)
+// 	}
+// 	// wg.Wait()
 
-	// Logger.Infof("encoded %d opus frames", len(opusFrames))
+// 	// Logger.Infof("encoded %d opus frames", len(opusFrames))
 
-	return nil, nil
+// 	return nil, nil
 
-}
+// }
 
-// Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
-func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
-	opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
-	if err != nil {
-		internal.Logger.Error(err, "error encoding pcm")
-	}
-	// go func() {
-	// 	_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
-	// 	if err != nil {
-	// 		internal.Logger.Error(err, "error encoding pcm")
-	// 	}
-	// }()
+// // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
+// func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
+// 	opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
+// 	if err != nil {
+// 		internal.Logger.Error(err, "error encoding pcm")
+// 	}
+// 	// go func() {
+// 	// 	_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
+// 	// 	if err != nil {
+// 	// 		internal.Logger.Error(err, "error encoding pcm")
+// 	// 	}
+// 	// }()
 
-	go a.sendMedia(opusFrames)
+// 	go a.sendMedia(opusFrames)
 
-	return nil
-}
+// 	return nil
+// }
+
+// // (OG) sendMedia turns opus frames into media samples and sends them on the channel
+// func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
+// 	// REMOVE AFTER DEBUG
+// 	internal.Logger.Info("DEBUG: Printing the media samples")
+// 	for _, f := range frames {
+// 		internal.Logger.Info("converting opus to sample")
+// 		sample := convertOpusToSample(f)
+// 		a.mediaOut <- sample
+// 		// this is important to properly pace the samples
+// 		time.Sleep(time.Millisecond * 20)
+// 	}
+// 	internal.Logger.Info("DEBUG: End of sendMedia")
+// }
 
 // sendMedia turns opus frames into media samples and sends them on the channel
-func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
+func (a *AudioEngine) SendMedia(frames []OpusFrame) {
 	// REMOVE AFTER DEBUG
 	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
@@ -234,21 +252,30 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
-// sendMedia turns opus frames into media samples and sends them on the channel
-func (a *AudioEngine) SendMediaWav(frames []WavFrame) {
-	// REMOVE AFTER DEBUG
-	internal.Logger.Info("DEBUG: Printing the media samples")
-	for _, f := range frames {
-		internal.Logger.Info("converting wav byte array to sample")
-		sample := convertWavToSample(f)
-		a.mediaOut <- sample
-		// this is important to properly pace the samples
-		time.Sleep(time.Millisecond * 20)
-	}
-	internal.Logger.Info("DEBUG: End of sendMedia")
-}
+// // sendMedia turns opus frames into media samples and sends them on the channel
+// func (a *AudioEngine) SendMediaWav(frames []WavFrame) {
+// 	// REMOVE AFTER DEBUG
+// 	internal.Logger.Info("DEBUG: Printing the media samples")
+// 	for _, f := range frames {
+// 		internal.Logger.Info("converting wav byte array to sample")
+// 		sample := convertWavToSample(f)
+// 		a.mediaOut <- sample
+// 		// this is important to properly pace the samples
+// 		time.Sleep(time.Millisecond * 20)
+// 	}
+// 	internal.Logger.Info("DEBUG: End of sendMedia")
+// }
 
-func convertOpusToSample(frame internal.OpusFrame) media.Sample {
+// (OG)
+// func convertOpusToSample(frame internal.OpusFrame) media.Sample {
+// 	return media.Sample{
+// 		Data:               frame.Data,
+// 		PrevDroppedPackets: 0, // FIXME support dropping packets
+// 		Duration:           time.Millisecond * 20,
+// 	}
+// }
+
+func convertOpusToSample(frame OpusFrame) media.Sample {
 	return media.Sample{
 		Data:               frame.Data,
 		PrevDroppedPackets: 0, // FIXME support dropping packets
@@ -256,13 +283,13 @@ func convertOpusToSample(frame internal.OpusFrame) media.Sample {
 	}
 }
 
-func convertWavToSample(frame WavFrame) media.Sample {
-	return media.Sample{
-		Data:               frame.Data,
-		PrevDroppedPackets: 0, // FIXME support dropping packets
-		Duration:           time.Millisecond * 20,
-	}
-}
+// func convertWavToSample(frame WavFrame) media.Sample {
+// 	return media.Sample{
+// 		Data:               frame.Data,
+// 		PrevDroppedPackets: 0, // FIXME support dropping packets
+// 		Duration:           time.Millisecond * 20,
+// 	}
+// }
 
 // decode reads over the in channel in a loop, decodes the RTP packets to raw PCM and sends the data on another channel
 func (a *AudioEngine) decode() {
