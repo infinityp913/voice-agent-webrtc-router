@@ -450,6 +450,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	n, err := os.Stdout.Read(opus_byte_arr)
 	if n > 0 {
 		logger.Info("length of wav bytes converted to opus:", n)
+		// inspiration for slicing valid part: https://stackoverflow.com/questions/43601846/golang-and-ffmpeg-realtime-streaming-input-output
 		valid_opus_byte_arr := opus_byte_arr[:n]
 		// chunk opus_byte_arr into frames
 		opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
