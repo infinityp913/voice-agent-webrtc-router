@@ -403,7 +403,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// *** Send currentPrompt to Flask server ***
 
-	url := "http://localhost:8000/get_response_fast" // Flask server running QnA NN + TTS NN is hosted here
+	url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
 
 	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
 	p.Lock() // locking since we're going to access p.currentState
@@ -476,7 +476,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	// send POST req to the URL with user_input and get the json containing pcm
-	url := "http://localhost:8000/get_response_fast"
+	url := "http://localhost:8000/get_response"
 
 	// Sending curr_state 0 signal to flask along with a hard-coded hello (content of endu_user_input doesn't matter)
 	// This is to get the intro as response
