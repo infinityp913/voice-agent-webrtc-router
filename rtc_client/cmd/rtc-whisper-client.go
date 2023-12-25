@@ -509,7 +509,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// go ae.SendMediaWav(wavFrames)
 
 	err := ffmpeg.Input("pipe:0").
-		Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2}).
+		Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2, "f": "s16le"}).
 		Run()
 	if err != nil {
 		logger.Info("Error at ffmpeg.Input()!!", err)
