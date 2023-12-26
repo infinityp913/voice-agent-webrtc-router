@@ -540,6 +540,9 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	opus_byte_arr := make([]byte, 100000000)
 	n, err := os.Stdout.Read(opus_byte_arr)
+	if err != nil {
+		logger.Info("Error at os.Stdout.Read()!!")
+	}
 	if n > 0 {
 		logger.Info("length of wav bytes converted to opus:", n)
 		valid_opus_byte_arr := opus_byte_arr[:n]
@@ -547,6 +550,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
 		// convert opus frames to media samples
 		go ae.SendMedia(opusFrames)
+	} else {
+		logger.Info("No data read from stdout!!")
 	}
 
 	go rtc.ProcessOutgoingMedia()
