@@ -557,7 +557,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	logger.Info("Running ffmpeg")
 	err := ffmpeg.Input("./pcm_arr.wav").
 		// WithInput(fd).
-		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 16000, "ac": 2, "f": "ogg"}).
+		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ac": 2, "f": "ogg"}).
 		WithOutput(outBuf).
 		Run()
 	if err != nil {
