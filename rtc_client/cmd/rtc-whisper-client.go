@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -514,8 +515,15 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	if err != nil {
 		logger.Info("Error at ffmpeg.Input()!!", err)
 	}
-	// write wav_arr to std_in
-	_, err = os.Stdin.Write(wav_arr)
+
+	// Read from wav file
+	dat, err := ioutil.ReadFile("pcm_arr.wav")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// write ~~wav_arr~~ dat to std_in
+	_, err = os.Stdin.Write(dat)
 	if err != nil {
 		logger.Info("Error at os.Stdin.Write()!!", err)
 	}
