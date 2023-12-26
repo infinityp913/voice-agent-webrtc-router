@@ -508,14 +508,14 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// wavFrames := ChunkWav(wav_arr, 22050)
 	// go ae.SendMediaWav(wavFrames)
 
-	fd, err := os.Open("./pcm_arr.wav")
-	if err != nil {
-		panic(err)
-	}
+	// fd, err := os.Open("./pcm_arr.wav")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	logger.Info("Running ffmpeg")
-	err = ffmpeg.Input("pipe:0").
-		WithInput(fd).
+	err = ffmpeg.Input("./pcm_arr.wav").
+		// WithInput(fd).
 		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2, "f": "s16le"}).
 		Run()
 	if err != nil {
