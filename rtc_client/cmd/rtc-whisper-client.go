@@ -516,7 +516,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		fmt.Println(err)
 	}
 
-	logger.Info("Writing to stdin")
+	logger.Info("Writing to stdin", dat)
 	// write ~~wav_arr~~ dat to std_in
 	_, err = os.Stdin.Write(dat)
 	if err != nil {
