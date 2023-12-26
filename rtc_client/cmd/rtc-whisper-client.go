@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -77,6 +78,46 @@ func readStallMsgs() {
 			}
 		}
 	}
+}
+
+// ResampleByte returns a resampled byte array using cubic interpolation.
+func ResampleByte(input []byte, inputSampleRate, targetSampleRate int) []byte {
+	inputLength := len(input)
+	outputLength := int(math.Round(float64(inputLength) * float64(float64(targetSampleRate)/float64(inputSampleRate))))
+
+	output := make([]byte, outputLength)
+
+	step := float64(inputLength-1) / float64(outputLength-1)
+
+	for i := 0; i < outputLength; i++ {
+		index := float64(i) * step
+		lower := int(math.Floor(index))
+		upper := int(math.Ceil(index))
+
+		if lower >= inputLength-1 {
+			lower = inputLength - 2
+		}
+
+		// Ensure the upper index doesn't go out of bounds
+		if upper >= inputLength-1 {
+			upper = inputLength - 2
+		}
+
+		// Calculate the fractional part
+		frac := float32(index - float64(lower))
+
+		// Convert bytes to float32 and scale appropriately
+		a := -0.5*float32(input[lower]) + 1.5*float32(input[lower+1]) - 1.5*float32(input[upper]) + 0.5*float32(input[upper+1])
+		b := float32(input[lower]) - 2.5*float32(input[lower+1]) + 2*float32(input[upper]) - 0.5*float32(input[upper+1])
+		c := -0.5*float32(input[lower]) + 0.5*float32(input[upper])
+		d := float32(input[lower+1])
+
+		// Perform cubic spline interpolation and convert back to byte
+		value := uint8(((a*frac+b)*frac+c)*frac + d)
+		output[i] = value
+	}
+
+	return output
 }
 
 func main() {
@@ -524,7 +565,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	}
 	opus_byte_arr := outBuf.Bytes()
 	outBuf.Reset()
-	opusFrames := ChunkOpus(opus_byte_arr, 22050)
+	opus_byte_arr = ResampleByte(opus_byte_arr, 22050, 48000)
+	opusFrames := ChunkOpus(opus_byte_arr, 48000)
 	go ae.SendMedia(opusFrames)
 
 	// logger.Info("Reading from wav file")
