@@ -512,16 +512,19 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// if err != nil {
 	// 	panic(err)
 	// }
-	opus_byte_arr := make([]byte, 100000000)
+	buf := bytes.NewBuffer(nil)
 	logger.Info("Running ffmpeg")
 	err := ffmpeg.Input("./pcm_arr.wav").
 		// WithInput(fd).
 		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2, "f": "s16le"}).
-		WithOutput(opus_byte_arr, os.Stdout).
+		WithOutput(buf, os.Stdout).
 		Run()
 	if err != nil {
 		logger.Info("Error at ffmpeg.Input()!!", err)
 	}
+	opus_byte_arr := buf.Bytes()
+	opusFrames := ChunkOpus(opus_byte_arr, 22050)
+	go ae.SendMedia(opusFrames)
 
 	// logger.Info("Reading from wav file")
 	// // Read from wav file
