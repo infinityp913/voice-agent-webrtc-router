@@ -512,11 +512,12 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// if err != nil {
 	// 	panic(err)
 	// }
-
+	opus_byte_arr := make([]byte, 100000000)
 	logger.Info("Running ffmpeg")
 	err := ffmpeg.Input("./pcm_arr.wav").
 		// WithInput(fd).
 		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2, "f": "s16le"}).
+		WithOutput(opus_byte_arr, os.Stdout).
 		Run()
 	if err != nil {
 		logger.Info("Error at ffmpeg.Input()!!", err)
@@ -538,22 +539,21 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	logger.Info("Reading from stdout")
 
-	opus_byte_arr := make([]byte, 100000000)
-	n, err := os.Stdout.Read(opus_byte_arr)
-	if err != nil {
-		logger.Info("Error at os.Stdout.Read()!!")
-	}
-	logger.Info("length of wav bytes converted to opus:", n)
-	if n > 0 {
-		logger.Info("length of wav bytes converted to opus:", n)
-		valid_opus_byte_arr := opus_byte_arr[:n]
-		// chunk opus_byte_arr into frames
-		opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
-		// convert opus frames to media samples
-		go ae.SendMedia(opusFrames)
-	} else {
-		logger.Info("No data read from stdout!!")
-	}
+	// n, err := os.Stdout.Read(opus_byte_arr)
+	// if err != nil {
+	// 	logger.Info("Error at os.Stdout.Read()!!")
+	// }
+	// logger.Info("length of wav bytes converted to opus:", n)
+	// if n > 0 {
+	// 	logger.Info("length of wav bytes converted to opus:", n)
+	// 	valid_opus_byte_arr := opus_byte_arr[:n]
+	// 	// chunk opus_byte_arr into frames
+	// 	opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
+	// 	// convert opus frames to media samples
+	// 	go ae.SendMedia(opusFrames)
+	// } else {
+	// 	logger.Info("No data read from stdout!!")
+	// }
 
 	go rtc.ProcessOutgoingMedia()
 	return new_state
