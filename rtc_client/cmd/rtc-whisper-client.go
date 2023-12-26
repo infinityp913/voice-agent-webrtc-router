@@ -543,6 +543,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	if err != nil {
 		logger.Info("Error at os.Stdout.Read()!!")
 	}
+	logger.Info("length of wav bytes converted to opus:", n)
 	if n > 0 {
 		logger.Info("length of wav bytes converted to opus:", n)
 		valid_opus_byte_arr := opus_byte_arr[:n]
