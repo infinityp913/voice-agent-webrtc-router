@@ -350,7 +350,7 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 // chunkOpus will split the provided opus audio into properly sized frames
 func ChunkOpus(opus []byte, sampleRate int) []rtc_client.OpusFrame {
 	// the amount of samples that fit into a frame
-	outputFrameSize := 1 * 20 * 22050 / 1000
+	outputFrameSize := 1 * 20 * sampleRate / 1000
 	// TODO make sure this rounds up
 	totalFrames := len(opus) / outputFrameSize
 
@@ -523,6 +523,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		logger.Info("Error at ffmpeg.Input()!!", err)
 	}
 	opus_byte_arr := outBuf.Bytes()
+	outBuf.Reset()
 	opusFrames := ChunkOpus(opus_byte_arr, 22050)
 	go ae.SendMedia(opusFrames)
 
