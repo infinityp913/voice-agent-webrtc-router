@@ -509,24 +509,29 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// wavFrames := ChunkWav(wav_arr, 22050)
 	// go ae.SendMediaWav(wavFrames)
 
+	logger.Info("Reading from wav file")
 	// Read from wav file
 	dat, err := ioutil.ReadFile("pcm_arr.wav")
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	logger.Info("Writing to stdin")
 	// write ~~wav_arr~~ dat to std_in
 	_, err = os.Stdin.Write(dat)
 	if err != nil {
 		logger.Info("Error at os.Stdin.Write()!!", err)
 	}
 
+	logger.Info("Running ffmpeg")
 	err = ffmpeg.Input("pipe:0").
 		Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2, "f": "s16le"}).
 		Run()
 	if err != nil {
 		logger.Info("Error at ffmpeg.Input()!!", err)
 	}
+
+	logger.Info("Reading from stdout")
 
 	opus_byte_arr := make([]byte, 100000000)
 	n, err := os.Stdout.Read(opus_byte_arr)
