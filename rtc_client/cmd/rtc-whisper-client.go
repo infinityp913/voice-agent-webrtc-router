@@ -576,9 +576,10 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	}
 
 	opus_byte_arr = ResampleByte(opus_byte_arr, 22050, 48000)
-	opusFrames := ChunkOpus(opus_byte_arr, 48000)
-	logger.Info("Length of opusFrames: ", len(opusFrames))
-	go ae.SendMedia(opusFrames)
+	// opusFrames := ChunkOpus(opus_byte_arr, 48000)
+	// logger.Info("Length of opusFrames: ", len(opusFrames))
+	// go ae.SendMedia(opusFrames)
+	go ae.SendMediaOpusByte(opus_byte_arr)
 
 	// logger.Info("Reading from wav file")
 	// // Read from wav file
