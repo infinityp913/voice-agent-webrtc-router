@@ -555,10 +555,10 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// }
 	outBuf := bytes.NewBuffer(nil)
 	logger.Info("Running ffmpeg")
-	err := ffmpeg.Input("./pcm_arr.wav").
+	err := ffmpeg.Input("./mimic_ex.wav").
 		// WithInput(fd).
-		Output("pcm_arr.ogg", ffmpeg.KwArgs{"c:a": "libopus", "ar": 16000, "ac": 2, "f": "ogg"}).
-		// WithOutput(outBuf).
+		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ac": 2, "f": "ogg"}).
+		WithOutput(outBuf).
 		Run()
 	if err != nil {
 		logger.Info("Error at ffmpeg.Input()!!", err)
@@ -568,7 +568,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	logger.Info("Length of opus_byte_arr: ", len(opus_byte_arr))
 	outBuf.Reset()
 	// opus_byte_arr = ResampleByte(opus_byte_arr, 22050, 48000)
-	opusFrames := ChunkOpus(opus_byte_arr, 16000)
+	opusFrames := ChunkOpus(opus_byte_arr, 22050)
 	logger.Info("Length of opusFrames: ", len(opusFrames))
 	go ae.SendMedia(opusFrames)
 
