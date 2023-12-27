@@ -61,11 +61,11 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		pcm = util.ConvertToDualChannel(pcm)
 	}
 	if inputSampleRate != opusSampleRate {
-		pcm = Resample(pcm, inputSampleRate, opusSampleRate)
-		// pcm = Resample(pcm, inputSampleRate, 16000)
+		// pcm = Resample(pcm, inputSampleRate, opusSampleRate)
+		pcm = Resample(pcm, inputSampleRate, 16000)
 	}
-	frames := o.ChunkPcm(pcm, opusSampleRate)
-	// frames := o.ChunkPcm(pcm, 16000)
+	// frames := o.ChunkPcm(pcm, opusSampleRate)
+	frames := o.ChunkPcm(pcm, 16000)
 
 	// opusFrames := make([]OpusFrame, 0, len(frames))
 
