@@ -575,8 +575,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		logger.Info("Error writing to file:", err)
 	}
 
-	// opus_byte_arr = ResampleByte(opus_byte_arr, 22050, 48000)
-	opusFrames := ChunkOpus(opus_byte_arr, 22050)
+	opus_byte_arr = ResampleByte(opus_byte_arr, 22050, 48000)
+	opusFrames := ChunkOpus(opus_byte_arr, 48000)
 	logger.Info("Length of opusFrames: ", len(opusFrames))
 	go ae.SendMedia(opusFrames)
 
