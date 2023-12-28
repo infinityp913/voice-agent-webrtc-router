@@ -485,24 +485,28 @@ func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byt
 	// Convert the JSON payload to a byte slice
 	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
+		logger.Info("Error at json.Marshal() inside fetchAudioFromEndpoint", err)
 		return nil, err
 	}
 
 	// Make a POST request to the specified endpoint with the JSON payload
 	response, err := http.Post(endpointURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
+		logger.Info("Error at http.Post() inside fetchAudioFromEndpoint", err)
 		return nil, err
 	}
 	defer response.Body.Close()
 
 	// Check if the response status code is successful (200 OK)
 	if response.StatusCode != http.StatusOK {
+		logger.Info("Status not OK inside fetchAudioFromEndpoint")
 		return nil, err
 	}
 	logger.Info("response body: ", response.Body)
 	// Read the audio data from the response body
 	audioData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
+		logger.Info("Error at ioutil.ReadAll() inside fetchAudioFromEndpoint", err)
 		return nil, err
 	}
 
