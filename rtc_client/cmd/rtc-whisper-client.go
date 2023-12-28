@@ -554,23 +554,29 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// if err != nil {
 	// 	panic(err)
 	// }
-	outBuf := bytes.NewBuffer(nil)
+	outBuf1 := bytes.NewBuffer(nil)
+	outBuf2 := bytes.NewBuffer(nil)
 	logger.Info("Running ffmpeg")
 	err := ffmpeg.Input("./mimic_ex.wav").
 		// WithInput(fd).
+		Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
+		WithOutput(outBuf1).
+		Run()
+	err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "s16le"}).
+		WithInput(outBuf1).
 		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 48000, "ac": 2, "f": "ogg"}).
-		WithOutput(outBuf).
+		WithOutput(outBuf2).
 		Run()
 	if err != nil {
 		logger.Info("Error at ffmpeg.Input()!!", err)
 	}
-	opus_byte_arr := outBuf.Bytes()
+	opus_byte_arr := outBuf2.Bytes()
 	logger.Info("Contents of opus_byte_arr: ", opus_byte_arr)
 	logger.Info("Length of opus_byte_arr: ", len(opus_byte_arr))
-	outBuf.Reset()
+	outBuf2.Reset()
 
 	// write the opus_byte_arr to a file
-	err = ioutil.WriteFile("opus_byte_arr48KHz.ogg", opus_byte_arr, 0644)
+	err = ioutil.WriteFile("opus_byte_arr48KHz_frompcm.ogg", opus_byte_arr, 0644)
 	if err != nil {
 		logger.Info("Error writing to file:", err)
 	}
