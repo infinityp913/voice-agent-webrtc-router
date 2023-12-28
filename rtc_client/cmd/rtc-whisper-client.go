@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -473,6 +474,41 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 }
 
+type RequestBody struct {
+	EndUserInput           string `json:"end_user_input"`
+	CurrState              string `json:"curr_state"`
+	ClientID               string `json:"client_id"`
+	PromptRepeatedResponse string `json:"prompt_repeated_response"`
+}
+
+func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byte, error) {
+	// Convert the JSON payload to a byte slice
+	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make a POST request to the specified endpoint with the JSON payload
+	response, err := http.Post(endpointURL, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	// Check if the response status code is successful (200 OK)
+	if response.StatusCode != http.StatusOK {
+		return nil, err
+	}
+
+	// Read the audio data from the response body
+	audioData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return audioData, nil
+}
+
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	// send POST req to the URL with user_input and get the json containing pcm
@@ -508,27 +544,53 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// wavFrames := ChunkWav(wav_arr, 22050)
 	// go ae.SendMediaWav(wavFrames)
 
-	err := ffmpeg.Input("pipe:0").
-		Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2, "f": "s16le"}).
+	endpointURL := "http://localhost:8080/get_response_audio"
+
+	// Create the JSON payload
+	requestBody := &RequestBody{
+		EndUserInput:           "Hello!",
+		CurrState:              "0",
+		ClientID:               "1",
+		PromptRepeatedResponse: "0",
+	}
+
+	// Fetch audio data from the specified endpoint with the JSON payload
+	audioData, err := fetchAudioFromEndpoint(endpointURL, requestBody)
+	if err != nil {
+		log.Fatal("Error fetching audio data:", err)
+	}
+
+	outBuf1 := bytes.NewBuffer(audioData)
+	outBuf2 := bytes.NewBuffer(nil)
+	logger.Info("Running ffmpeg")
+	err = ffmpeg.Input("pipe:").
+		WithInput(outBuf1).
+		Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_f32le", "ar": 48000, "ac": 2, "f": "f32le"}).
+		WithOutput(outBuf1).
+		Run()
+	logger.Info("contents of outBuf1: ", outBuf1.Bytes()[0:10])
+	err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "f32le"}).
+		WithInput(outBuf1).
+		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 48000, "ac": 2, "f": "ogg"}).
+		WithOutput(outBuf2).
 		Run()
 	if err != nil {
 		logger.Info("Error at ffmpeg.Input()!!", err)
 	}
-	// write wav_arr to std_in
-	_, err = os.Stdin.Write(wav_arr)
+	opus_byte_arr := outBuf2.Bytes()
+	logger.Info("Contents of opus_byte_arr: ", opus_byte_arr[0:100])
+	logger.Info("Length of opus_byte_arr: ", len(opus_byte_arr))
+	outBuf2.Reset()
+
+	// write the opus_byte_arr to a file
+	err = ioutil.WriteFile("opus_byte_arr48KHz_frompcm.ogg", opus_byte_arr, 0644)
 	if err != nil {
-		logger.Info("Error at os.Stdin.Write()!!", err)
+		logger.Info("Error writing to file:", err)
 	}
-	opus_byte_arr := make([]byte, 100000000)
-	n, err := os.Stdout.Read(opus_byte_arr)
-	if n > 0 {
-		logger.Info("length of wav bytes converted to opus:", n)
-		valid_opus_byte_arr := opus_byte_arr[:n]
-		// chunk opus_byte_arr into frames
-		opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
-		// convert opus frames to media samples
-		go ae.SendMedia(opusFrames)
-	}
+
+	opusFrames := ChunkOpus(opus_byte_arr, 48000)
+	logger.Info("Length of opusFrames: ", len(opusFrames))
+	go ae.SendMedia(opusFrames)
 
 	go rtc.ProcessOutgoingMedia()
 	return new_state
