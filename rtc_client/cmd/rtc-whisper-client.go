@@ -499,7 +499,7 @@ func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byt
 	if response.StatusCode != http.StatusOK {
 		return nil, err
 	}
-
+	logger.Info("response body: ", response.Body)
 	// Read the audio data from the response body
 	audioData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
