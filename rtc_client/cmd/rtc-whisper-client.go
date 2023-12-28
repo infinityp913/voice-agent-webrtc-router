@@ -562,7 +562,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
 		WithOutput(outBuf1).
 		Run()
-	logger.Info("Contents of outBuf1: ", outBuf1.Bytes()[0:100])
+	// logger.Info("Contents of outBuf1: ", outBuf1.Bytes()[0:100])
 	err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "s16le"}).
 		WithInput(outBuf1).
 		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 48000, "ac": 2, "f": "ogg"}).
