@@ -548,7 +548,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// wavFrames := ChunkWav(wav_arr, 22050)
 	// go ae.SendMediaWav(wavFrames)
 
-	endpointURL := "http://localhost:8080/get_response_audio"
+	endpointURL := "http://localhost:8000/get_response_audio"
 
 	// Create the JSON payload
 	requestBody := &RequestBody{
