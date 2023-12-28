@@ -560,6 +560,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		log.Fatal("Error fetching audio data:", err)
 	}
 
+	logger.Info("Length of audioData: ", len(audioData))
+
 	outBuf1 := bytes.NewBuffer(audioData)
 	outBuf2 := bytes.NewBuffer(nil)
 	logger.Info("Running ffmpeg")
