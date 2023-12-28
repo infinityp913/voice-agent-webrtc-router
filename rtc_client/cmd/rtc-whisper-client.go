@@ -499,7 +499,7 @@ func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byt
 
 	// Check if the response status code is successful (200 OK)
 	if response.StatusCode != http.StatusOK {
-		logger.Info("Status not OK inside fetchAudioFromEndpoint")
+		logger.Info("Status not OK inside fetchAudioFromEndpoint", response.StatusCode)
 		return nil, err
 	}
 	logger.Info("response body: ", response.Body)
