@@ -559,10 +559,11 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	logger.Info("Running ffmpeg")
 	err := ffmpeg.Input("./mimic_ex.wav").
 		// WithInput(fd).
-		Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
+		Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_f32le", "ar": 48000, "ac": 2, "f": "f32le"}).
 		WithOutput(outBuf1).
 		Run()
-	err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "s16le"}).
+	logger.Info("contents of outBuf1: ", outBuf1.Bytes()[0:100])
+	err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "f32le"}).
 		WithInput(outBuf1).
 		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 48000, "ac": 2, "f": "ogg"}).
 		WithOutput(outBuf2).
