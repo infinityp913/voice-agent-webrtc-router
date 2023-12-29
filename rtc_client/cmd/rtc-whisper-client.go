@@ -511,8 +511,8 @@ func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byt
 		return nil, err
 	}
 
-	// Convert hexadecimal audio data to decimal
-	audioDecimalData, err := hex.DecodeString(string(audioHexData))
+	// Convert hexadecimal audio data to decimal -- sliced from index 5 to remove the "RIFF$ " prefix
+	audioDecimalData, err := hex.DecodeString(string(audioHexData[5:]))
 	if err != nil {
 		return nil, err
 	}
