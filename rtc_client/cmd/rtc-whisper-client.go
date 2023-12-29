@@ -582,18 +582,23 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	logger.Info("Length of audioData: ", len(audioData))
 	logger.Info("Contents of audioData: ", audioData[0:10])
 
-	outBuf1 := bytes.NewBuffer(audioData)
-	outBuf2 := bytes.NewBuffer(nil)
+	inBuf1 := bytes.NewBuffer(audioData)
+	outBuf1 := bytes.NewBuffer(nil)
+
 	logger.Info("Running ffmpeg")
 	err = ffmpeg.Input("pipe:").
-		WithInput(outBuf1).
+		WithInput(inBuf1).
 		// Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
 		Output("pipe:", ffmpeg.KwArgs{"acodec": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
 		WithOutput(outBuf1).
 		Run()
 	logger.Info("contents of outBuf1: ", outBuf1.Bytes()[0:100])
+
+	inBuf2 := bytes.NewBuffer(outBuf1.Bytes())
+	outBuf2 := bytes.NewBuffer(nil)
+
 	err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "f32le"}).
-		WithInput(outBuf1).
+		WithInput(inBuf2).
 		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 48000, "ac": 2, "f": "ogg"}).
 		WithOutput(outBuf2).
 		Run()
