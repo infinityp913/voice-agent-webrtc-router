@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -506,19 +505,27 @@ func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byt
 	logger.Info("response body: ", response.Body)
 
 	// Read the audio data from the response body
-	audioHexData, err := ioutil.ReadAll(response.Body)
+	// audioHexData, err := ioutil.ReadAll(response.Body)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// logger.Info("audioHexData: ", audioHexData)
+
+	// // Convert hexadecimal audio data to decimal -- sliced from index 5 to remove the "RIFF$ " prefix
+	// audioDecimalData, err := hex.DecodeString(string(audioHexData[5:]))
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return audioDecimalData, nil
+
+	// Read the audio data from the response body
+	audioData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("audioHexData: ", audioHexData)
 
-	// Convert hexadecimal audio data to decimal -- sliced from index 5 to remove the "RIFF$ " prefix
-	audioDecimalData, err := hex.DecodeString(string(audioHexData[5:]))
-	if err != nil {
-		return nil, err
-	}
-
-	return audioDecimalData, nil
+	return audioData, nil
 }
 
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
