@@ -244,13 +244,13 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
-// sendMedia turns opus frames into media samples and sends them on the channel
+// (modified to OpusFrame instead of ineternal.OpusFrame) sendMedia turns opus frames into media samples and sends them on the channel
 func (a *AudioEngine) SendMedia(frames []OpusFrame) {
 	// REMOVE AFTER DEBUG
 	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
 		internal.Logger.Info("converting opus to sample")
-		sample := convertOpusToSample(f)
+		sample := convertOpusToSampleNew(f)
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
@@ -288,15 +288,15 @@ func (a *AudioEngine) SendMediaByteArr(byteArr []byte) {
 // }
 
 // (OG)
-// func convertOpusToSample(frame internal.OpusFrame) media.Sample {
-// 	return media.Sample{
-// 		Data:               frame.Data,
-// 		PrevDroppedPackets: 0, // FIXME support dropping packets
-// 		Duration:           time.Millisecond * 20,
-// 	}
-// }
+func convertOpusToSample(frame internal.OpusFrame) media.Sample {
+	return media.Sample{
+		Data:               frame.Data,
+		PrevDroppedPackets: 0, // FIXME support dropping packets
+		Duration:           time.Millisecond * 20,
+	}
+}
 
-func convertOpusToSample(frame OpusFrame) media.Sample {
+func convertOpusToSampleNew(frame OpusFrame) media.Sample {
 	return media.Sample{
 		Data:               frame.Data,
 		PrevDroppedPackets: 0, // FIXME support dropping packets
