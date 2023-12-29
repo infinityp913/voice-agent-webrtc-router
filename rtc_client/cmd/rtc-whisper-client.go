@@ -384,6 +384,42 @@ func ChunkOpus(opus []byte, sampleRate int) []rtc_client.OpusFrame {
 	return frames
 }
 
+// chunkPcm will split the provided opus audio into properly sized frames
+func ChunkPcm(pcm []byte, sampleRate int, frameSizeMs int) []rtc_client.PcmFrame {
+	// the amount of samples that fit into a frame
+	outputFrameSize := 1 * frameSizeMs * sampleRate / 1000
+	// TODO make sure this rounds up
+	totalFrames := len(pcm) / outputFrameSize
+
+	frames := make([]rtc_client.PcmFrame, 0, totalFrames)
+
+	idx := 0
+	for idx <= totalFrames {
+		pcmLen := len(pcm)
+		// we have at least a full frame left
+		if pcmLen > outputFrameSize {
+			logger.Debug("Got a full frame")
+			frames = append(frames, rtc_client.PcmFrame{Index: idx, Data: pcm[:outputFrameSize]})
+			// chop frame off of input
+			pcm = pcm[outputFrameSize:]
+			idx++
+		} else {
+			// we have less than a full frame so lets pad with silence
+			sampleDelta := outputFrameSize - pcmLen
+			silence := make([]byte, sampleDelta)
+
+			logger.Debugf("Got a partial frame len %d padding with %d silence samples", pcmLen, len(silence))
+
+			frames = append(frames, rtc_client.PcmFrame{Index: idx, Data: append(pcm, silence...)})
+			break
+		}
+	}
+
+	logger.Debugf("got %d frames", len(frames))
+
+	return frames
+}
+
 // This function sends the current prompt (i.e., current message from the end user) to Flask
 func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	p.Lock()
@@ -594,32 +630,41 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		Run()
 	logger.Info("contents of outBuf1: ", outBuf1.Bytes()[0:100])
 
-	inBuf2 := bytes.NewBuffer(outBuf1.Bytes())
-	outBuf2 := bytes.NewBuffer(nil)
+	pcm_bytes_arr := outBuf1.Bytes()
 
-	err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "f32le"}).
-		WithInput(inBuf2).
-		Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 48000, "ac": 2, "f": "ogg"}).
-		WithOutput(outBuf2).
-		Run()
-	if err != nil {
-		logger.Info("Error at ffmpeg.Input()!!", err)
+	// convert pcm_bytes_arr from a byte array to float32 array, assuming pcm_bytes_arr is signed 16 bit little endian
+	pcm_float_arr := make([]float32, len(pcm_bytes_arr)/2)
+	for i := 0; i < len(pcm_bytes_arr); i += 2 {
+		pcm_float_arr[i/2] = float32(int16(pcm_bytes_arr[i]) | int16(pcm_bytes_arr[i+1])<<8)
 	}
-	opus_byte_arr := outBuf2.Bytes()
-	logger.Info("Contents of opus_byte_arr: ", opus_byte_arr[0:100])
-	logger.Info("Length of opus_byte_arr: ", len(opus_byte_arr))
-	outBuf2.Reset()
+	// encode pcmFrames to opus
+	ae.Encode(pcm_float_arr, 2, 48000)
 
-	// write the opus_byte_arr to a file
-	err = ioutil.WriteFile("opus_byte_arr48KHz_frompcm.ogg", opus_byte_arr, 0644)
-	if err != nil {
-		logger.Info("Error writing to file:", err)
-	}
+	// inBuf2 := bytes.NewBuffer(outBuf1.Bytes())
+	// outBuf2 := bytes.NewBuffer(nil)
+	// err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "f32le"}).
+	// 	WithInput(inBuf2).
+	// 	Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 48000, "ac": 2, "f": "ogg"}).
+	// 	WithOutput(outBuf2).
+	// 	Run()
+	// if err != nil {
+	// 	logger.Info("Error at ffmpeg.Input()!!", err)
+	// }
+	// opus_byte_arr := outBuf2.Bytes()
+	// logger.Info("Contents of opus_byte_arr: ", opus_byte_arr[0:100])
+	// logger.Info("Length of opus_byte_arr: ", len(opus_byte_arr))
+	// outBuf2.Reset()
 
-	// opusFrames := ChunkOpus(opus_byte_arr, 48000)
-	// logger.Info("Length of opusFrames: ", len(opusFrames))
-	// go ae.SendMedia(opusFrames)
-	go ae.SendMediaByteArr(opus_byte_arr)
+	// // write the opus_byte_arr to a file
+	// err = ioutil.WriteFile("opus_byte_arr48KHz_frompcm.ogg", opus_byte_arr, 0644)
+	// if err != nil {
+	// 	logger.Info("Error writing to file:", err)
+	// }
+
+	// // opusFrames := ChunkOpus(opus_byte_arr, 48000)
+	// // logger.Info("Length of opusFrames: ", len(opusFrames))
+	// // go ae.SendMedia(opusFrames)
+	// go ae.SendMediaByteArr(opus_byte_arr)
 
 	go rtc.ProcessOutgoingMedia()
 	return new_state

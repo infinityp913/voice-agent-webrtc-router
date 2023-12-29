@@ -68,6 +68,12 @@ type OpusFrame struct {
 	Index int
 }
 
+// OpusFrame contains and encoded opus frame
+type PcmFrame struct {
+	Data  []byte
+	Index int
+}
+
 var client = &http.Client{Timeout: 10 * time.Second}
 
 func getJson(url string, jsonStrByte []byte, target interface{}) error {
@@ -206,37 +212,37 @@ func (a *AudioEngine) Unpause() {
 
 // }
 
-// // Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
-// func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
-// 	opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
-// 	if err != nil {
-// 		internal.Logger.Error(err, "error encoding pcm")
-// 	}
-// 	// go func() {
-// 	// 	_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
-// 	// 	if err != nil {
-// 	// 		internal.Logger.Error(err, "error encoding pcm")
-// 	// 	}
-// 	// }()
+// Encode takes in raw f32le pcm, encodes it into opus RTP packets and sends those over the rtpOut chan
+func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate int) error {
+	opusFrames, err := a.enc.Encode(pcm, inputChannelCount, inputSampleRate)
+	if err != nil {
+		internal.Logger.Error(err, "error encoding pcm")
+	}
+	// go func() {
+	// 	_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
+	// 	if err != nil {
+	// 		internal.Logger.Error(err, "error encoding pcm")
+	// 	}
+	// }()
 
-// 	go a.sendMedia(opusFrames)
+	go a.sendMedia(opusFrames)
 
-// 	return nil
-// }
+	return nil
+}
 
-// // (OG) sendMedia turns opus frames into media samples and sends them on the channel
-// func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
-// 	// REMOVE AFTER DEBUG
-// 	internal.Logger.Info("DEBUG: Printing the media samples")
-// 	for _, f := range frames {
-// 		internal.Logger.Info("converting opus to sample")
-// 		sample := convertOpusToSample(f)
-// 		a.mediaOut <- sample
-// 		// this is important to properly pace the samples
-// 		time.Sleep(time.Millisecond * 20)
-// 	}
-// 	internal.Logger.Info("DEBUG: End of sendMedia")
-// }
+// (OG) sendMedia turns opus frames into media samples and sends them on the channel
+func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
+	// REMOVE AFTER DEBUG
+	internal.Logger.Info("DEBUG: Printing the media samples")
+	for _, f := range frames {
+		internal.Logger.Info("converting opus to sample")
+		sample := convertOpusToSample(f)
+		a.mediaOut <- sample
+		// this is important to properly pace the samples
+		time.Sleep(time.Millisecond * 20)
+	}
+	internal.Logger.Info("DEBUG: End of sendMedia")
+}
 
 // sendMedia turns opus frames into media samples and sends them on the channel
 func (a *AudioEngine) SendMedia(frames []OpusFrame) {
