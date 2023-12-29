@@ -625,7 +625,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	err = ffmpeg.Input("pipe:").
 		WithInput(inBuf1).
 		// Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
-		Output("pipe:", ffmpeg.KwArgs{"acodec": "pcm_s16le", "ac": 2, "f": "s16le", "filter:a": "volume=0.000030517578125"}).
+		Output("pipe:", ffmpeg.KwArgs{"acodec": "pcm_s16le", "ac": 2, "f": "s16le"}).
 		WithOutput(outBuf1).
 		Run()
 	logger.Info("contents of outBuf1: ", outBuf1.Bytes()[0:100])
@@ -640,7 +640,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	pcm_float_arr := make([]float32, len(pcm_bytes_arr))
 	for i := 0; i < len(pcm_bytes_arr); i++ {
-		pcm_float_arr[i] = float32((pcm_bytes_arr[i]))
+		pcm_float_arr[i] = float32(pcm_bytes_arr[i])
 	}
 
 	logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
