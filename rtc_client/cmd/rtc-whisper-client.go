@@ -640,7 +640,13 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
 	// save pcm_float_arr to a file
-	err = ioutil.WriteFile("pcm_float_arr48KHz_fromFlask.pcm", []byte(fmt.Sprintf("%v", pcm_float_arr)), 0644)
+	// err = ioutil.WriteFile("pcm_float_arr48KHz_fromFlask.pcm", []byte(fmt.Sprintf("%v", pcm_float_arr)), 0644)
+
+	f, err := os.OpenFile("pcm_float_arr48KHz_fromFlask.pcm",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	for _, value := range pcm_float_arr {
+		fmt.Fprintln(f, value) // print values to f, one per line
+	}
 
 	// encode pcmFrames to opus
 	ae.Encode(pcm_float_arr, 2, 22050)
