@@ -633,9 +633,14 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	pcm_bytes_arr := outBuf1.Bytes()
 
 	// convert pcm_bytes_arr from a byte array to float32 array, assuming pcm_bytes_arr is signed 16 bit little endian
-	pcm_float_arr := make([]float32, len(pcm_bytes_arr)/2)
-	for i := 0; i < len(pcm_bytes_arr); i += 2 {
-		pcm_float_arr[i/2] = float32(int16(pcm_bytes_arr[i]) | int16(pcm_bytes_arr[i+1])<<8)
+	// pcm_float_arr := make([]float32, len(pcm_bytes_arr)/2)
+	// for i := 0; i < len(pcm_bytes_arr); i += 2 {
+	// 	pcm_float_arr[i/2] = float32(int16(pcm_bytes_arr[i]) | int16(pcm_bytes_arr[i+1])<<8)
+	// }
+
+	pcm_float_arr := make([]float32, len(pcm_bytes_arr))
+	for i := 0; i < len(pcm_bytes_arr); i++ {
+		pcm_float_arr[i] = float32(int16(pcm_bytes_arr[i]))
 	}
 
 	logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
