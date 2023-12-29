@@ -640,7 +640,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	pcm_float_arr := make([]float32, len(pcm_bytes_arr))
 	for i := 0; i < len(pcm_bytes_arr); i++ {
-		pcm_float_arr[i] = float32(int16(pcm_bytes_arr[i]))
+		pcm_float_arr[i] = float32((pcm_bytes_arr[i]))
 	}
 
 	logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
