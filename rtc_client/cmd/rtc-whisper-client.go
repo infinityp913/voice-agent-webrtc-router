@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -503,14 +504,20 @@ func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byt
 		return nil, err
 	}
 	logger.Info("response body: ", response.Body)
+
 	// Read the audio data from the response body
-	audioData, err := ioutil.ReadAll(response.Body)
+	audioHexData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		logger.Info("Error at ioutil.ReadAll() inside fetchAudioFromEndpoint", err)
 		return nil, err
 	}
 
-	return audioData, nil
+	// Convert hexadecimal audio data to decimal
+	audioDecimalData, err := hex.DecodeString(string(audioHexData))
+	if err != nil {
+		return nil, err
+	}
+
+	return audioDecimalData, nil
 }
 
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
@@ -565,6 +572,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	}
 
 	logger.Info("Length of audioData: ", len(audioData))
+	logger.Info("Contents of audioData: ", audioData[0:10])
 
 	outBuf1 := bytes.NewBuffer(audioData)
 	outBuf2 := bytes.NewBuffer(nil)
