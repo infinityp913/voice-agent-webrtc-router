@@ -637,6 +637,11 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	for i := 0; i < len(pcm_bytes_arr); i += 2 {
 		pcm_float_arr[i/2] = float32(int16(pcm_bytes_arr[i]) | int16(pcm_bytes_arr[i+1])<<8)
 	}
+
+	logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
+	// save pcm_float_arr to a file
+	err = ioutil.WriteFile("pcm_float_arr48KHz_fromFlask.pcm", []byte(fmt.Sprintf("%v", pcm_float_arr)), 0644)
+
 	// encode pcmFrames to opus
 	ae.Encode(pcm_float_arr, 2, 48000)
 
