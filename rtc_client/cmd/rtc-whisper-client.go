@@ -22,8 +22,6 @@ import (
 	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 	"github.com/infinityp913/rtc-go-server/rtc_client"
 	stt "github.com/infinityp913/rtc-go-server/stt/engine"
-
-	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
 const llmTime = time.Millisecond * 1500
@@ -427,91 +425,91 @@ func ChunkPcm(pcm []byte, sampleRate int, frameSizeMs int) []rtc_client.PcmFrame
 
 // This function sends the current prompt (i.e., current message from the end user) to Flask
 func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
-	p.Lock()
+	// p.Lock()
 
-	// no prompt so wait again
-	if p.prompt == "" {
-		p.Unlock()
-		return
-	}
+	// // no prompt so wait again
+	// if p.prompt == "" {
+	// 	p.Unlock()
+	// 	return
+	// }
 
-	currentPrompt := p.prompt
-	p.prompt = ""
+	// currentPrompt := p.prompt
+	// p.prompt = ""
 
-	p.Unlock()
+	// p.Unlock()
 
-	// pause Ria  listening so we dont interrupt the response streaming
-	p.pauseFunc()
+	// // pause Ria  listening so we dont interrupt the response streaming
+	// p.pauseFunc()
 
-	// *** Send currentPrompt to Flask server ***
+	// // *** Send currentPrompt to Flask server ***
 
-	url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
+	// url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
 
-	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
-	p.Lock() // locking since we're going to access p.currentState
-	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
-	flaskResponse := new(FlaskResponse)
+	// logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
+	// p.Lock() // locking since we're going to access p.currentState
+	// var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
+	// flaskResponse := new(FlaskResponse)
 
-	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
-	getJson(url, jsonStrByte, flaskResponse)
-	logger.Info("Pcm Array Response Received")
+	// logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
+	// getJson(url, jsonStrByte, flaskResponse)
+	// logger.Info("Pcm Array Response Received")
 
-	// extract pcm array from json
-	var wav_arr []byte = []byte(flaskResponse.Wav_arr)
-	logger.Info("len(wav_arr): ", len(wav_arr))
+	// // extract pcm array from json
+	// var wav_arr []byte = []byte(flaskResponse.Wav_arr)
+	// logger.Info("len(wav_arr): ", len(wav_arr))
 
-	p.currentState = flaskResponse.New_state
-	p.Unlock()
+	// p.currentState = flaskResponse.New_state
+	// p.Unlock()
 
-	// // padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
+	// // // padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
 
-	// data := make([]float32, 38050)
-	// data = append(data, pcm_arr...)
-	// pcm_arr = data
+	// // data := make([]float32, 38050)
+	// // data = append(data, pcm_arr...)
+	// // pcm_arr = data
 
-	// logger.Info("before encode") // REMOVE AFTER DEBUG
+	// // logger.Info("before encode") // REMOVE AFTER DEBUG
 
-	// ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
+	// // ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
-	// logger.Info("after encode") // REMOVE AFTER DEBUG
-	// wavFrames := ChunkWav(wav_arr, 22050)
-	// go ae.SendMediaWav(wavFrames)
+	// // logger.Info("after encode") // REMOVE AFTER DEBUG
+	// // wavFrames := ChunkWav(wav_arr, 22050)
+	// // go ae.SendMediaWav(wavFrames)
 
-	err := ffmpeg.Input("pipe:0").
-		Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2}).
-		Run()
-	if err != nil {
-		logger.Info("Error at ffmpeg.Input()!!", err)
-	}
-	// write wav_arr to std_in
-	_, err = os.Stdin.Write(wav_arr)
-	if err != nil {
-		logger.Info("Error at os.Stdin.Write()!!", err)
-	}
-	opus_byte_arr := make([]byte, 100000000)
-	n, err := os.Stdout.Read(opus_byte_arr)
-	if n > 0 {
-		logger.Info("length of wav bytes converted to opus:", n)
-		// inspiration for slicing valid part: https://stackoverflow.com/questions/43601846/golang-and-ffmpeg-realtime-streaming-input-output
-		valid_opus_byte_arr := opus_byte_arr[:n]
-		// chunk opus_byte_arr into frames
-		opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
-		// convert opus frames to media samples
-		go ae.SendMedia(opusFrames)
-	}
+	// err := ffmpeg.Input("pipe:0").
+	// 	Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2}).
+	// 	Run()
+	// if err != nil {
+	// 	logger.Info("Error at ffmpeg.Input()!!", err)
+	// }
+	// // write wav_arr to std_in
+	// _, err = os.Stdin.Write(wav_arr)
+	// if err != nil {
+	// 	logger.Info("Error at os.Stdin.Write()!!", err)
+	// }
+	// opus_byte_arr := make([]byte, 100000000)
+	// n, err := os.Stdout.Read(opus_byte_arr)
+	// if n > 0 {
+	// 	logger.Info("length of wav bytes converted to opus:", n)
+	// 	// inspiration for slicing valid part: https://stackoverflow.com/questions/43601846/golang-and-ffmpeg-realtime-streaming-input-output
+	// 	valid_opus_byte_arr := opus_byte_arr[:n]
+	// 	// chunk opus_byte_arr into frames
+	// 	opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
+	// 	// convert opus frames to media samples
+	// 	go ae.SendMedia(opusFrames)
+	// }
 
-	go rtc.ProcessOutgoingMedia()
+	// go rtc.ProcessOutgoingMedia()
 
-	// resume Ria listening
-	p.unpauseFunc()
+	// // resume Ria listening
+	// p.unpauseFunc()
 
-	// *** End of sending currentPrompt to Flask server code ***
+	// // *** End of sending currentPrompt to Flask server code ***
 
-	// If the state sent back by the Flask server is 4 then end the inference after 15s
-	if flaskResponse.New_state == 4 {
-		f := callkillGoClient(rtc)
-		time.AfterFunc(15*time.Second, f)
-	}
+	// // If the state sent back by the Flask server is 4 then end the inference after 15s
+	// if flaskResponse.New_state == 4 {
+	// 	f := callkillGoClient(rtc)
+	// 	time.AfterFunc(15*time.Second, f)
+	// }
 
 }
 
