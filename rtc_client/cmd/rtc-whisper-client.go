@@ -282,7 +282,7 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 type FlaskResponsePcm struct {
 	// TODO: uncomment and use new_state
 	Audio    string `json:"audio"`
-	NewState string `json:"new_state"`
+	NewState int    `json:"new_state"`
 }
 
 func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
@@ -536,11 +536,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
 
-	var err error // Declare the err variable
-	p.currentState, err = strconv.Atoi(flaskResponsePcm.NewState)
-	if err != nil {
-		logger.Info("Error at strconv.Atoi()!!", err)
-	}
+	p.currentState = flaskResponsePcm.NewState
 	p.Unlock()
 
 	// extract pcm array from json
@@ -573,7 +569,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.unpauseFunc()
 
 	// If the state sent back by the Flask server is 4 then end the inference after 15s
-	if flaskResponsePcm.NewState == "4" {
+	if flaskResponsePcm.NewState == 4 {
 		f := callkillGoClient(rtc)
 		time.AfterFunc(15*time.Second, f)
 	}
@@ -678,10 +674,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
 
 	logger.Info("flaskResponsePcm.NewState:", flaskResponsePcm.NewState)
-	new_state, err := strconv.Atoi(flaskResponsePcm.NewState)
-	if err != nil {
-		logger.Info("Error at strconv.Atoi()!!", err)
-	}
+	new_state := flaskResponsePcm.NewState
 
 	// extract pcm array from json
 	var pcm_str string = flaskResponsePcm.Audio
