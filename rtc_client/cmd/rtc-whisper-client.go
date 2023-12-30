@@ -610,10 +610,13 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
 
 	flaskResponsePcm := new(FlaskResponsePcm)
+	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
 
 	// extract pcm array from json
 	var pcm_str string = flaskResponsePcm.Audio
+	logger.Info("Received pcm_str from Flask Server")
+
 	// Remove brackets and split by commas
 	pcmValuesStr := strings.Trim(pcm_str, "[]")
 	pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
@@ -673,6 +676,9 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	f, err := os.OpenFile("pcm_float_standardized_22050Hz.pcm",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println(err)
+	}
 	for _, value := range pcm_float_arr {
 		fmt.Fprintln(f, value) // print values to f, one per line
 	}
@@ -707,7 +713,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// go ae.SendMediaByteArr(opus_byte_arr)
 
 	go rtc.ProcessOutgoingMedia()
-	return new_state
+	// return new_state
+	return 0
 }
 
 // func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
