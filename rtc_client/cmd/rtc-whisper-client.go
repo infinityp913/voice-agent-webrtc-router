@@ -599,7 +599,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// wavFrames := ChunkWav(wav_arr, 22050)
 	// go ae.SendMediaWav(wavFrames)
 
-	endpointURL := "http://localhost:8000/get_response_audio"
+	// this endpoint returns standardized pcm data in the json format: {audio:"--pcm data--"}
+	endpointURL := "http://localhost:8000/get_response_audio_pcm"
 
 	// Create the JSON payload
 	requestBody := &RequestBody{
@@ -615,40 +616,40 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		log.Fatal("Error fetching audio data:", err)
 	}
 
+	// audioData is standardized pcm data
 	logger.Info("Length of audioData: ", len(audioData))
 	logger.Info("Contents of audioData: ", audioData[0:10])
 
-	inBuf1 := bytes.NewBuffer(audioData)
-	outBuf1 := bytes.NewBuffer(nil)
+	// inBuf1 := bytes.NewBuffer(audioData)
+	// outBuf1 := bytes.NewBuffer(nil)
 
-	logger.Info("Running ffmpeg")
-	err = ffmpeg.Input("pipe:").
-		WithInput(inBuf1).
-		// Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
-		Output("pipe:", ffmpeg.KwArgs{"acodec": "pcm_s16le", "ar": 22050, "ac": 2, "f": "s16le"}).
-		WithOutput(outBuf1).
-		Run()
-	logger.Info("contents of outBuf1: ", outBuf1.Bytes()[0:100])
+	// logger.Info("Running ffmpeg")
+	// err = ffmpeg.Input("pipe:").
+	// 	WithInput(inBuf1).
+	// 	// Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
+	// 	Output("pipe:", ffmpeg.KwArgs{"acodec": "pcm_s16le", "ar": 22050, "ac": 2, "f": "s16le"}).
+	// 	WithOutput(outBuf1).
+	// 	Run()
+	// logger.Info("contents of outBuf1: ", outBuf1.Bytes()[0:100])
 
-	pcm_bytes_arr := outBuf1.Bytes()
+	// pcm_bytes_arr := outBuf1.Bytes()
+
+	pcm_bytes_arr := audioData // since audioData is already standardized pcm data
+
+	logger.Info("contents of pcm_bytes_arr: ", pcm_bytes_arr[0:100])
 
 	// convert pcm_bytes_arr from a byte array to float32 array, assuming pcm_bytes_arr is signed 16 bit little endian
-	// pcm_float_arr := make([]float32, len(pcm_bytes_arr)/2)
-	// for i := 0; i < len(pcm_bytes_arr); i += 2 {
-	// 	pcm_float_arr[i/2] = float32(int16(pcm_bytes_arr[i]) | int16(pcm_bytes_arr[i+1])<<8)
-	// }
-
 	pcm_float_arr := make([]float32, len(pcm_bytes_arr))
 	for i := 0; i < len(pcm_bytes_arr); i++ {
 		pcm_float_arr[i] = float32(pcm_bytes_arr[i])
-		pcm_float_arr[i] = (pcm_float_arr[i] - float32(-11.71)) / float32(5481.07)
+		// pcm_float_arr[i] = (pcm_float_arr[i] - float32(-11.71)) / float32(5481.07)
 	}
 
 	logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
 	// save pcm_float_arr to a file
 	// err = ioutil.WriteFile("pcm_float_arr48KHz_fromFlask.pcm", []byte(fmt.Sprintf("%v", pcm_float_arr)), 0644)
 
-	f, err := os.OpenFile("pcm_float_arr48KHz_fromFlask.pcm",
+	f, err := os.OpenFile("pcm_float_standardized_22050Hz.pcm",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	for _, value := range pcm_float_arr {
 		fmt.Fprintln(f, value) // print values to f, one per line
