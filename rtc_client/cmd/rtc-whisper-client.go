@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -282,7 +281,8 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 
 type FlaskResponsePcm struct {
 	// TODO: uncomment and use new_state
-	Audio string `json:"audio"`
+	Audio    string `json:"audio"`
+	NewState string `json:"new_state"`
 }
 
 func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
@@ -503,13 +503,13 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// // resume Ria listening
 	// p.unpauseFunc()
 
-	// // *** End of sending currentPrompt to Flask server code ***
+	// *** End of sending currentPrompt to Flask server code ***
 
 	// // If the state sent back by the Flask server is 4 then end the inference after 15s
 	// if flaskResponse.New_state == 4 {
 	// 	f := callkillGoClient(rtc)
 	// 	time.AfterFunc(15*time.Second, f)
-	// }
+	// // }
 
 	p.Lock()
 
@@ -532,12 +532,16 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.Lock() // locking since we're going to access p.currentState
 	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
 
-	// TODO: move this to after currState is last accessed
-	p.Unlock()
-
 	flaskResponsePcm := new(FlaskResponsePcm)
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
+
+	var err error // Declare the err variable
+	p.currentState, err = strconv.Atoi(flaskResponsePcm.NewState)
+	if err != nil {
+		logger.Info("Error at strconv.Atoi()!!", err)
+	}
+	p.Unlock()
 
 	// extract pcm array from json
 	var pcm_str string = flaskResponsePcm.Audio
@@ -567,61 +571,67 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	go rtc.ProcessOutgoingMedia()
 	// resume Ria listening
 	p.unpauseFunc()
+
+	// If the state sent back by the Flask server is 4 then end the inference after 15s
+	if flaskResponsePcm.NewState == "4" {
+		f := callkillGoClient(rtc)
+		time.AfterFunc(15*time.Second, f)
+	}
 }
 
-type RequestBody struct {
-	EndUserInput           string `json:"end_user_input"`
-	CurrState              string `json:"curr_state"`
-	ClientID               string `json:"client_id"`
-	PromptRepeatedResponse string `json:"prompt_repeated_response"`
-}
+// type RequestBody struct {
+// 	EndUserInput           string `json:"end_user_input"`
+// 	CurrState              string `json:"curr_state"`
+// 	ClientID               string `json:"client_id"`
+// 	PromptRepeatedResponse string `json:"prompt_repeated_response"`
+// }
 
-func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byte, error) {
-	// Convert the JSON payload to a byte slice
-	jsonData, err := json.Marshal(requestBody)
-	if err != nil {
-		logger.Info("Error at json.Marshal() inside fetchAudioFromEndpoint", err)
-		return nil, err
-	}
+// func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byte, error) {
+// 	// Convert the JSON payload to a byte slice
+// 	jsonData, err := json.Marshal(requestBody)
+// 	if err != nil {
+// 		logger.Info("Error at json.Marshal() inside fetchAudioFromEndpoint", err)
+// 		return nil, err
+// 	}
 
-	// Make a POST request to the specified endpoint with the JSON payload
-	response, err := http.Post(endpointURL, "application/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		logger.Info("Error at http.Post() inside fetchAudioFromEndpoint", err)
-		return nil, err
-	}
-	defer response.Body.Close()
+// 	// Make a POST request to the specified endpoint with the JSON payload
+// 	response, err := http.Post(endpointURL, "application/json", bytes.NewBuffer(jsonData))
+// 	if err != nil {
+// 		logger.Info("Error at http.Post() inside fetchAudioFromEndpoint", err)
+// 		return nil, err
+// 	}
+// 	defer response.Body.Close()
 
-	// Check if the response status code is successful (200 OK)
-	if response.StatusCode != http.StatusOK {
-		logger.Info("Status not OK inside fetchAudioFromEndpoint", response.StatusCode)
-		return nil, err
-	}
-	logger.Info("response body: ", response.Body)
+// 	// Check if the response status code is successful (200 OK)
+// 	if response.StatusCode != http.StatusOK {
+// 		logger.Info("Status not OK inside fetchAudioFromEndpoint", response.StatusCode)
+// 		return nil, err
+// 	}
+// 	logger.Info("response body: ", response.Body)
 
-	// Read the audio data from the response body
-	// audioHexData, err := ioutil.ReadAll(response.Body)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// logger.Info("audioHexData: ", audioHexData)
+// 	// Read the audio data from the response body
+// 	// audioHexData, err := ioutil.ReadAll(response.Body)
+// 	// if err != nil {
+// 	// 	return nil, err
+// 	// }
+// 	// logger.Info("audioHexData: ", audioHexData)
 
-	// // Convert hexadecimal audio data to decimal -- sliced from index 5 to remove the "RIFF$ " prefix
-	// audioDecimalData, err := hex.DecodeString(string(audioHexData[5:]))
-	// if err != nil {
-	// 	return nil, err
-	// }
+// 	// // Convert hexadecimal audio data to decimal -- sliced from index 5 to remove the "RIFF$ " prefix
+// 	// audioDecimalData, err := hex.DecodeString(string(audioHexData[5:]))
+// 	// if err != nil {
+// 	// 	return nil, err
+// 	// }
 
-	// return audioDecimalData, nil
+// 	// return audioDecimalData, nil
 
-	// Read the audio data from the response body
-	audioData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
+// 	// Read the audio data from the response body
+// 	audioData, err := ioutil.ReadAll(response.Body)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return audioData, nil
-}
+// 	return audioData, nil
+// }
 
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
@@ -666,6 +676,11 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	flaskResponsePcm := new(FlaskResponsePcm)
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
+
+	new_state, err := strconv.Atoi(flaskResponsePcm.NewState)
+	if err != nil {
+		logger.Info("Error at strconv.Atoi()!!", err)
+	}
 
 	// extract pcm array from json
 	var pcm_str string = flaskResponsePcm.Audio
@@ -769,8 +784,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// go ae.SendMediaByteArr(opus_byte_arr)
 
 	go rtc.ProcessOutgoingMedia()
-	// return new_state
-	return 0
+	return new_state
 }
 
 // func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
