@@ -677,6 +677,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
 
+	logger.Info("flaskResponsePcm.NewState:", flaskResponsePcm.NewState)
 	new_state, err := strconv.Atoi(flaskResponsePcm.NewState)
 	if err != nil {
 		logger.Info("Error at strconv.Atoi()!!", err)
