@@ -282,6 +282,11 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
+type FlaskResponsePcm struct {
+	// TODO: uncomment and use new_state
+	Audio string `json:"audio"`
+}
+
 func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
 	return func() {
 		killGoClient(rtc)
@@ -567,19 +572,19 @@ func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byt
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	// send POST req to the URL with user_input and get the json containing pcm
-	url := "http://localhost:8000/get_response"
+	// url := "http://localhost:8000/get_response"
 
-	// Sending curr_state 0 signal to flask along with a hard-coded hello (content of endu_user_input doesn't matter)
-	// This is to get the intro as response
-	var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
+	// // Sending curr_state 0 signal to flask along with a hard-coded hello (content of endu_user_input doesn't matter)
+	// // This is to get the intro as response
+	// var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
 
-	flaskResponse := new(FlaskResponse)
-	getJson(url, jsonStrByte, flaskResponse)
+	// flaskResponse := new(FlaskResponse)
+	// getJson(url, jsonStrByte, flaskResponse)
 
-	// extract pcm array from json
-	var wav_arr []byte = []byte(flaskResponse.Wav_arr)
-	new_state := flaskResponse.New_state
-	logger.Info("len(wav_arr): ", len(wav_arr))
+	// // extract pcm array from json
+	// var wav_arr []byte = []byte(flaskResponse.Wav_arr)
+	// new_state := flaskResponse.New_state
+	// logger.Info("len(wav_arr): ", len(wav_arr))
 
 	// // padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
 
@@ -602,23 +607,42 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// this endpoint returns standardized pcm data in the json format: {audio:"--pcm data--"}
 	endpointURL := "http://localhost:8000/get_response_audio_pcm"
 
-	// Create the JSON payload
-	requestBody := &RequestBody{
-		EndUserInput:           "Hello!",
-		CurrState:              "0",
-		ClientID:               "1",
-		PromptRepeatedResponse: "0",
+	var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
+
+	flaskResponsePcm := new(FlaskResponsePcm)
+	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
+
+	// extract pcm array from json
+	var pcm_str string = flaskResponsePcm.Audio
+	// Remove brackets and split by commas
+	pcmValuesStr := strings.Trim(pcm_str, "[]")
+	pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
+
+	// Parse each string to float32
+	var pcm_float_arr []float32
+	for _, pcmValueStr := range pcmValuesStrArr {
+		value, err := strconv.ParseFloat(strings.TrimSpace(pcmValueStr), 32)
+		if err != nil {
+			return -1
+		}
+		pcm_float_arr = append(pcm_float_arr, float32(value))
 	}
 
-	// Fetch audio data from the specified endpoint with the JSON payload
-	audioData, err := fetchAudioFromEndpoint(endpointURL, requestBody)
-	if err != nil {
-		log.Fatal("Error fetching audio data:", err)
-	}
+	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr[0:100]))
 
-	// audioData is standardized pcm data
-	logger.Info("Length of audioData: ", len(audioData))
-	logger.Info("Contents of audioData: ", audioData[0:10])
+	// // Create the JSON payload
+	// requestBody := &RequestBody{
+	// 	EndUserInput:           "Hello!",
+	// 	CurrState:              "0",
+	// 	ClientID:               "1",
+	// 	PromptRepeatedResponse: "0",
+	// }
+
+	// // Fetch audio data from the specified endpoint with the JSON payload
+	// audioData, err := fetchAudioFromEndpoint(endpointURL, requestBody)
+	// if err != nil {
+	// 	log.Fatal("Error fetching audio data:", err)
+	// }
 
 	// inBuf1 := bytes.NewBuffer(audioData)
 	// outBuf1 := bytes.NewBuffer(nil)
@@ -634,18 +658,16 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	// pcm_bytes_arr := outBuf1.Bytes()
 
-	pcm_bytes_arr := audioData // since audioData is already standardized pcm data
+	// logger.Info("contents of pcm_bytes_arr: ", pcm_bytes_arr[0:100])
 
-	logger.Info("contents of pcm_bytes_arr: ", pcm_bytes_arr[0:100])
+	// // convert pcm_bytes_arr from a byte array to float32 array, assuming pcm_bytes_arr is signed 16 bit little endian
+	// pcm_float_arr := make([]float32, len(pcm_bytes_arr))
+	// for i := 0; i < len(pcm_bytes_arr); i++ {
+	// 	pcm_float_arr[i] = float32(pcm_bytes_arr[i])
+	// 	// pcm_float_arr[i] = (pcm_float_arr[i] - float32(-11.71)) / float32(5481.07)
+	// }
 
-	// convert pcm_bytes_arr from a byte array to float32 array, assuming pcm_bytes_arr is signed 16 bit little endian
-	pcm_float_arr := make([]float32, len(pcm_bytes_arr))
-	for i := 0; i < len(pcm_bytes_arr); i++ {
-		pcm_float_arr[i] = float32(pcm_bytes_arr[i])
-		// pcm_float_arr[i] = (pcm_float_arr[i] - float32(-11.71)) / float32(5481.07)
-	}
-
-	logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
+	// logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
 	// save pcm_float_arr to a file
 	// err = ioutil.WriteFile("pcm_float_arr48KHz_fromFlask.pcm", []byte(fmt.Sprintf("%v", pcm_float_arr)), 0644)
 
