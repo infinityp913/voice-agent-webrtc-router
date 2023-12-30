@@ -511,6 +511,62 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// 	time.AfterFunc(15*time.Second, f)
 	// }
 
+	p.Lock()
+
+	// no prompt so wait again
+	if p.prompt == "" {
+		p.Unlock()
+		return
+	}
+
+	currentPrompt := p.prompt
+	p.prompt = ""
+
+	p.Unlock()
+
+	// pause Ria  listening so we dont interrupt the response streaming
+	p.pauseFunc()
+
+	endpointURL := "http://localhost:8000/get_response_audio_pcm"
+	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
+	p.Lock() // locking since we're going to access p.currentState
+	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
+
+	// TODO: move this to after currState is last accessed
+	p.Unlock()
+
+	flaskResponsePcm := new(FlaskResponsePcm)
+	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
+	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
+
+	// extract pcm array from json
+	var pcm_str string = flaskResponsePcm.Audio
+	logger.Info("Received pcm_str from Flask Server")
+	logger.Info("pcm_str: ", pcm_str[0:100])
+
+	// Remove brackets and split by commas
+	pcmValuesStr := strings.Trim(pcm_str, "[]")
+	pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
+
+	// Parse each string to float32
+	var pcm_float_arr []float32
+	for _, pcmValueStr := range pcmValuesStrArr {
+		value, err := strconv.ParseFloat(strings.TrimSpace(pcmValueStr), 32)
+		if err != nil {
+			logger.Info("Error at strconv.ParseFloat()!!", err)
+		}
+		pcm_float_arr = append(pcm_float_arr, float32(value))
+	}
+
+	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
+	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
+
+	// encode pcmFrames to opus
+	ae.Encode(pcm_float_arr, 1, 22050)
+
+	go rtc.ProcessOutgoingMedia()
+	// resume Ria listening
+	p.unpauseFunc()
 }
 
 type RequestBody struct {
