@@ -685,6 +685,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	pcmValuesStr := strings.Trim(pcm_str, "[]")
 	pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
 
+	logger.Info("pcmValuesStrArr: ", pcmValuesStrArr[0:100])
+
 	// Parse each string to float32
 	var pcm_float_arr []float32
 	for _, pcmValueStr := range pcmValuesStrArr {
