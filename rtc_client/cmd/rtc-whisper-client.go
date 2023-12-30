@@ -700,6 +700,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// }
 
 	var pcm_float_arr []float32 = flaskResponsePcm.Audio
+	logger.Info("pcm_float_arr: ", pcm_float_arr)
 
 	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
 	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
