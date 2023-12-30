@@ -631,7 +631,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		pcm_float_arr = append(pcm_float_arr, float32(value))
 	}
 
-	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr[0:100]))
+	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
 
 	// // Create the JSON payload
 	// requestBody := &RequestBody{
