@@ -686,7 +686,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	}
 
 	// encode pcmFrames to opus
-	ae.Encode(pcm_float_arr, 2, 22050)
+	ae.Encode(pcm_float_arr, 1, 22050)
 
 	// inBuf2 := bytes.NewBuffer(outBuf1.Bytes())
 	// outBuf2 := bytes.NewBuffer(nil)
