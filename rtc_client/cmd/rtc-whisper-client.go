@@ -281,8 +281,8 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 
 type FlaskResponsePcm struct {
 	// TODO: uncomment and use new_state
-	Audio    string `json:"audio"`
-	NewState int    `json:"new_state"`
+	Audio    []float32 `json:"audio"`
+	NewState int       `json:"new_state"`
 }
 
 func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
@@ -540,23 +540,25 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.Unlock()
 
 	// extract pcm array from json
-	var pcm_str string = flaskResponsePcm.Audio
-	logger.Info("Received pcm_str from Flask Server")
-	logger.Info("pcm_str: ", pcm_str[0:100])
+	// var pcm_str string = flaskResponsePcm.Audio
+	// logger.Info("Received pcm_str from Flask Server")
+	// logger.Info("pcm_str: ", pcm_str[0:100])
 
-	// Remove brackets and split by commas
-	pcmValuesStr := strings.Trim(pcm_str, "[]")
-	pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
+	// // Remove brackets and split by commas
+	// pcmValuesStr := strings.Trim(pcm_str, "[]")
+	// pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
 
-	// Parse each string to float32
-	var pcm_float_arr []float32
-	for _, pcmValueStr := range pcmValuesStrArr {
-		value, err := strconv.ParseFloat(strings.TrimSpace(pcmValueStr), 32)
-		if err != nil {
-			logger.Info("Error at strconv.ParseFloat()!!", err)
-		}
-		pcm_float_arr = append(pcm_float_arr, float32(value))
-	}
+	// // Parse each string to float32
+	// var pcm_float_arr []float32
+	// for _, pcmValueStr := range pcmValuesStrArr {
+	// 	value, err := strconv.ParseFloat(strings.TrimSpace(pcmValueStr), 32)
+	// 	if err != nil {
+	// 		logger.Info("Error at strconv.ParseFloat()!!", err)
+	// 	}
+	// 	pcm_float_arr = append(pcm_float_arr, float32(value))
+	// }
+
+	var pcm_float_arr []float32 = flaskResponsePcm.Audio
 
 	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
 	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
@@ -677,25 +679,27 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	new_state := flaskResponsePcm.NewState
 
 	// extract pcm array from json
-	var pcm_str string = flaskResponsePcm.Audio
-	logger.Info("Received pcm_str from Flask Server")
-	logger.Info("pcm_str: ", pcm_str[0:100])
+	// var pcm_str string = flaskResponsePcm.Audio
+	// logger.Info("Received pcm_str from Flask Server")
+	// logger.Info("pcm_str: ", pcm_str[0:100])
 
-	// Remove brackets and split by commas
-	pcmValuesStr := strings.Trim(pcm_str, "[]")
-	pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
+	// // Remove brackets and split by commas
+	// pcmValuesStr := strings.Trim(pcm_str, "[]")
+	// pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
 
-	logger.Info("pcmValuesStrArr: ", pcmValuesStrArr[0:100])
+	// logger.Info("pcmValuesStrArr: ", pcmValuesStrArr[0:100])
 
-	// Parse each string to float32
-	var pcm_float_arr []float32
-	for _, pcmValueStr := range pcmValuesStrArr {
-		value, err := strconv.ParseFloat(strings.TrimSpace(pcmValueStr), 32)
-		if err != nil {
-			return -1
-		}
-		pcm_float_arr = append(pcm_float_arr, float32(value))
-	}
+	// // Parse each string to float32
+	// var pcm_float_arr []float32
+	// for _, pcmValueStr := range pcmValuesStrArr {
+	// 	value, err := strconv.ParseFloat(strings.TrimSpace(pcmValueStr), 32)
+	// 	if err != nil {
+	// 		return -1
+	// 	}
+	// 	pcm_float_arr = append(pcm_float_arr, float32(value))
+	// }
+
+	var pcm_float_arr []float32 = flaskResponsePcm.Audio
 
 	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
 	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
