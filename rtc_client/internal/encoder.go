@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
-	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util"
 
 	"gopkg.in/hraban/opus.v2"
 )
@@ -57,10 +56,10 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	if inputChannelCount == 2 && o.Channels == 1 {
 		return []OpusFrame{}, errors.New("cannot currently downsample channels consider encoding to 2 channel")
 	}
-	if inputChannelCount == 1 && o.Channels == 2 {
-		pcm = util.ConvertToDualChannel(pcm)
-		Logger.Info("converted mono to dual channel", pcm[0:100])
-	}
+	// if inputChannelCount == 1 && o.Channels == 2 {
+	// 	pcm = util.ConvertToDualChannel(pcm)
+	// 	Logger.Info("converted mono to dual channel", pcm[0:100])
+	// }
 	if inputSampleRate != opusSampleRate {
 		pcm = Resample(pcm, inputSampleRate, opusSampleRate)
 	}
