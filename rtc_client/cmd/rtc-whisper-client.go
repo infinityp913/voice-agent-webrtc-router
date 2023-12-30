@@ -616,6 +616,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// extract pcm array from json
 	var pcm_str string = flaskResponsePcm.Audio
 	logger.Info("Received pcm_str from Flask Server")
+	logger.Info("pcm_str: ", pcm_str[0:100])
 
 	// Remove brackets and split by commas
 	pcmValuesStr := strings.Trim(pcm_str, "[]")
@@ -632,6 +633,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	}
 
 	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
+	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
 
 	// // Create the JSON payload
 	// requestBody := &RequestBody{
