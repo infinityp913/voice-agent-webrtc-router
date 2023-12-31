@@ -469,7 +469,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	// // logger.Info("before encode") // REMOVE AFTER DEBUG
 
-	// // ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
+	// // ae.Encode(pcm_arr, 2, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
 	// // logger.Info("after encode") // REMOVE AFTER DEBUG
 	// // wavFrames := ChunkWav(wav_arr, 22050)
@@ -564,7 +564,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
 
 	// encode pcmFrames to opus
-	ae.Encode(pcm_float_arr, 1, 22050)
+	ae.Encode(pcm_float_arr, 2, 22050)
 
 	go rtc.ProcessOutgoingMedia()
 	// resume Ria listening
@@ -657,7 +657,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// logger.Info("before encode") // REMOVE AFTER DEBUG
 	// // time.Sleep(100 * time.Millisecond)
 
-	// ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
+	// ae.Encode(pcm_arr, 2, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
 	// logger.Info("after encode") // REMOVE AFTER DEBUG
 
@@ -756,7 +756,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	}
 
 	// encode pcmFrames to opus
-	ae.Encode(pcm_float_arr, 1, 22050)
+	ae.Encode(pcm_float_arr, 2, 22050)
 
 	// inBuf2 := bytes.NewBuffer(outBuf1.Bytes())
 	// outBuf2 := bytes.NewBuffer(nil)
@@ -801,7 +801,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 // 	logger.Info("SENDING stall message")
 
-// 	ae.Encode(chosen_msg, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
+// 	ae.Encode(chosen_msg, 2, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
 
 // 	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
 // 	go rtc.ProcessOutgoingMedia()
