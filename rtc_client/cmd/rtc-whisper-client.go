@@ -310,47 +310,6 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 	os.Exit(1)
 }
 
-// type WavFrame struct {
-// 	Index int
-// 	Data  []byte
-// }
-
-// chunkWav will split the provided wav audio into properly sized frames
-// func ChunkWav(wav []byte, sampleRate int) []rtc_client.WavFrame {
-// 	// the amount of samples that fit into a frame
-// 	outputFrameSize := 1 * 20 * 22050 / 1000
-// 	// TODO make sure this rounds up
-// 	totalFrames := len(wav) / outputFrameSize
-
-// 	frames := make([]rtc_client.WavFrame, 0, totalFrames)
-
-// 	idx := 0
-// 	for idx <= totalFrames {
-// 		wavLen := len(wav)
-// 		// we have at least a full frame left
-// 		if wavLen > outputFrameSize {
-// 			logger.Debug("Got a full frame")
-// 			frames = append(frames, rtc_client.WavFrame{Index: idx, Data: wav[:outputFrameSize]})
-// 			// chop frame off of input
-// 			wav = wav[outputFrameSize:]
-// 			idx++
-// 		} else {
-// 			// we have less than a full frame so lets pad with silence
-// 			sampleDelta := outputFrameSize - wavLen
-// 			silence := make([]byte, sampleDelta)
-
-// 			logger.Debugf("Got a partial frame len %d padding with %d silence samples", wavLen, len(silence))
-
-// 			frames = append(frames, rtc_client.WavFrame{Index: idx, Data: append(wav, silence...)})
-// 			break
-// 		}
-// 	}
-
-// 	logger.Debugf("got %d frames", len(frames))
-
-// 	return frames
-// }
-
 // chunkOpus will split the provided opus audio into properly sized frames
 func ChunkOpus(opus []byte, sampleRate int) []rtc_client.OpusFrame {
 	// the amount of samples that fit into a frame
@@ -425,92 +384,6 @@ func ChunkPcm(pcm []byte, sampleRate int, frameSizeMs int) []rtc_client.PcmFrame
 
 // This function sends the current prompt (i.e., current message from the end user) to Flask
 func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
-	// p.Lock()
-
-	// // no prompt so wait again
-	// if p.prompt == "" {
-	// 	p.Unlock()
-	// 	return
-	// }
-
-	// currentPrompt := p.prompt
-	// p.prompt = ""
-
-	// p.Unlock()
-
-	// // pause Ria  listening so we dont interrupt the response streaming
-	// p.pauseFunc()
-
-	// // *** Send currentPrompt to Flask server ***
-
-	// url := "http://localhost:8000/get_response" // Flask server running QnA NN + TTS NN is hosted here
-
-	// logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
-	// p.Lock() // locking since we're going to access p.currentState
-	// var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
-	// flaskResponse := new(FlaskResponse)
-
-	// logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
-	// getJson(url, jsonStrByte, flaskResponse)
-	// logger.Info("Pcm Array Response Received")
-
-	// // extract pcm array from json
-	// var wav_arr []byte = []byte(flaskResponse.Wav_arr)
-	// logger.Info("len(wav_arr): ", len(wav_arr))
-
-	// p.currentState = flaskResponse.New_state
-	// p.Unlock()
-
-	// // // padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
-
-	// // data := make([]float32, 38050)
-	// // data = append(data, pcm_arr...)
-	// // pcm_arr = data
-
-	// // logger.Info("before encode") // REMOVE AFTER DEBUG
-
-	// // ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
-
-	// // logger.Info("after encode") // REMOVE AFTER DEBUG
-	// // wavFrames := ChunkWav(wav_arr, 22050)
-	// // go ae.SendMediaWav(wavFrames)
-
-	// err := ffmpeg.Input("pipe:0").
-	// 	Output("pipe:1", ffmpeg.KwArgs{"c:a": "libopus", "page_duration": 2000, "ac": 2}).
-	// 	Run()
-	// if err != nil {
-	// 	logger.Info("Error at ffmpeg.Input()!!", err)
-	// }
-	// // write wav_arr to std_in
-	// _, err = os.Stdin.Write(wav_arr)
-	// if err != nil {
-	// 	logger.Info("Error at os.Stdin.Write()!!", err)
-	// }
-	// opus_byte_arr := make([]byte, 100000000)
-	// n, err := os.Stdout.Read(opus_byte_arr)
-	// if n > 0 {
-	// 	logger.Info("length of wav bytes converted to opus:", n)
-	// 	// inspiration for slicing valid part: https://stackoverflow.com/questions/43601846/golang-and-ffmpeg-realtime-streaming-input-output
-	// 	valid_opus_byte_arr := opus_byte_arr[:n]
-	// 	// chunk opus_byte_arr into frames
-	// 	opusFrames := ChunkOpus(valid_opus_byte_arr, 22050)
-	// 	// convert opus frames to media samples
-	// 	go ae.SendMedia(opusFrames)
-	// }
-
-	// go rtc.ProcessOutgoingMedia()
-
-	// // resume Ria listening
-	// p.unpauseFunc()
-
-	// *** End of sending currentPrompt to Flask server code ***
-
-	// // If the state sent back by the Flask server is 4 then end the inference after 15s
-	// if flaskResponse.New_state == 4 {
-	// 	f := callkillGoClient(rtc)
-	// 	time.AfterFunc(15*time.Second, f)
-	// // }
-
 	p.Lock()
 
 	// no prompt so wait again
@@ -539,25 +412,6 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.currentState = flaskResponsePcm.NewState
 	p.Unlock()
 
-	// extract pcm array from json
-	// var pcm_str string = flaskResponsePcm.Audio
-	// logger.Info("Received pcm_str from Flask Server")
-	// logger.Info("pcm_str: ", pcm_str[0:100])
-
-	// // Remove brackets and split by commas
-	// pcmValuesStr := strings.Trim(pcm_str, "[]")
-	// pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
-
-	// // Parse each string to float32
-	// var pcm_float_arr []float32
-	// for _, pcmValueStr := range pcmValuesStrArr {
-	// 	value, err := strconv.ParseFloat(strings.TrimSpace(pcmValueStr), 32)
-	// 	if err != nil {
-	// 		logger.Info("Error at strconv.ParseFloat()!!", err)
-	// 	}
-	// 	pcm_float_arr = append(pcm_float_arr, float32(value))
-	// }
-
 	var pcm_float_arr []float32 = flaskResponsePcm.Audio
 
 	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
@@ -577,95 +431,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	}
 }
 
-// type RequestBody struct {
-// 	EndUserInput           string `json:"end_user_input"`
-// 	CurrState              string `json:"curr_state"`
-// 	ClientID               string `json:"client_id"`
-// 	PromptRepeatedResponse string `json:"prompt_repeated_response"`
-// }
-
-// func fetchAudioFromEndpoint(endpointURL string, requestBody *RequestBody) ([]byte, error) {
-// 	// Convert the JSON payload to a byte slice
-// 	jsonData, err := json.Marshal(requestBody)
-// 	if err != nil {
-// 		logger.Info("Error at json.Marshal() inside fetchAudioFromEndpoint", err)
-// 		return nil, err
-// 	}
-
-// 	// Make a POST request to the specified endpoint with the JSON payload
-// 	response, err := http.Post(endpointURL, "application/json", bytes.NewBuffer(jsonData))
-// 	if err != nil {
-// 		logger.Info("Error at http.Post() inside fetchAudioFromEndpoint", err)
-// 		return nil, err
-// 	}
-// 	defer response.Body.Close()
-
-// 	// Check if the response status code is successful (200 OK)
-// 	if response.StatusCode != http.StatusOK {
-// 		logger.Info("Status not OK inside fetchAudioFromEndpoint", response.StatusCode)
-// 		return nil, err
-// 	}
-// 	logger.Info("response body: ", response.Body)
-
-// 	// Read the audio data from the response body
-// 	// audioHexData, err := ioutil.ReadAll(response.Body)
-// 	// if err != nil {
-// 	// 	return nil, err
-// 	// }
-// 	// logger.Info("audioHexData: ", audioHexData)
-
-// 	// // Convert hexadecimal audio data to decimal -- sliced from index 5 to remove the "RIFF$ " prefix
-// 	// audioDecimalData, err := hex.DecodeString(string(audioHexData[5:]))
-// 	// if err != nil {
-// 	// 	return nil, err
-// 	// }
-
-// 	// return audioDecimalData, nil
-
-// 	// Read the audio data from the response body
-// 	audioData, err := ioutil.ReadAll(response.Body)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return audioData, nil
-// }
-
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
 	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
-	// send POST req to the URL with user_input and get the json containing pcm
-	// url := "http://localhost:8000/get_response"
-
-	// // Sending curr_state 0 signal to flask along with a hard-coded hello (content of endu_user_input doesn't matter)
-	// // This is to get the intro as response
-	// var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
-
-	// flaskResponse := new(FlaskResponse)
-	// getJson(url, jsonStrByte, flaskResponse)
-
-	// // extract pcm array from json
-	// var wav_arr []byte = []byte(flaskResponse.Wav_arr)
-	// new_state := flaskResponse.New_state
-	// logger.Info("len(wav_arr): ", len(wav_arr))
-
-	// // padding the audio with some silence -- this is important, without this the start of the audio gets cut off for some unkown reason
-
-	// data := make([]float32, 38050)
-	// data = append(data, pcm_arr...)
-	// pcm_arr = data
-
-	// logger.Info("before encode") // REMOVE AFTER DEBUG
-	// // time.Sleep(100 * time.Millisecond)
-
-	// ae.Encode(pcm_arr, 1, 22050) // Encode the pcm from Flask into opus frames and then into media samples. 22050 is the sample rate of pcm data from Flask server
-
-	// logger.Info("after encode") // REMOVE AFTER DEBUG
-
-	// Logger.Info("calling go rtc.processOutgoingMedia within the loop") // REMOVE AFTER DEBUG
-
-	// wavFrames := ChunkWav(wav_arr, 22050)
-	// go ae.SendMediaWav(wavFrames)
-
 	// this endpoint returns standardized pcm data in the json format: {audio:"--pcm data--"}
 	endpointURL := "http://localhost:8000/get_response_audio_pcm"
 
@@ -678,73 +445,11 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	logger.Info("flaskResponsePcm.NewState:", flaskResponsePcm.NewState)
 	new_state := flaskResponsePcm.NewState
 
-	// extract pcm array from json
-	// var pcm_str string = flaskResponsePcm.Audio
-	// logger.Info("Received pcm_str from Flask Server")
-	// logger.Info("pcm_str: ", pcm_str[0:100])
-
-	// // Remove brackets and split by commas
-	// pcmValuesStr := strings.Trim(pcm_str, "[]")
-	// pcmValuesStrArr := strings.Split(pcmValuesStr, ",")
-
-	// logger.Info("pcmValuesStrArr: ", pcmValuesStrArr[0:100])
-
-	// // Parse each string to float32
-	// var pcm_float_arr []float32
-	// for _, pcmValueStr := range pcmValuesStrArr {
-	// 	value, err := strconv.ParseFloat(strings.TrimSpace(pcmValueStr), 32)
-	// 	if err != nil {
-	// 		return -1
-	// 	}
-	// 	pcm_float_arr = append(pcm_float_arr, float32(value))
-	// }
-
 	var pcm_float_arr []float32 = flaskResponsePcm.Audio
 	logger.Info("pcm_float_arr: ", pcm_float_arr)
 
 	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
 	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
-
-	// // Create the JSON payload
-	// requestBody := &RequestBody{
-	// 	EndUserInput:           "Hello!",
-	// 	CurrState:              "0",
-	// 	ClientID:               "1",
-	// 	PromptRepeatedResponse: "0",
-	// }
-
-	// // Fetch audio data from the specified endpoint with the JSON payload
-	// audioData, err := fetchAudioFromEndpoint(endpointURL, requestBody)
-	// if err != nil {
-	// 	log.Fatal("Error fetching audio data:", err)
-	// }
-
-	// inBuf1 := bytes.NewBuffer(audioData)
-	// outBuf1 := bytes.NewBuffer(nil)
-
-	// logger.Info("Running ffmpeg")
-	// err = ffmpeg.Input("pipe:").
-	// 	WithInput(inBuf1).
-	// 	// Output("pipe:", ffmpeg.KwArgs{"c:a": "pcm_s16le", "ar": 48000, "ac": 2, "f": "s16le"}).
-	// 	Output("pipe:", ffmpeg.KwArgs{"acodec": "pcm_s16le", "ar": 22050, "ac": 2, "f": "s16le"}).
-	// 	WithOutput(outBuf1).
-	// 	Run()
-	// logger.Info("contents of outBuf1: ", outBuf1.Bytes()[0:100])
-
-	// pcm_bytes_arr := outBuf1.Bytes()
-
-	// logger.Info("contents of pcm_bytes_arr: ", pcm_bytes_arr[0:100])
-
-	// // convert pcm_bytes_arr from a byte array to float32 array, assuming pcm_bytes_arr is signed 16 bit little endian
-	// pcm_float_arr := make([]float32, len(pcm_bytes_arr))
-	// for i := 0; i < len(pcm_bytes_arr); i++ {
-	// 	pcm_float_arr[i] = float32(pcm_bytes_arr[i])
-	// 	// pcm_float_arr[i] = (pcm_float_arr[i] - float32(-11.71)) / float32(5481.07)
-	// }
-
-	// logger.Info("contents of pcm_float_arr: ", pcm_float_arr[0:100])
-	// save pcm_float_arr to a file
-	// err = ioutil.WriteFile("pcm_float_arr48KHz_fromFlask.pcm", []byte(fmt.Sprintf("%v", pcm_float_arr)), 0644)
 
 	f, err := os.OpenFile("pcm_float_standardized_22050Hz.pcm",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -757,32 +462,6 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	// encode pcmFrames to opus
 	ae.Encode(pcm_float_arr, 1, 22050)
-
-	// inBuf2 := bytes.NewBuffer(outBuf1.Bytes())
-	// outBuf2 := bytes.NewBuffer(nil)
-	// err = ffmpeg.Input("pipe:", ffmpeg.KwArgs{"ar": 48000, "ac": 2, "f": "f32le"}).
-	// 	WithInput(inBuf2).
-	// 	Output("pipe:", ffmpeg.KwArgs{"c:a": "libopus", "ar": 48000, "ac": 2, "f": "ogg"}).
-	// 	WithOutput(outBuf2).
-	// 	Run()
-	// if err != nil {
-	// 	logger.Info("Error at ffmpeg.Input()!!", err)
-	// }
-	// opus_byte_arr := outBuf2.Bytes()
-	// logger.Info("Contents of opus_byte_arr: ", opus_byte_arr[0:100])
-	// logger.Info("Length of opus_byte_arr: ", len(opus_byte_arr))
-	// outBuf2.Reset()
-
-	// // write the opus_byte_arr to a file
-	// err = ioutil.WriteFile("opus_byte_arr48KHz_frompcm.ogg", opus_byte_arr, 0644)
-	// if err != nil {
-	// 	logger.Info("Error writing to file:", err)
-	// }
-
-	// // opusFrames := ChunkOpus(opus_byte_arr, 48000)
-	// // logger.Info("Length of opusFrames: ", len(opusFrames))
-	// // go ae.SendMedia(opusFrames)
-	// go ae.SendMediaByteArr(opus_byte_arr)
 
 	go rtc.ProcessOutgoingMedia()
 	return new_state
