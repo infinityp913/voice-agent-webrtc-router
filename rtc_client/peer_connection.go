@@ -49,8 +49,6 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var user User
 	json.Unmarshal(byteValue, &user)
-	logger.Info("username: ", user.Username, "end")
-	logger.Info("pass: ", user.Pass, "end")
 
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{

@@ -9,7 +9,6 @@ type OpusDecoder struct {
 }
 
 func NewOpusDecoder(sampleRate, channels int) (*OpusDecoder, error) {
-	Logger.Info("############ ALERT!!! NEW DECODER CREATED!!!###################")
 	dec, err := opus.NewDecoder(sampleRate, channels)
 	if err != nil {
 		return nil, err
