@@ -310,42 +310,6 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 	os.Exit(1)
 }
 
-// chunkOpus will split the provided opus audio into properly sized frames
-func ChunkOpus(opus []byte, sampleRate int) []rtc_client.OpusFrame {
-	// the amount of samples that fit into a frame
-	outputFrameSize := 1 * 20 * 22050 / 1000
-	// TODO make sure this rounds up
-	totalFrames := len(opus) / outputFrameSize
-
-	frames := make([]rtc_client.OpusFrame, 0, totalFrames)
-
-	idx := 0
-	for idx <= totalFrames {
-		opusLen := len(opus)
-		// we have at least a full frame left
-		if opusLen > outputFrameSize {
-			logger.Debug("Got a full frame")
-			frames = append(frames, rtc_client.OpusFrame{Index: idx, Data: opus[:outputFrameSize]})
-			// chop frame off of input
-			opus = opus[outputFrameSize:]
-			idx++
-		} else {
-			// we have less than a full frame so lets pad with silence
-			sampleDelta := outputFrameSize - opusLen
-			silence := make([]byte, sampleDelta)
-
-			logger.Debugf("Got a partial frame len %d padding with %d silence samples", opusLen, len(silence))
-
-			frames = append(frames, rtc_client.OpusFrame{Index: idx, Data: append(opus, silence...)})
-			break
-		}
-	}
-
-	logger.Debugf("got %d frames", len(frames))
-
-	return frames
-}
-
 // chunkPcm will split the provided opus audio into properly sized frames
 func ChunkPcm(pcm []byte, sampleRate int, frameSizeMs int) []rtc_client.PcmFrame {
 	// the amount of samples that fit into a frame
