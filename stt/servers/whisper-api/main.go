@@ -39,8 +39,6 @@ func main() {
 		end := time.Now()
 
 		elapsed := end.Sub(start)
-		logger.Infof("Took: %v", elapsed)
-		logger.Infof("%v", transcription)
 
 		c.JSON(200, transcription)
 	})

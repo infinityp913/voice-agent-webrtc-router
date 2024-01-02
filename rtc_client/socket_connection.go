@@ -136,17 +136,14 @@ func (s *SocketConnection) readMessages() error {
 		case "offer":
 			params, ok := msg["params"].(map[string]interface{})
 			if !ok {
-				internal.Logger.Infof("invalid params for offer %+v", msg["params"])
 				continue
 			}
 			ty, ok := params["type"].(string)
 			if !ok {
-				internal.Logger.Infof("invalid type for offer %+v", params["type"])
 				continue
 			}
 			sdp, ok := params["sdp"].(string)
 			if !ok {
-				internal.Logger.Infof("invalid sdp for offer %+v", params["sdp"])
 				continue
 			}
 
@@ -160,7 +157,6 @@ func (s *SocketConnection) readMessages() error {
 		case "trickle":
 			params, ok := msg["params"].(map[string]interface{})
 			if !ok {
-				internal.Logger.Infof("invalid params for trickle %+v", msg["params"])
 				continue
 			}
 
@@ -186,17 +182,14 @@ func (s *SocketConnection) readMessages() error {
 		default:
 			res, ok := msg["result"].(map[string]interface{})
 			if !ok {
-				internal.Logger.Infof("got unhandled message: %+v", msg)
 				continue
 			}
 			sdp, ok := res["sdp"].(string)
 			if !ok {
-				internal.Logger.Infof("invalid sdp for answer %+v", res["sdp"])
 				continue
 			}
 			ty, ok := res["type"].(string)
 			if !ok {
-				internal.Logger.Infof("invalid sdp type for answer %+v", res["type"])
 				continue
 			}
 			answer := webrtc.SessionDescription{Type: webrtc.NewSDPType(ty), SDP: sdp}

@@ -112,7 +112,6 @@ func (e *Engine) writeVAD(pcm []float32, timestamp uint32) {
 	defer e.Unlock()
 	if len(e.pcmWindow)+len(pcm) > pcmWindowSize {
 		// This shouldn't happen hopefully...
-		Logger.Infof("GOING TO OVERFLOW PCM WINDOW BY %d", len(e.pcmWindow)+len(pcm)-pcmWindowSize)
 	}
 	e.pcmWindow = append(e.pcmWindow, pcm...)
 	if len(e.pcmWindow) >= pcmWindowSize {
@@ -149,8 +148,6 @@ func (e *Engine) writeVAD(pcm []float32, timestamp uint32) {
 			// by having this here it gives us a bit of an opportunity to pause in our speech
 			if len(e.window) != 0 {
 				// we have not been speaking for at least 500ms now so lets run inference
-				Logger.Infof("running whisper inference with %d window length", len(e.window))
-
 				transcript, err := e.transcriber.Transcribe(e.window)
 				if err != nil {
 					Logger.Error(err, "error running inference")
@@ -179,7 +176,6 @@ func (e *Engine) writeClassic(pcm []float32, timestamp uint32) {
 	defer e.Unlock()
 	if len(e.pcmWindow)+len(pcm) > pcmWindowSize {
 		// This shouldn't happen hopefully...
-		Logger.Infof("GOING TO OVERFLOW PCM WINDOW BY %d", len(e.pcmWindow)+len(pcm)-pcmWindowSize)
 	}
 	e.pcmWindow = append(e.pcmWindow, pcm...)
 	if len(e.pcmWindow) >= pcmWindowSize {

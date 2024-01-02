@@ -82,7 +82,6 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	})
 
 	if params.mediaIn != nil {
-		internal.Logger.Info("executing if params.MediaIn != nil") // REMOVE AFTER DEBUG
 		audioTrack, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "audio/opus"}, "audio", "ria_audio")
 		if err != nil {
 			internal.Logger.Error(err, "error creating local audio track")
@@ -95,15 +94,12 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 			return nil, err
 		}
 
-		internal.Logger.Info("Added Transciever") // REMOVE AFTER DEBUG
-
 		rtc.audioTrack = audioTrack
 
 		// REMOVED POM FROM HERE
 		// go rtc.processOutgoingMedia()
 
 	} else {
-		internal.Logger.Info("mediaIn not provided... audio relay is disabled")
 	}
 
 	if params.transcriptionStream != nil {
@@ -121,13 +117,10 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		}
 
 		dc.OnOpen(func() {
-			internal.Logger.Info("data channel opened...")
 
 			for transcription := range params.transcriptionStream {
 				internal.Logger.Debugf("Transcribed debug %s", transcription.TranscribedText)
 				internal.Logger.Debugf("New text debug %s", transcription.NewText)
-				internal.Logger.Info("Transcribed info %s", transcription.TranscribedText)
-				internal.Logger.Info("New text info %s", transcription.NewText)
 				data, err := json.Marshal(transcription)
 				if err != nil {
 					internal.Logger.Error(err, "error marshalling transcript")
@@ -139,7 +132,6 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		})
 
 	} else {
-		internal.Logger.Info("transcriptionStream not provided... transcription relay is disabled")
 	}
 
 	return rtc, nil
@@ -155,15 +147,12 @@ func (rtc *RTCConnection) SendHangupSignal() {
 			MaxRetransmits: &maxRetransmits,
 		})
 	if err != nil {
-		internal.Logger.Info("Error ocurred at hungup data channel creation!")
 		return
 	}
 	ria_hungup_dc.OnOpen(func() {
-		internal.Logger.Info("ria_hungup_dc is open!!")
 		select {
 		case <-rtc.Hungup:
 			ria_hungup_dc.Send([]byte{1})
-			internal.Logger.Info("Sent the code on the ria_hungup_dc!!")
 		}
 	})
 }
@@ -178,36 +167,28 @@ func (rtc *RTCConnection) SendStartBClientSignal() {
 			MaxRetransmits: &maxRetransmits,
 		})
 	if err != nil {
-		internal.Logger.Info("Error ocurred at bclient_start_dc data channel creation!")
 		return
 	}
 	bclient_start_dc.OnOpen(func() {
-		internal.Logger.Info("bclient_start_dc is open!!")
 		select {
 		case <-rtc.StartBrowserClient:
 			bclient_start_dc.Send([]byte{1})
-			internal.Logger.Info("Sent the code on the bclient_start_dcc!!")
 		}
 	})
 }
 
 // processOutgoingMedia sends the provided samples on the audioTrack
 func (r *RTCConnection) ProcessOutgoingMedia() {
-	internal.Logger.Info("Inside processOutgoingMedia")
 
 	if r.mediaIn == nil {
-		internal.Logger.Info("MediaIn not provided... skipping relay")
 		return
 	}
-	internal.Logger.Info("TOTAL Number of samples to be written to rtc.audioTrack:", len(r.mediaIn))
 	i := 0
 	for sample := range r.mediaIn {
 		i += 1
-		internal.Logger.Info("MediaIn provided... writing samples from MediaIn (inside the sample:=loop)") // REMOVE AFTER DEBUG
 		if err := r.audioTrack.WriteSample(sample); err != nil {
 			internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
 		}
-		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
 
 }

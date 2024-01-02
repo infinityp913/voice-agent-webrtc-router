@@ -112,7 +112,6 @@ func main() {
 	}
 
 	// Sending signal to Browser to start the Browser client!
-	logger.Info("Sending signal to RTCConn via a channel")
 	// calling the following as a goroutine to enable sending the value (1) over the channel to rtc.SendHangupSignal(). Without a goroutine that has a sleep, the timing won't workout (inspiration: https://www.geeksforgeeks.org/select-statement-in-go-language/)
 	go func() {
 		// sleeping so that the value 1 is sent to the rtc.Hungup channel when control is blocked on the goroutine waiting for the value in the select-case block
@@ -151,7 +150,6 @@ func main() {
 
 	onDocumentUpdate := func(document stt.Document) {
 		if document.NewText == "" {
-			logger.Info("Empty text!!!!!!!!!!!!!!!!!!!!!!")
 		} else {
 			transcriptionStream <- document
 			promptBuilder.UpdatePrompt(document.NewText, rc.Ae, rc.Rtc)
@@ -162,8 +160,6 @@ func main() {
 
 	go promptBuilder.Start(rc.Ae, rc.Rtc)
 	defer promptBuilder.Stop()
-
-	logger.Info("Starting Ria Client...")
 
 	// COMMENTED NOV 28
 	// if err := rc.Start(); err != nil {
@@ -200,7 +196,6 @@ type PromptBuilder struct {
 
 // construct new PromptBuilder
 func NewPromptBuilder(interval time.Duration, init_state int, pauseFunc func(), unpauseFunc func()) *PromptBuilder {
-	logger.Info("TIMER HAS STARTED!") // REMOVE AFTER DEBUG
 	return &PromptBuilder{
 		timer:        time.NewTimer(interval), // Timer starts at this line
 		prompt:       "",
@@ -213,7 +208,6 @@ func NewPromptBuilder(interval time.Duration, init_state int, pauseFunc func(), 
 
 // update the prompt and reset the timer
 func (p *PromptBuilder) UpdatePrompt(prompt string, ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
-	logger.Infof("UPDATING QnA PROMPT %s", prompt)
 	p.Lock()
 	defer p.Unlock()
 
@@ -229,7 +223,6 @@ func (p *PromptBuilder) UpdatePrompt(prompt string, ae *rtc_client.AudioEngine, 
 	p.prompt += prompt
 	p.timer.Stop()
 	p.timer.Reset(llmTime)
-	logger.Infof("TIMER RESET!!!")
 }
 
 // Stop building prompts and sending to Flask server
@@ -240,7 +233,6 @@ func (p *PromptBuilder) Stop() {
 // Start building prompts and sending to Flask server
 func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	for {
-		logger.Infof("Inside Start()'s infinite loop")
 		// wait for the timer to fire OR Stop() to be called
 		select {
 		case <-p.timer.C: // indicates firing of timer aka the 2s timer has counted down
@@ -248,7 +240,6 @@ func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCCon
 			p.tryCallEngine(ae, rtc)
 			// p.Unlock()
 		case <-p.cancel: // indicates calling of Stop()
-			logger.Info("shutting down llm interface")
 			return
 		}
 	}
@@ -271,7 +262,6 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logger.Info("Error at POST request!!")
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -292,7 +282,6 @@ func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
 }
 
 func killGoClient(rtc *rtc_client.RTCConnection) {
-	logger.Info("CALLED killGoClient()!!")
 	// calling the following as a goroutine to enable sending the value (1) over the channel to rtc.SendHangupSignal(). Without a goroutine that has a sleep, the timing won't workout (inspiration: https://www.geeksforgeeks.org/select-statement-in-go-language/)
 	go func() {
 		// sleeping so that the value 1 is sent to the rtc.Hungup channel when control is blocked on the goroutine waiting for the value in the select-case block
@@ -303,7 +292,6 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 
 	// this function creates the data channel and waits for the value(1) on the rtc.Hungup channel before sending the signal to the browser via the data channel
 	rtc.SendHangupSignal()
-	logger.Info("SENT SIGNAL TO BROWSER")
 
 	// sleeping for 500ms before exiting so that the above logic runs before killing the whole go client
 	time.Sleep(time.Millisecond * 500)
@@ -401,21 +389,16 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.pauseFunc()
 
 	endpointURL := "http://localhost:8000/get_response_audio_pcm"
-	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
 	p.Lock() // locking since we're going to access p.currentState
 	var jsonStrByte = []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + strconv.Itoa(p.currentState) + `", "client_id":"1", "prompt_repeated_response":"0"}`)
 
 	flaskResponsePcm := new(FlaskResponsePcm)
-	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
 
 	p.currentState = flaskResponsePcm.NewState
 	p.Unlock()
 
 	var pcm_float_arr []float32 = flaskResponsePcm.Audio
-
-	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
-	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
 
 	// encode pcmFrames to opus
 	ae.Encode(pcm_float_arr, 1, 22050)
@@ -432,24 +415,17 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 }
 
 func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
-	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	// this endpoint returns standardized pcm data in the json format: {audio:"--pcm data--"}
 	endpointURL := "http://localhost:8000/get_response_audio_pcm"
 
 	var jsonStrByte = []byte(`{"end_user_input":"Hello!", "curr_state":"0", "client_id":"1", "prompt_repeated_response":"0"}`)
 
 	flaskResponsePcm := new(FlaskResponsePcm)
-	logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	getJson(endpointURL, jsonStrByte, flaskResponsePcm)
 
-	logger.Info("flaskResponsePcm.NewState:", flaskResponsePcm.NewState)
 	new_state := flaskResponsePcm.NewState
 
 	var pcm_float_arr []float32 = flaskResponsePcm.Audio
-	logger.Info("pcm_float_arr: ", pcm_float_arr)
-
-	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
-	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
 
 	f, err := os.OpenFile("pcm_float_standardized_22050Hz.pcm",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

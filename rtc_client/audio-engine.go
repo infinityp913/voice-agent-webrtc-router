@@ -132,19 +132,16 @@ func (a *AudioEngine) MediaOut() <-chan media.Sample {
 }
 
 func (a *AudioEngine) Start() {
-	internal.Logger.Info("Starting audio engine")
 	go a.decode()
 }
 
 // Pause stops the text to speech inference and simply drops incoming packets
 func (a *AudioEngine) Pause() {
-	Logger.Info("Pausing tts")
 	a.shouldInfer.Swap(false)
 }
 
 // Unpause restarts the text to speech inference
 func (a *AudioEngine) Unpause() {
-	Logger.Info("Unpausing tts")
 	a.shouldInfer.Swap(true)
 }
 
@@ -154,12 +151,6 @@ func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	if err != nil {
 		internal.Logger.Error(err, "error encoding pcm")
 	}
-	// go func() {
-	// 	_, err := Encode(a.enc, pcm, inputChannelCount, inputSampleRate, a)
-	// 	if err != nil {
-	// 		internal.Logger.Error(err, "error encoding pcm")
-	// 	}
-	// }()
 
 	go a.sendMedia(opusFrames)
 
@@ -169,35 +160,26 @@ func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 // (OG) sendMedia turns opus frames into media samples and sends them on the channel
 func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	// REMOVE AFTER DEBUG
-	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
-		internal.Logger.Info("converting opus to sample")
 		sample := convertOpusToSample(f)
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
 	}
-	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
 // (modified to OpusFrame instead of ineternal.OpusFrame) sendMedia turns opus frames into media samples and sends them on the channel
 func (a *AudioEngine) SendMedia(frames []OpusFrame) {
-	// REMOVE AFTER DEBUG
-	internal.Logger.Info("DEBUG: Printing the media samples")
 	for _, f := range frames {
-		internal.Logger.Info("converting opus to sample")
 		sample := convertOpusToSampleNew(f)
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
 	}
-	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
 // sendMedia turns a byte array into media samples and sends them on the channel
 func (a *AudioEngine) SendMediaByteArr(byteArr []byte) {
-	// REMOVE AFTER DEBUG
-	internal.Logger.Info("DEBUG: Printing the media samples")
 	sample := media.Sample{
 		Data:               byteArr,
 		PrevDroppedPackets: 0, // FIXME support dropping packets
@@ -206,7 +188,6 @@ func (a *AudioEngine) SendMediaByteArr(byteArr []byte) {
 	a.mediaOut <- sample
 	// this is important to properly pace the samples
 	time.Sleep(time.Millisecond * 20)
-	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
 // (OG)
@@ -248,7 +229,6 @@ func (a *AudioEngine) decode() {
 	for {
 		pkt, ok := <-a.rtpIn // pkt is the RTP packet received
 		if !ok {
-			internal.Logger.Info("rtpIn channel closed...")
 			return
 		}
 		if !a.shouldInfer.Load() { // check if the "shouldInfer" var is true/false i.e., checking if we have paused/unpaused Ria listening

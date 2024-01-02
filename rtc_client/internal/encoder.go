@@ -59,7 +59,6 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	}
 	if inputChannelCount == 1 && o.Channels == 2 {
 		pcm = util.ConvertToDualChannel(pcm)
-		Logger.Info("converted mono to dual channel", pcm[0:100])
 	}
 	if inputSampleRate != opusSampleRate {
 		pcm = Resample(pcm, inputSampleRate, opusSampleRate)
@@ -99,8 +98,6 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		}(idx, frame)
 	}
 	// wg.Wait()
-
-	Logger.Infof("encoded %d opus frames", len(opusFrames))
 
 	return opusFrames, nil
 

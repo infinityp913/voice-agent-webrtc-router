@@ -49,8 +49,6 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var user User
 	json.Unmarshal(byteValue, &user)
-	logger.Info("username: ", user.Username, "end")
-	logger.Info("pass: ", user.Pass, "end")
 
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
@@ -95,7 +93,6 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	peerConnection.OnICECandidate(onICECandidate)
 
 	peerConnection.OnConnectionStateChange(func(s webrtc.PeerConnectionState) {
-		internal.Logger.Infof("Peer Connection State has changed: %s\n", s.String())
 
 		if s == webrtc.PeerConnectionStateFailed {
 			// Wait until PeerConnection has had no network activity for 30 seconds or another failure. It may be reconnected using an ICE Restart.
@@ -187,15 +184,10 @@ func (c PeerConn) GetOffer() (webrtc.SessionDescription, error) {
 	if err != nil {
 		return offer, err
 	}
-	// nov 29 DEBUG
-	internal.Logger.Info("Inside GetOffer")
 	return offer, c.conn.SetLocalDescription(offer)
 }
 
 func (c PeerConn) SetAnswer(answer webrtc.SessionDescription) error {
-	// nov 27 DEBUG
-	internal.Logger.Info("Answer.SDP: ", answer.SDP)
-	// END OF DEBUG
 	if err := c.conn.SetRemoteDescription(answer); err != nil {
 		return err
 	}
