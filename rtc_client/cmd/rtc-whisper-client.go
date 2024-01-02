@@ -285,6 +285,15 @@ type FlaskResponsePcm struct {
 	NewState int       `json:"new_state"`
 }
 
+type AudioChunk struct {
+	Data  []float32
+	Index int
+	// SampleRate of the audio in Hz (ex: 48kHz = 48000)
+	SampleRate int
+	// ChannelCount of the audio (usually 1)
+	ChannelCount int
+}
+
 func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
 	return func() {
 		killGoClient(rtc)
@@ -381,8 +390,15 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("len(pcm_float_arr): ", len(pcm_float_arr))
 	logger.Info("pcm_float_arr: ", pcm_float_arr[0:100])
 
-	// encode pcmFrames to opus
-	ae.Encode(pcm_float_arr, 1, 22050)
+	chunk := AudioChunk{
+		Data:         pcm_float_arr,
+		Index:        0,
+		SampleRate:   22050,
+		ChannelCount: 1,
+	}
+
+	// resample the chunk, split it into frames of a set frameSize (20ms) and then encode frames to opus
+	ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
 	go rtc.ProcessOutgoingMedia()
 	// resume Ria listening
@@ -424,8 +440,15 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		fmt.Fprintln(f, value) // print values to f, one per line
 	}
 
-	// encode pcmFrames to opus
-	ae.Encode(pcm_float_arr, 1, 22050)
+	chunk := AudioChunk{
+		Data:         pcm_float_arr,
+		Index:        0,
+		SampleRate:   22050,
+		ChannelCount: 1,
+	}
+
+	// resample the chunk, split it into frames of a set frameSize (20ms) and then encode frames to opus
+	ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
 	go rtc.ProcessOutgoingMedia()
 	return new_state
