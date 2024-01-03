@@ -426,6 +426,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	reader := bufio.NewReader(resp.Body)
 	for {
 		line, err := reader.ReadBytes(']')
+		logger.Info("line: ", line[0:10])
 		if err == io.EOF {
 			break
 		}
@@ -442,7 +443,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			// logger.Info("buf: ", buf)
 
 			float_buf := util.BinaryToFloat32(line)
-			logger.Info("float_buf: ", float_buf)
+			logger.Info("float_buf: ", float_buf[0:10])
 
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
@@ -515,7 +516,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	reader := bufio.NewReader(resp.Body)
 	for {
 		line, err := reader.ReadBytes(']')
-		logger.Info("line: ", line)
+		logger.Info("line: ", line[0:10])
 		if err == io.EOF {
 			break
 		}
@@ -532,7 +533,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			// logger.Info("buf: ", buf)
 
 			float_buf := util.BinaryToFloat32(line)
-			logger.Info("float_buf: ", float_buf)
+			logger.Info("float_buf: ", float_buf[0:10])
 
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
