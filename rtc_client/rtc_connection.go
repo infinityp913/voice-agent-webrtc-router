@@ -211,7 +211,11 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 	// }
 	for {
 		select {
-		case sample := <-r.mediaIn:
+		case sample, ok := <-r.mediaIn:
+			if !ok {
+				logger.Info("No more samples to be written to rtc.audioTrack")
+				break
+			}
 			i += 1
 			internal.Logger.Info("MediaIn provided... writing samples from MediaIn (inside the select case)") // REMOVE AFTER DEBUG
 			if err := r.audioTrack.WriteSample(sample); err != nil {
