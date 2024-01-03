@@ -193,9 +193,6 @@ func (rtc *RTCConnection) SendStartBClientSignal() {
 
 // processOutgoingMedia sends the provided samples on the audioTrack
 func (r *RTCConnection) ProcessOutgoingMedia() {
-	var mu sync.Mutex
-
-	mu.Lock()
 	internal.Logger.Info("Inside processOutgoingMedia")
 
 	if r.mediaIn == nil {
@@ -212,7 +209,6 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 		}
 		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
-	mu.Unlock()
 
 }
 
