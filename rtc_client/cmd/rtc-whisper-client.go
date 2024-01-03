@@ -135,7 +135,7 @@ func main() {
 	time.Sleep(1200 * time.Millisecond)
 
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
-
+	logger.Info("reached the line after riaSaysHello()") // REMOVE
 	// commented nov 29
 	// f := callRiaSaysHello(rc)
 	// time.AfterFunc(10000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
