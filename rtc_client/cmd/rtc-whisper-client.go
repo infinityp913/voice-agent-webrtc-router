@@ -500,7 +500,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// go rtc.ProcessOutgoingMedia()
 	// return new_state
 
-	payload := []byte(`{"end_user_input": "` + "Explain leg surgeries in 5 sentences" + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}`)
+	payload := []byte(`{"request": {"end_user_input": "` + "Explain leg surgeries in 5 sentences" + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
 
 	// TODO: add state handling code and mutex locking and unlocking
 
