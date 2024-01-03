@@ -529,7 +529,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// 	log.Fatalln(err)
 	// }
 
-	resp, err := http.Get("http://localhost:1800/get_audio")
+	resp, err := http.Get("http://localhost:18000/get_audio")
 	if err != nil {
 		log.Fatalln(err)
 	}
