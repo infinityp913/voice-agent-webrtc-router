@@ -516,7 +516,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	reader := bufio.NewReader(resp.Body)
 	for {
 		line, err := reader.ReadBytes(']')
-		logger.Info("line: ", line[0:10])
+		logger.Info("line: ", line[0:100])
 		if err == io.EOF {
 			break
 		}
@@ -524,9 +524,9 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			log.Fatalln("Error while reading bytes from Response", err)
 		}
 		if resp.StatusCode == http.StatusOK {
-			// buf := make([]float32, len(line)-1)
+			// float_buf := make([]float32, len(line)-1)
 
-			// n, err := b64.StdEncoding.Decode(buf, []byte(line[1:]))
+			// n, err := b64.StdEncoding.Decode(float_buf, []byte(line[1:]))
 			// if err != nil {
 			// 	logger.Error(err, "error decoding b64")
 			// }
