@@ -533,63 +533,63 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	}
 	defer resp.Body.Close()
 
-	// Create a scanner to read the response body line by line
-	scanner := bufio.NewScanner(resp.Body)
+	// // Create a scanner to read the response body line by line
+	// scanner := bufio.NewScanner(resp.Body)
 
-	logger.Info("resp.Body: ", resp.Body)
+	// logger.Info("resp.Body: ", resp.Body)
 
-	// Process each line (assumed to contain a float array)
-	for scanner.Scan() {
-		logger.Info("Inside scanner.Scan() loop")
-		line := scanner.Text()
-		logger.Info("line: ", line[0:10])
-		floatArray := extractFloatArray(line)
-		logger.Info("floatArray: ", floatArray[0:10])
+	// // Process each line (assumed to contain a float array)
+	// for scanner.Scan() {
+	// 	logger.Info("Inside scanner.Scan() loop")
+	// 	line := scanner.Text()
+	// 	logger.Info("line: ", line[0:10])
+	// 	floatArray := extractFloatArray(line)
+	// 	logger.Info("floatArray: ", floatArray[0:10])
 
-		// Process the received float array
-		chunk := AudioChunk{}
-		chunk.Data = floatArray
-		chunk.SampleRate = 22050
-		chunk.ChannelCount = 1
+	// 	// Process the received float array
+	// 	chunk := AudioChunk{}
+	// 	chunk.Data = floatArray
+	// 	chunk.SampleRate = 22050
+	// 	chunk.ChannelCount = 1
 
-		ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
+	// 	ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
-		go rtc.ProcessOutgoingMedia()
-	}
-
-	// reader := bufio.NewReader(resp.Body)
-	// for {
-	// 	line, err := reader.ReadBytes(']')
-	// 	logger.Info("line: ", line[0:140])
-	// 	if err == io.EOF {
-	// 		break
-	// 	}
-	// 	if err != nil {
-	// 		log.Fatalln("Error while reading bytes from Response", err)
-	// 	}
-	// 	if resp.StatusCode == http.StatusOK {
-	// 		// float_buf := make([]float32, len(line)-1)
-
-	// 		// n, err := b64.StdEncoding.Decode(float_buf, []byte(line[1:]))
-	// 		// if err != nil {
-	// 		// 	logger.Error(err, "error decoding b64")
-	// 		// }
-	// 		// logger.Info("buf: ", buf)
-
-	// 		float_buf := util.BinaryToFloat32(line)
-	// 		logger.Info("float_buf: ", float_buf[0:10])
-
-	// 		chunk := AudioChunk{}
-	// 		chunk.Data = float_buf
-	// 		chunk.SampleRate = 22050
-	// 		chunk.ChannelCount = 1
-
-	// 		ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
-
-	// 		go rtc.ProcessOutgoingMedia()
-	// 	}
-
+	// 	go rtc.ProcessOutgoingMedia()
 	// }
+
+	reader := bufio.NewReader(resp.Body)
+	for {
+		line, err := reader.ReadString(']')
+		logger.Info("line: ", line[0:140])
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalln("Error while reading bytes from Response", err)
+		}
+		if resp.StatusCode == http.StatusOK {
+			// float_buf := make([]float32, len(line)-1)
+
+			// n, err := b64.StdEncoding.Decode(float_buf, []byte(line[1:]))
+			// if err != nil {
+			// 	logger.Error(err, "error decoding b64")
+			// }
+			// logger.Info("buf: ", buf)
+
+			float_buf := extractFloatArray(line)
+			logger.Info("float_buf: ", float_buf[0:10])
+
+			chunk := AudioChunk{}
+			chunk.Data = float_buf
+			chunk.SampleRate = 22050
+			chunk.ChannelCount = 1
+
+			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
+
+			go rtc.ProcessOutgoingMedia()
+		}
+
+	}
 	// return new_state
 	return 1
 }
