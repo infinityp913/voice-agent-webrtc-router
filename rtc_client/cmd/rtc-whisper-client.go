@@ -513,6 +513,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	reader := bufio.NewReader(resp.Body)
 	for {
 		line, err := reader.ReadBytes(']')
+		logger.Info("line: ", line)
 		if err == io.EOF {
 			break
 		}
@@ -526,6 +527,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			if err != nil {
 				logger.Error(err, "error decoding b64")
 			}
+			logger.Info("buf: ", buf)
 
 			chunk := AudioChunk{}
 			chunk.Data = util.BinaryToFloat32(buf[:n])
