@@ -209,7 +209,7 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 		}
 		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
-	logger.Info("Exiting processOutgoingMedia")
+	logger.Info("Exiting processOutgoingMedia") // REMOVE
 }
 
 func (r *RTCConnection) OnTrickle(candidate webrtc.ICECandidateInit, target int) error {
