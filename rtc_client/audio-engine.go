@@ -161,7 +161,7 @@ func (a *AudioEngine) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	// 	}
 	// }()
 
-	a.sendMedia(opusFrames)
+	go a.sendMedia(opusFrames)
 
 	return nil
 }
