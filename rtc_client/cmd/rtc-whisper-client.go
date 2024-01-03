@@ -584,9 +584,11 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			chunk.ChannelCount = 1
 
 			mu.Lock()
-			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
+			go func() {
+				ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
-			go rtc.ProcessOutgoingMedia()
+				go rtc.ProcessOutgoingMedia()
+			}()
 			mu.Unlock()
 		}
 
