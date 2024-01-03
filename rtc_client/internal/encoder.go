@@ -66,13 +66,13 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 
 	// remove later
 	var indexOfAudio int
-	if pcm[0] == "" || pcm[len(pcm)-1] == "" {
+	if pcm[0] == 0.05311950522546083 && pcm[len(pcm)-1] == 0.035691458760720905 {
 		indexOfAudio = 0
 	}
-	if pcm[0] == "" || pcm[len(pcm)-1] == "" {
+	if pcm[0] == 0.10234436197419523 && pcm[len(pcm)-1] == -0.10492013576482952 {
 		indexOfAudio = 1
 	}
-	if pcm[0] == "" || pcm[len(pcm)-1] == "" {
+	if pcm[0] == 0.04245776661445502 && pcm[len(pcm)-1] == 0.0350050680473214 {
 		indexOfAudio = 2
 	}
 	// end of remove later
