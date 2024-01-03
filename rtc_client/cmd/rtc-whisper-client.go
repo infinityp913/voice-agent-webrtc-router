@@ -24,8 +24,6 @@ import (
 	// stt "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
 	"github.com/infinityp913/rtc-go-server/rtc_client"
 	stt "github.com/infinityp913/rtc-go-server/stt/engine"
-
-	b64 "encoding/base64"
 )
 
 const llmTime = time.Millisecond * 1500
@@ -435,15 +433,19 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			log.Fatalln("Error while reading bytes from Response", err)
 		}
 		if resp.StatusCode == http.StatusOK {
-			buf := make([]byte, len(line)-1)
+			// buf := make([]float32, len(line)-1)
 
-			n, err := b64.StdEncoding.Decode(buf, []byte(line[1:]))
-			if err != nil {
-				logger.Error(err, "error decoding b64")
-			}
+			// n, err := b64.StdEncoding.Decode(buf, []byte(line[1:]))
+			// if err != nil {
+			// 	logger.Error(err, "error decoding b64")
+			// }
+			// logger.Info("buf: ", buf)
+
+			float_buf := util.BinaryToFloat32(line)
+			logger.Info("float_buf: ", float_buf)
 
 			chunk := AudioChunk{}
-			chunk.Data = util.BinaryToFloat32(buf[:n])
+			chunk.Data = float_buf
 			chunk.SampleRate = 22050
 			chunk.ChannelCount = 1
 
@@ -521,16 +523,19 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			log.Fatalln("Error while reading bytes from Response", err)
 		}
 		if resp.StatusCode == http.StatusOK {
-			buf := make([]byte, len(line)-1)
+			// buf := make([]float32, len(line)-1)
 
-			n, err := b64.StdEncoding.Decode(buf, []byte(line[1:]))
-			if err != nil {
-				logger.Error(err, "error decoding b64")
-			}
-			logger.Info("buf: ", buf)
+			// n, err := b64.StdEncoding.Decode(buf, []byte(line[1:]))
+			// if err != nil {
+			// 	logger.Error(err, "error decoding b64")
+			// }
+			// logger.Info("buf: ", buf)
+
+			float_buf := util.BinaryToFloat32(line)
+			logger.Info("float_buf: ", float_buf)
 
 			chunk := AudioChunk{}
-			chunk.Data = util.BinaryToFloat32(buf[:n])
+			chunk.Data = float_buf
 			chunk.SampleRate = 22050
 			chunk.ChannelCount = 1
 
