@@ -471,7 +471,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
-			rtc.ProcessOutgoingMedia()
+			go rtc.ProcessOutgoingMedia()
 		}
 
 	}
