@@ -209,6 +209,7 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 	// 	}
 	// 	internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	// }
+Loop:
 	for {
 		select {
 		case sample, ok := <-r.mediaIn:
@@ -223,8 +224,8 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 			}
 			internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 		default:
-			// logger.Info("No more samples to be written to rtc.audioTrack")
-			break
+			logger.Info("No more samples to be written to rtc.audioTrack")
+			break Loop
 		}
 	}
 	logger.Info("Exiting processOutgoingMedia") // REMOVE
