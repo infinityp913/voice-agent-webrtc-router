@@ -536,8 +536,11 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// Create a scanner to read the response body line by line
 	scanner := bufio.NewScanner(resp.Body)
 
+	logger.Info("resp.Body: ", resp.Body)
+
 	// Process each line (assumed to contain a float array)
 	for scanner.Scan() {
+		logger.Info("Inside scanner.Scan() loop")
 		line := scanner.Text()
 		logger.Info("line: ", line[0:10])
 		floatArray := extractFloatArray(line)
