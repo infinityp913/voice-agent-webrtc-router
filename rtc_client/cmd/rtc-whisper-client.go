@@ -16,7 +16,6 @@ import (
 	"time"
 
 	logr "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/log"
-	"github.com/GRVYDEV/S.A.T.U.R.D.A.Y/util"
 
 	// whisper "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/backends/whisper.cpp"
 	whisper "github.com/infinityp913/rtc-go-server/stt/backends/whisper.cpp"
@@ -438,16 +437,16 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	p.currentState = 2
 	p.Unlock()
 
+	logger.Info("Sending prompt to Flask server")
 	resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer resp.Body.Close()
-
+	logger.Info("Received response from Flask server")
 	reader := bufio.NewReader(resp.Body)
 	for {
-		line, err := reader.ReadBytes(']')
-		logger.Info("line: ", line[0:10])
+		line, err := reader.ReadString(']')
 		if err == io.EOF {
 			break
 		}
@@ -455,16 +454,15 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			log.Fatalln("Error while reading bytes from Response", err)
 		}
 		if resp.StatusCode == http.StatusOK {
-			// buf := make([]float32, len(line)-1)
+			// float_buf := make([]float32, len(line)-1)
 
-			// n, err := b64.StdEncoding.Decode(buf, []byte(line[1:]))
+			// n, err := b64.StdEncoding.Decode(float_buf, []byte(line[1:]))
 			// if err != nil {
 			// 	logger.Error(err, "error decoding b64")
 			// }
 			// logger.Info("buf: ", buf)
 
-			float_buf := util.BinaryToFloat32(line)
-			logger.Info("float_buf: ", float_buf[0:10])
+			float_buf := extractFloatArray(line)
 
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
@@ -473,9 +471,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
-			go rtc.ProcessOutgoingMedia()
-			// resume Ria listening
-			p.unpauseFunc()
+			rtc.ProcessOutgoingMedia()
 		}
 
 	}
