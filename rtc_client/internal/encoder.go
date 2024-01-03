@@ -66,6 +66,7 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 
 	// remove later
 	var indexOfAudio int
+	indexOfAudio = -1
 	if pcm[0] == 0.05311950522546083 && pcm[len(pcm)-1] == 0.035691458760720905 {
 		indexOfAudio = 0
 	}
