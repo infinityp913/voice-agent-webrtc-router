@@ -63,6 +63,20 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	if inputSampleRate != opusSampleRate {
 		pcm = Resample(pcm, inputSampleRate, opusSampleRate)
 	}
+
+	// remove later
+	var indexOfAudio int
+	if pcm[0] == "" || pcm[len(pcm)-1] == "" {
+		indexOfAudio = 0
+	}
+	if pcm[0] == "" || pcm[len(pcm)-1] == "" {
+		indexOfAudio = 1
+	}
+	if pcm[0] == "" || pcm[len(pcm)-1] == "" {
+		indexOfAudio = 2
+	}
+	// end of remove later
+
 	frames := o.ChunkPcm(pcm, opusSampleRate)
 
 	opusFrames := make([]OpusFrame, 0, len(frames))
@@ -76,6 +90,11 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 
 		opusFrames = append(opusFrames, opusFrame)
 	}
+
+	// remove later
+	Logger.Infof("For audio index %d", indexOfAudio)
+	Logger.Infof("opusFrames[0]: %+v", opusFrames[0].Data[0:10])
+	// end of remove later
 
 	Logger.Infof("encoded %d opus frames", len(opusFrames))
 

@@ -520,11 +520,16 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// go rtc.ProcessOutgoingMedia()
 	// return new_state
 
-	payload := []byte(`{"request": {"end_user_input": "` + "Hello" + `", "curr_state":"` + "0" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
+	// payload := []byte(`{"request": {"end_user_input": "` + "Hello" + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
 	new_state := 2
-	// TODO: add state handling code and mutex locking and unlocking
+	// // TODO: add state handling code and mutex locking and unlocking
 
-	resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
+	// resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+
+	resp, err := http.Get("http://localhost:1800/get_audio")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -581,7 +586,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
-			go rtc.ProcessOutgoingMedia()
+			rtc.ProcessOutgoingMedia()
 		}
 
 	}

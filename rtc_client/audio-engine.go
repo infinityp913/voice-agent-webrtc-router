@@ -173,6 +173,8 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 	for _, f := range frames {
 		internal.Logger.Info("converting opus to sample")
 		sample := convertOpusToSample(f)
+		// remove
+		// end of remove
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
