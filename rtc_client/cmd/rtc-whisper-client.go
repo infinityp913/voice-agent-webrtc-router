@@ -576,7 +576,6 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			// logger.Info("buf: ", buf)
 
 			float_buf := extractFloatArray(line)
-			logger.Info("float_buf: ", float_buf[0:10])
 
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
