@@ -561,8 +561,10 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	reader := bufio.NewReader(resp.Body)
 	for {
+		logger.Info("Inside scanner.Scan() loop")
 		line, err := reader.ReadString(']')
 		if err == io.EOF {
+			logger.Info("Reached EOF")
 			break
 		}
 		if err != nil {
