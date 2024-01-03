@@ -557,6 +557,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// 	go rtc.ProcessOutgoingMedia()
 	// }
 
+	mu := sync.Mutex{}
 	reader := bufio.NewReader(resp.Body)
 	for {
 		line, err := reader.ReadString(']')
@@ -582,9 +583,11 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			chunk.SampleRate = 22050
 			chunk.ChannelCount = 1
 
+			mu.Lock()
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
 			go rtc.ProcessOutgoingMedia()
+			mu.Unlock()
 		}
 
 	}
