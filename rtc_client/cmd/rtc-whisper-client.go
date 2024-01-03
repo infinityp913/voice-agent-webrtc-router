@@ -388,7 +388,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 		return
 	}
 
-	// currentPrompt := p.prompt
+	currentPrompt := p.prompt
 	p.prompt = ""
 
 	p.Unlock()
@@ -433,9 +433,10 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	p.pauseFunc()
 
-	payload := []byte(`{"end_user_input": "` + "Explain leg surgeries in 5 sentences" + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}`)
-
-	// TODO: add state handling code and mutex locking and unlocking
+	payload := []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}`)
+	p.Lock() // locking since we're going to access p.currentState
+	p.currentState = 2
+	p.Unlock()
 
 	resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
 	if err != nil {
@@ -523,8 +524,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// go rtc.ProcessOutgoingMedia()
 	// return new_state
 
-	payload := []byte(`{"request": {"end_user_input": "` + "Explain leg surgeries in 5 sentences" + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
-
+	payload := []byte(`{"request": {"end_user_input": "` + "Hello" + `", "curr_state":"` + "0" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
+	new_state := 2
 	// TODO: add state handling code and mutex locking and unlocking
 
 	resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
@@ -590,8 +591,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		}
 
 	}
-	// return new_state
-	return 1
+	return new_state
 }
 
 // func sendStallMsg(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
