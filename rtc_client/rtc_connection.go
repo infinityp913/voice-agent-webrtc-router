@@ -223,7 +223,7 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 			}
 			internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 		default:
-			logger.Info("No more samples to be written to rtc.audioTrack")
+			// logger.Info("No more samples to be written to rtc.audioTrack")
 			break
 		}
 	}
