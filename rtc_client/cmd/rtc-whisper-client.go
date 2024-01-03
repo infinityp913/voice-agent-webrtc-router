@@ -524,7 +524,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// go rtc.ProcessOutgoingMedia()
 	// return new_state
 
-	payload := []byte(`{"request": {"end_user_input": "` + "Hello" + `", "curr_state":"` + "0" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
+	payload := []byte(`{"request": {"end_user_input": "` + "Explain leg surgeries in 5 lines" + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
 	new_state := 2
 	// TODO: add state handling code and mutex locking and unlocking
 
@@ -558,7 +558,6 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// 	go rtc.ProcessOutgoingMedia()
 	// }
 
-	mu := sync.Mutex{}
 	reader := bufio.NewReader(resp.Body)
 	for {
 		line, err := reader.ReadString(']')
@@ -584,7 +583,6 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			chunk.SampleRate = 22050
 			chunk.ChannelCount = 1
 
-			mu.Lock()
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
 			rtc.ProcessOutgoingMedia()
