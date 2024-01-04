@@ -201,31 +201,13 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 	}
 	internal.Logger.Info("TOTAL Number of samples to be written to rtc.audioTrack:", len(r.mediaIn))
 	i := 0
-	// for sample := range r.mediaIn {
-	// 	i += 1
-	// 	internal.Logger.Info("MediaIn provided... writing samples from MediaIn (inside the sample:=loop)") // REMOVE AFTER DEBUG
-	// 	if err := r.audioTrack.WriteSample(sample); err != nil {
-	// 		internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
-	// 	}
-	// 	internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
-	// }
-	// Loop:
-	for {
-		select {
-		case sample := <-r.mediaIn:
-			// if !ok {
-			// 	break
-			// }
-			i += 1
-			internal.Logger.Info("MediaIn provided... writing samples from MediaIn (inside the select case)") // REMOVE AFTER DEBUG
-			if err := r.audioTrack.WriteSample(sample); err != nil {
-				internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
-			}
-			internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
-		default:
-			logger.Info("No more samples to be written to rtc.audioTrack")
-			// break Loop
+	for sample := range r.mediaIn {
+		i += 1
+		internal.Logger.Info("MediaIn provided... writing samples from MediaIn (inside the sample:=loop)") // REMOVE AFTER DEBUG
+		if err := r.audioTrack.WriteSample(sample); err != nil {
+			internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
 		}
+		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
 	logger.Info("Exiting processOutgoingMedia") // REMOVE
 }
