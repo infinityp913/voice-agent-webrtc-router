@@ -431,7 +431,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// }
 
 	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
-	payload := []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}`)
+	payload := []byte(`{"request": {"end_user_input": "` + currentPrompt + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
 	p.Lock() // locking since we're going to access p.currentState
 	p.currentState = 2
 	p.Unlock()
