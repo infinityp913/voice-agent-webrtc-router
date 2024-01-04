@@ -392,8 +392,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 	p.Unlock()
 
-	// // pause Ria  listening so we dont interrupt the response streaming
-	// p.pauseFunc()
+	// pause Ria  listening so we dont interrupt the response streaming
+	p.pauseFunc()
 
 	// endpointURL := "http://localhost:8000/get_response_audio_pcm"
 	// logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
@@ -429,8 +429,6 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// 	f := callkillGoClient(rtc)
 	// 	time.AfterFunc(15*time.Second, f)
 	// }
-
-	p.pauseFunc()
 
 	payload := []byte(`{"end_user_input": "` + currentPrompt + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}`)
 	p.Lock() // locking since we're going to access p.currentState
