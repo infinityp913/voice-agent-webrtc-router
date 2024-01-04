@@ -100,7 +100,7 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		rtc.audioTrack = audioTrack
 
 		// REMOVED POM FROM HERE
-		// go rtc.processOutgoingMedia()
+		go rtc.ProcessOutgoingMedia()
 
 	} else {
 		internal.Logger.Info("mediaIn not provided... audio relay is disabled")
