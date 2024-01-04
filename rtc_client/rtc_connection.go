@@ -99,7 +99,6 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 
 		rtc.audioTrack = audioTrack
 
-		// REMOVED POM FROM HERE
 		go rtc.ProcessOutgoingMedia()
 
 	} else {
