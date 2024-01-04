@@ -89,9 +89,11 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 			Logger.Error(err, "error encoding opus frame")
 			return opusFrames, err
 		}
-		// if last frame
+		// if last frame mark it as such
 		if frame.index == len(frames)-1 {
 			opusFrame.isLastFrame = true
+		} else {
+			opusFrame.isLastFrame = false
 		}
 
 		opusFrames = append(opusFrames, opusFrame)
