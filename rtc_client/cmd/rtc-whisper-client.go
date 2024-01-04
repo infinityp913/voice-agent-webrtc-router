@@ -475,6 +475,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			rtc.ProcessOutgoingMedia()
 		} else {
 			p.unpauseFunc()
+			logger.Info("Status code: ", resp.StatusCode)
+			logger.Info("Response: ", resp)
 			log.Fatalln("Status code not OK @ Flask")
 		}
 
