@@ -587,7 +587,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			chunk.SampleRate = 22050
 			chunk.ChannelCount = 1
 
-			data := make([]float32, 4800)
+			data := make([]float32, 38050)
 			data = append(data, chunk.Data...)
 			chunk.Data = data
 
