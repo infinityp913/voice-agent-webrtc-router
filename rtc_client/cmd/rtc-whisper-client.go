@@ -438,6 +438,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("Sending prompt to Flask server")
 	resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
 	if err != nil {
+		p.unpauseFunc()
 		log.Fatalln(err)
 	}
 	defer resp.Body.Close()
@@ -446,9 +447,11 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	for {
 		line, err := reader.ReadString(']')
 		if err == io.EOF {
+			logger.Info("Reached EOF of response from Flask server")
 			break
 		}
 		if err != nil {
+			p.unpauseFunc()
 			log.Fatalln("Error while reading bytes from Response", err)
 		}
 		if resp.StatusCode == http.StatusOK {
@@ -469,10 +472,14 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
-			go rtc.ProcessOutgoingMedia()
+			// go rtc.ProcessOutgoingMedia()
+		} else {
+			p.unpauseFunc()
+			log.Fatalln("Status code not OK @ Flask")
 		}
 
 	}
+	p.unpauseFunc()
 
 }
 
