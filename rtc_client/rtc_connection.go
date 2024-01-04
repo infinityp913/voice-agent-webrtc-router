@@ -200,7 +200,12 @@ func (r *RTCConnection) ProcessOutgoingMedia() {
 	}
 	internal.Logger.Info("TOTAL Number of samples to be written to rtc.audioTrack:", len(r.mediaIn))
 	i := 0
+Loop:
 	for sample := range r.mediaIn {
+		if sample.Data == nil {
+			internal.Logger.Info("sample.Data is nil... breaking out of loop")
+			break Loop
+		}
 		i += 1
 		internal.Logger.Info("MediaIn provided... writing samples from MediaIn (inside the sample:=loop)") // REMOVE AFTER DEBUG
 		if err := r.audioTrack.WriteSample(sample); err != nil {
