@@ -20,8 +20,9 @@ type PcmFrame struct {
 
 // OpusFrame contains and encoded opus frame
 type OpusFrame struct {
-	Data  []byte
-	Index int
+	Data        []byte
+	Index       int
+	isLastFrame bool
 }
 
 type OpusEncoder struct {
@@ -87,6 +88,10 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		if err != nil {
 			Logger.Error(err, "error encoding opus frame")
 			return opusFrames, err
+		}
+		// if last frame
+		if frame.index == len(frames)-1 {
+			opusFrame.isLastFrame = true
 		}
 
 		opusFrames = append(opusFrames, opusFrame)
