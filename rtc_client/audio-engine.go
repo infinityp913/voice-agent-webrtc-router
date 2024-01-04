@@ -176,6 +176,11 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
 		time.Sleep(time.Millisecond * 20)
+		if f.IsLastFrame {
+			a.mediaOut <- media.Sample{
+				Data: nil,
+			}
+		}
 	}
 	internal.Logger.Info("DEBUG: End of sendMedia")
 }

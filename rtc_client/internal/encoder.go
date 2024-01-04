@@ -22,7 +22,7 @@ type PcmFrame struct {
 type OpusFrame struct {
 	Data        []byte
 	Index       int
-	isLastFrame bool
+	IsLastFrame bool
 }
 
 type OpusEncoder struct {
@@ -91,9 +91,9 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		}
 		// if last frame mark it as such
 		if frame.index == len(frames)-1 {
-			opusFrame.isLastFrame = true
+			opusFrame.IsLastFrame = true
 		} else {
-			opusFrame.isLastFrame = false
+			opusFrame.IsLastFrame = false
 		}
 
 		opusFrames = append(opusFrames, opusFrame)
