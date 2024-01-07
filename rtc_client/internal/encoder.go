@@ -65,20 +65,6 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		pcm = Resample(pcm, inputSampleRate, opusSampleRate)
 	}
 
-	// remove later
-	var indexOfAudio int
-	indexOfAudio = -1
-	if pcm[0] == 0.05311950522546083 && pcm[len(pcm)-1] == 0.035691458760720905 {
-		indexOfAudio = 0
-	}
-	if pcm[0] == 0.10234436197419523 && pcm[len(pcm)-1] == -0.10492013576482952 {
-		indexOfAudio = 1
-	}
-	if pcm[0] == 0.04245776661445502 && pcm[len(pcm)-1] == 0.0350050680473214 {
-		indexOfAudio = 2
-	}
-	// end of remove later
-
 	frames := o.ChunkPcm(pcm, opusSampleRate)
 
 	opusFrames := make([]OpusFrame, 0, len(frames))
@@ -86,7 +72,6 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 	for _, frame := range frames {
 		opusFrame, err := o.EncodeToOpus(frame)
 		if err != nil {
-			Logger.Error(err, "error encoding opus frame")
 			return opusFrames, err
 		}
 		// if last frame mark it as such
@@ -99,13 +84,6 @@ func (o *OpusEncoder) Encode(pcm []float32, inputChannelCount, inputSampleRate i
 		opusFrames = append(opusFrames, opusFrame)
 	}
 
-	// remove later
-	Logger.Infof("For audio index %d", indexOfAudio)
-	Logger.Infof("opusFrames[0]: %+v", opusFrames[0].Data[0:10])
-	// end of remove later
-
-	Logger.Infof("encoded %d opus frames", len(opusFrames))
-
 	return opusFrames, nil
 
 }
@@ -116,7 +94,6 @@ func (o *OpusEncoder) EncodeToOpus(frame PcmFrame) (OpusFrame, error) {
 
 	n, err := o.enc.EncodeFloat32(frame.data, data)
 	if err != nil {
-		Logger.Errorf(err, "error encoding frame %+v", err)
 		return opusFrame, err
 	}
 	opusFrame.Data = data[:n]
@@ -138,7 +115,6 @@ func (o *OpusEncoder) ChunkPcm(pcm []float32, sampleRate int) []PcmFrame {
 		pcmLen := len(pcm)
 		// we have at least a full frame left
 		if pcmLen > outputFrameSize {
-			Logger.Debug("Got a full frame")
 			frames = append(frames, PcmFrame{index: idx, data: pcm[:outputFrameSize]})
 			// chop frame off of input
 			pcm = pcm[outputFrameSize:]
@@ -148,14 +124,10 @@ func (o *OpusEncoder) ChunkPcm(pcm []float32, sampleRate int) []PcmFrame {
 			sampleDelta := outputFrameSize - pcmLen
 			silence := make([]float32, sampleDelta)
 
-			Logger.Debugf("Got a partial frame len %d padding with %d silence samples", pcmLen, len(silence))
-
 			frames = append(frames, PcmFrame{index: idx, data: append(pcm, silence...)})
 			break
 		}
 	}
-
-	Logger.Debugf("got %d frames", len(frames))
 
 	return frames
 }

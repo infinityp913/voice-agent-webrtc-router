@@ -97,8 +97,6 @@ func (dc *DocumentComposer) ComposeDocument() (Document, uint32) {
 
 			dc.finishedTextTimeStamp = choosenTranscription.From + segment.EndTimestamp
 
-			Logger.Infof("choosenTranscription.From: %d", choosenTranscription.From)
-			Logger.Infof("segment.EndTimestamp: %d", segment.EndTimestamp)
 		}
 	}
 

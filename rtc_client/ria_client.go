@@ -89,7 +89,6 @@ func (r *RiaClient) OnAnswer(answer webrtc.SessionDescription) error {
 func (r *RiaClient) OnOffer(offer webrtc.SessionDescription) error {
 	ans, err := r.Rtc.OnOffer(offer)
 	if err != nil {
-		Logger.Error(err, "error getting answer")
 		return err
 	}
 
@@ -100,21 +99,15 @@ func (r *RiaClient) Start() error {
 
 	// Setting up the Websocket connection
 
-	Logger.Info("before ws.connect")
 	if err := r.ws.Connect(); err != nil {
-		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
 	// commented nov 27
-	Logger.Info("before rtc.GetOffer")
 	offer, err := r.Rtc.GetOffer()
 	if err != nil {
-		Logger.Error(err, "error getting intial offer")
 	}
 
-	Logger.Info("before ws.join")
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
-		Logger.Error(err, "error joining room")
 		return err
 	}
 
@@ -122,34 +115,27 @@ func (r *RiaClient) Start() error {
 	r.Ae.Start()
 
 	r.ws.WaitForDone()
-	Logger.Info("Socket done goodbye")
 	return nil
 }
 
 func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 
 	// Setting up the Websocket connection
-	Logger.Info("before ws.connect")
 	if err := r.ws.Connect(); err != nil {
-		Logger.Error(err, "error connecting to websocket")
 		return err
 	}
 
-	Logger.Info("before cosld getoffer")
 	// Create an offer
 	offer, err := r.Rtc.GetOffer() // GetOffer does both CreateOffer and SetLocalDescription
 	if err != nil {
 		return err
 	}
-	Logger.Info("after cosld getoffer")
 
 	// DEBUG
-	Logger.Info("INITIAL Offer FROM COSLD: ", offer)
 	// END OF DEBUG
 
 	//send offer to remote peer
 	if err := r.ws.Join(r.config.Room, offer); err != nil {
-		Logger.Error(err, "error joining room")
 		return err
 	} // Join sends the offer to the remote peer as well as run readMessages() in a goroutine
 
@@ -158,7 +144,6 @@ func (r *RiaClient) CreateOfferAndSetLocalDescription() error {
 
 	// commented nov 27 -- this is prob blocking control
 	// r.ws.WaitForDone()
-	Logger.Info("Socket done goodbye")
 
 	return nil
 }

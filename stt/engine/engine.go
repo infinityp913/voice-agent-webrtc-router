@@ -112,7 +112,6 @@ func (e *Engine) writeVAD(pcm []float32, timestamp uint32) {
 	defer e.Unlock()
 	if len(e.pcmWindow)+len(pcm) > pcmWindowSize {
 		// This shouldn't happen hopefully...
-		Logger.Infof("GOING TO OVERFLOW PCM WINDOW BY %d", len(e.pcmWindow)+len(pcm)-pcmWindowSize)
 	}
 	e.pcmWindow = append(e.pcmWindow, pcm...)
 	if len(e.pcmWindow) >= pcmWindowSize {
@@ -128,20 +127,17 @@ func (e *Engine) writeVAD(pcm []float32, timestamp uint32) {
 		}()
 
 		if isSpeaking && e.isSpeaking {
-			Logger.Debug("STILL SPEAKING")
 			// add to buffer and wait
 			// FIXME make sure we have space
 			e.window = append(e.window, e.pcmWindow...)
 			return
 		} else if isSpeaking && !e.isSpeaking {
-			Logger.Debug("JUST STARTED SPEAKING")
 			e.isSpeaking = isSpeaking
 			// we just started speaking, add to buffer and wait
 			// FIXME make sure we have space
 			e.window = append(e.window, e.pcmWindow...)
 			return
 		} else if !isSpeaking && e.isSpeaking {
-			Logger.Debug("JUST STOPPED SPEAKING")
 			// TODO consider waiting for a few more samples?
 			e.window = append(e.window, e.pcmWindow...)
 
@@ -149,14 +145,11 @@ func (e *Engine) writeVAD(pcm []float32, timestamp uint32) {
 			// by having this here it gives us a bit of an opportunity to pause in our speech
 			if len(e.window) != 0 {
 				// we have not been speaking for at least 500ms now so lets run inference
-				Logger.Infof("running whisper inference with %d window length", len(e.window))
 
 				transcript, err := e.transcriber.Transcribe(e.window)
 				if err != nil {
-					Logger.Error(err, "error running inference")
 					return
 				}
-				Logger.Debugf("GOT TRANSCRIPTION %+v", transcript)
 
 				doc, _ := e.documentComposer.ComposeSimple(transcript)
 
@@ -167,7 +160,6 @@ func (e *Engine) writeVAD(pcm []float32, timestamp uint32) {
 				e.window = e.window[:0]
 			}
 			// not speaking do nothing
-			Logger.Debug("NOT SPEAKING")
 			return
 		}
 	}
@@ -179,7 +171,6 @@ func (e *Engine) writeClassic(pcm []float32, timestamp uint32) {
 	defer e.Unlock()
 	if len(e.pcmWindow)+len(pcm) > pcmWindowSize {
 		// This shouldn't happen hopefully...
-		Logger.Infof("GOING TO OVERFLOW PCM WINDOW BY %d", len(e.pcmWindow)+len(pcm)-pcmWindowSize)
 	}
 	e.pcmWindow = append(e.pcmWindow, pcm...)
 	if len(e.pcmWindow) >= pcmWindowSize {
@@ -205,7 +196,6 @@ func (e *Engine) writeClassic(pcm []float32, timestamp uint32) {
 			}
 			e.lastHandledTimestamp = timestamp
 		} else {
-			Logger.Error(err, "error running inference")
 		}
 	}
 }
@@ -236,8 +226,6 @@ func (e *Engine) runInference(endTimestamp uint32) (Transcription, error) {
 		e.window = append(e.window, e.pcmWindow...)
 		e.pcmWindow = e.pcmWindow[:0]
 	}
-
-	Logger.Debugf("running whisper inference with %d window length", len(e.window))
 
 	transcript, err := e.transcriber.Transcribe(e.window)
 	transcript.From = e.lastHandledTimestamp

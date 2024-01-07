@@ -87,7 +87,6 @@ func main() {
 
 	whisperCpp, err := whisper.New("../models/ggml-base.en.bin")
 	if err != nil {
-		logger.Fatal(err, "error creating whisper model")
 	}
 
 	transcriptionStream := make(chan stt.Document, 100)
@@ -110,11 +109,9 @@ func main() {
 		TranscriptionStream: transcriptionStream,
 	})
 	if err != nil {
-		logger.Fatal(err, "error creating saturday client")
 	}
 
 	// Sending signal to Browser to start the Browser client!
-	logger.Info("Sending signal to RTCConn via a channel")
 	// calling the following as a goroutine to enable sending the value (1) over the channel to rtc.SendHangupSignal(). Without a goroutine that has a sleep, the timing won't workout (inspiration: https://www.geeksforgeeks.org/select-statement-in-go-language/)
 	go func() {
 		// sleeping so that the value 1 is sent to the rtc.Hungup channel when control is blocked on the goroutine waiting for the value in the select-case block
@@ -129,13 +126,11 @@ func main() {
 	// Done sending signal to start browser client
 
 	if err := rc.CreateOfferAndSetLocalDescription(); err != nil {
-		logger.Fatal(err, "error creating offer")
 	} //NOV 28
 
 	time.Sleep(1200 * time.Millisecond)
 
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
-	logger.Info("reached the line after riaSaysHello()") // REMOVE
 	// commented nov 29
 	// f := callRiaSaysHello(rc)
 	// time.AfterFunc(10000*time.Millisecond, f) // this is to ensure that the browser client has answered the offer before calling riaSaysHello()
@@ -153,7 +148,6 @@ func main() {
 
 	onDocumentUpdate := func(document stt.Document) {
 		if document.NewText == "" {
-			logger.Info("Empty text!!!!!!!!!!!!!!!!!!!!!!")
 		} else {
 			transcriptionStream <- document
 			promptBuilder.UpdatePrompt(document.NewText, rc.Ae, rc.Rtc)
@@ -164,8 +158,6 @@ func main() {
 
 	go promptBuilder.Start(rc.Ae, rc.Rtc)
 	defer promptBuilder.Stop()
-
-	logger.Info("Starting Ria Client...")
 
 	// COMMENTED NOV 28
 	// if err := rc.Start(); err != nil {
@@ -202,7 +194,6 @@ type PromptBuilder struct {
 
 // construct new PromptBuilder
 func NewPromptBuilder(interval time.Duration, init_state int, pauseFunc func(), unpauseFunc func()) *PromptBuilder {
-	logger.Info("TIMER HAS STARTED!") // REMOVE AFTER DEBUG
 	return &PromptBuilder{
 		timer:        time.NewTimer(interval), // Timer starts at this line
 		prompt:       "",
@@ -215,7 +206,6 @@ func NewPromptBuilder(interval time.Duration, init_state int, pauseFunc func(), 
 
 // update the prompt and reset the timer
 func (p *PromptBuilder) UpdatePrompt(prompt string, ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
-	logger.Infof("UPDATING QnA PROMPT %s", prompt)
 	p.Lock()
 	defer p.Unlock()
 
@@ -231,7 +221,6 @@ func (p *PromptBuilder) UpdatePrompt(prompt string, ae *rtc_client.AudioEngine, 
 	p.prompt += prompt
 	p.timer.Stop()
 	p.timer.Reset(llmTime)
-	logger.Infof("TIMER RESET!!!")
 }
 
 // Stop building prompts and sending to Flask server
@@ -242,7 +231,6 @@ func (p *PromptBuilder) Stop() {
 // Start building prompts and sending to Flask server
 func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	for {
-		logger.Infof("Inside Start()'s infinite loop")
 		// wait for the timer to fire OR Stop() to be called
 		select {
 		case <-p.timer.C: // indicates firing of timer aka the 2s timer has counted down
@@ -250,7 +238,6 @@ func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCCon
 			p.tryCallEngine(ae, rtc)
 			// p.Unlock()
 		case <-p.cancel: // indicates calling of Stop()
-			logger.Info("shutting down llm interface")
 			return
 		}
 	}
@@ -273,7 +260,6 @@ func getJson(url string, jsonStrByte []byte, target interface{}) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logger.Info("Error at POST request!!")
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -303,7 +289,6 @@ func callkillGoClient(rtc *rtc_client.RTCConnection) func() {
 }
 
 func killGoClient(rtc *rtc_client.RTCConnection) {
-	logger.Info("CALLED killGoClient()!!")
 	// calling the following as a goroutine to enable sending the value (1) over the channel to rtc.SendHangupSignal(). Without a goroutine that has a sleep, the timing won't workout (inspiration: https://www.geeksforgeeks.org/select-statement-in-go-language/)
 	go func() {
 		// sleeping so that the value 1 is sent to the rtc.Hungup channel when control is blocked on the goroutine waiting for the value in the select-case block
@@ -314,7 +299,6 @@ func killGoClient(rtc *rtc_client.RTCConnection) {
 
 	// this function creates the data channel and waits for the value(1) on the rtc.Hungup channel before sending the signal to the browser via the data channel
 	rtc.SendHangupSignal()
-	logger.Info("SENT SIGNAL TO BROWSER")
 
 	// sleeping for 500ms before exiting so that the above logic runs before killing the whole go client
 	time.Sleep(time.Millisecond * 500)
@@ -335,7 +319,6 @@ func ChunkPcm(pcm []byte, sampleRate int, frameSizeMs int) []rtc_client.PcmFrame
 		pcmLen := len(pcm)
 		// we have at least a full frame left
 		if pcmLen > outputFrameSize {
-			logger.Debug("Got a full frame")
 			frames = append(frames, rtc_client.PcmFrame{Index: idx, Data: pcm[:outputFrameSize]})
 			// chop frame off of input
 			pcm = pcm[outputFrameSize:]
@@ -345,14 +328,10 @@ func ChunkPcm(pcm []byte, sampleRate int, frameSizeMs int) []rtc_client.PcmFrame
 			sampleDelta := outputFrameSize - pcmLen
 			silence := make([]byte, sampleDelta)
 
-			logger.Debugf("Got a partial frame len %d padding with %d silence samples", pcmLen, len(silence))
-
 			frames = append(frames, rtc_client.PcmFrame{Index: idx, Data: append(pcm, silence...)})
 			break
 		}
 	}
-
-	logger.Debugf("got %d frames", len(frames))
 
 	return frames
 }
@@ -430,25 +409,21 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// 	time.AfterFunc(15*time.Second, f)
 	// }
 
-	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
 	payload := []byte(`{"request": {"end_user_input": "` + currentPrompt + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
 	p.Lock() // locking since we're going to access p.currentState
 	p.currentState = 2
 	p.Unlock()
 
-	logger.Info("Sending prompt to Flask server")
 	resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		p.unpauseFunc()
 		log.Fatalln(err)
 	}
 	defer resp.Body.Close()
-	logger.Info("Received response from Flask server")
 	reader := bufio.NewReader(resp.Body)
 	for {
 		line, err := reader.ReadString(']')
 		if err == io.EOF {
-			logger.Info("Reached EOF of response from Flask server")
 			break
 		}
 		if err != nil {
@@ -476,9 +451,6 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			rtc.ProcessOutgoingMedia()
 		} else {
 			p.unpauseFunc()
-			logger.Info("Status code: ", resp.StatusCode)
-			logger.Info("Response: ", resp)
-			log.Fatalln("Status code not OK @ Flask")
 		}
 
 	}
@@ -570,14 +542,11 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 
 	reader := bufio.NewReader(resp.Body)
 	for {
-		logger.Info("Inside reading loop")
 		line, err := reader.ReadString(']')
 		if err == io.EOF {
-			logger.Info("Reached EOF")
 			break
 		}
 		if err != nil {
-			log.Fatalln("Error while reading bytes from Response", err)
 		}
 		if resp.StatusCode == http.StatusOK {
 			// float_buf := make([]float32, len(line)-1)

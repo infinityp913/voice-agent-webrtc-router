@@ -55,21 +55,17 @@ type peerID struct {
 
 func main() {
 
-	logger.Info("Starting Ria RTC server...")
-
 	// build + start sfu
 
 	viper.SetConfigFile("./config.toml")
 	viper.SetConfigType("toml")
 	err := viper.ReadInConfig()
 	if err != nil {
-		logger.Error(err, "error reading config")
 		panic(err)
 	}
 
 	err = viper.Unmarshal(&conf)
 	if err != nil {
-		logger.Error(err, "error unmarshalling config")
 		panic(err)
 	}
 
@@ -93,7 +89,6 @@ func main() {
 
 		// Upgrading the HTTP request to the WebSocket protocol. The server inspects the request and if all is good the server sends an HTTP response agreeing to upgrade the connection.
 		// conn is a websocket connection object
-		logger.Info("Upgrading conn...")
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			panic(err)

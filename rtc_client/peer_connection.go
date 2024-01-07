@@ -6,7 +6,6 @@ import (
 	"os"
 	"sync"
 
-	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
 	log "github.com/pion/ion-sfu/pkg/logger"
 	"github.com/pion/webrtc/v3"
 )
@@ -41,7 +40,6 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	// opening secrets.json
 	jsonFile, err := os.Open("secrets.json")
 	if err != nil {
-		logger.Error(err, "error reading secrets.json")
 	}
 	defer jsonFile.Close()
 
@@ -80,7 +78,6 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	// Create a new RTCPeerConnection
 	peerConnection, err := webrtc.NewPeerConnection(config)
 	if err != nil {
-		internal.Logger.Fatal(err, "pc err")
 	}
 
 	pc := PeerConn{
@@ -93,13 +90,11 @@ func NewPeerConn(onICECandidate func(candidate *webrtc.ICECandidate)) PeerConn {
 	peerConnection.OnICECandidate(onICECandidate)
 
 	peerConnection.OnConnectionStateChange(func(s webrtc.PeerConnectionState) {
-		internal.Logger.Infof("Peer Connection State has changed: %s\n", s.String())
 
 		if s == webrtc.PeerConnectionStateFailed {
 			// Wait until PeerConnection has had no network activity for 30 seconds or another failure. It may be reconnected using an ICE Restart.
 			// Use webrtc.PeerConnectionStateDisconnected if you are interested in detecting faster timeout.
 			// Note that the PeerConnection may come back from PeerConnectionStateDisconnected.
-			internal.Logger.Info("Peer Connection has gone to failed exiting")
 			os.Exit(0)
 		}
 	})
@@ -159,7 +154,6 @@ func (c PeerConn) Answer() (webrtc.SessionDescription, error) {
 	}
 
 	if err = c.flushCandidates(); err != nil {
-		internal.Logger.Error(err, "error flushing candidates in Answer")
 	}
 
 	return answer, nil
@@ -171,7 +165,6 @@ func (c PeerConn) flushCandidates() error {
 
 	for _, candidate := range c.pendingCandidates {
 		if err := c.conn.AddICECandidate(candidate); err != nil {
-			internal.Logger.Errorf(err, "error adding ice candidate %+v", candidate)
 			return err
 		}
 	}
@@ -186,20 +179,17 @@ func (c PeerConn) GetOffer() (webrtc.SessionDescription, error) {
 		return offer, err
 	}
 	// nov 29 DEBUG
-	internal.Logger.Info("Inside GetOffer")
 	return offer, c.conn.SetLocalDescription(offer)
 }
 
 func (c PeerConn) SetAnswer(answer webrtc.SessionDescription) error {
 	// nov 27 DEBUG
-	internal.Logger.Info("Answer.SDP: ", answer.SDP)
 	// END OF DEBUG
 	if err := c.conn.SetRemoteDescription(answer); err != nil {
 		return err
 	}
 
 	if err := c.flushCandidates(); err != nil {
-		internal.Logger.Error(err, "error flushing candidates in SetAnswer")
 	}
 	return nil
 }

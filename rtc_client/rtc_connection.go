@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	// "github.com/GRVYDEV/S.A.T.U.R.D.A.Y/stt/engine"
-	"github.com/infinityp913/rtc-go-server/rtc_client/internal"
 
 	"github.com/infinityp913/rtc-go-server/stt/engine"
 
@@ -58,23 +57,18 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		params.trickleFn(candidate, 1)
 	})
 	rtc.sub.conn.OnTrack(func(t *webrtc.TrackRemote, r *webrtc.RTPReceiver) {
-		kind := "unknown kind"
 		if t.Kind() == webrtc.RTPCodecTypeVideo {
-			kind = "video"
 		} else if t.Kind() == webrtc.RTPCodecTypeAudio {
-			kind = "audio"
 			go func() {
 				for {
 					pkt, _, err := t.ReadRTP()
 					if err != nil {
-						internal.Logger.Error(err, "err reading rtp")
 						return
 					}
 					rtc.rtpIn <- pkt
 				}
 			}()
 		}
-		internal.Logger.Debugf("got track %s", kind)
 	})
 
 	rtc.pub = NewPeerConn(func(candidate *webrtc.ICECandidate) {
@@ -82,27 +76,21 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 	})
 
 	if params.mediaIn != nil {
-		internal.Logger.Info("executing if params.MediaIn != nil") // REMOVE AFTER DEBUG
 		audioTrack, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "audio/opus"}, "audio", "ria_audio")
 		if err != nil {
-			internal.Logger.Error(err, "error creating local audio track")
 			return nil, err
 		}
 
 		_, err = rtc.pub.conn.AddTransceiverFromTrack(audioTrack, webrtc.RTPTransceiverInit{Direction: webrtc.RTPTransceiverDirectionSendonly})
 		if err != nil {
-			internal.Logger.Error(err, "error adding local audio transceiver")
 			return nil, err
 		}
-
-		internal.Logger.Info("Added Transciever") // REMOVE AFTER DEBUG
 
 		rtc.audioTrack = audioTrack
 
 		// go rtc.ProcessOutgoingMedia()
 
 	} else {
-		internal.Logger.Info("mediaIn not provided... audio relay is disabled")
 	}
 
 	if params.transcriptionStream != nil {
@@ -120,25 +108,17 @@ func NewRTCConnection(params RTCConnectionParams) (*RTCConnection, error) {
 		}
 
 		dc.OnOpen(func() {
-			internal.Logger.Info("data channel opened...")
 
 			for transcription := range params.transcriptionStream {
-				internal.Logger.Debugf("Transcribed debug %s", transcription.TranscribedText)
-				internal.Logger.Debugf("New text debug %s", transcription.NewText)
-				internal.Logger.Info("Transcribed info %s", transcription.TranscribedText)
-				internal.Logger.Info("New text info %s", transcription.NewText)
 				data, err := json.Marshal(transcription)
 				if err != nil {
-					internal.Logger.Error(err, "error marshalling transcript")
 					continue
 				}
-				internal.Logger.Debugf("sending transcript %+v on data channel", transcription)
 				dc.Send(data)
 			}
 		})
 
 	} else {
-		internal.Logger.Info("transcriptionStream not provided... transcription relay is disabled")
 	}
 
 	return rtc, nil
@@ -154,15 +134,12 @@ func (rtc *RTCConnection) SendHangupSignal() {
 			MaxRetransmits: &maxRetransmits,
 		})
 	if err != nil {
-		internal.Logger.Info("Error ocurred at hungup data channel creation!")
 		return
 	}
 	ria_hungup_dc.OnOpen(func() {
-		internal.Logger.Info("ria_hungup_dc is open!!")
 		select {
 		case <-rtc.Hungup:
 			ria_hungup_dc.Send([]byte{1})
-			internal.Logger.Info("Sent the code on the ria_hungup_dc!!")
 		}
 	})
 }
@@ -177,43 +154,32 @@ func (rtc *RTCConnection) SendStartBClientSignal() {
 			MaxRetransmits: &maxRetransmits,
 		})
 	if err != nil {
-		internal.Logger.Info("Error ocurred at bclient_start_dc data channel creation!")
 		return
 	}
 	bclient_start_dc.OnOpen(func() {
-		internal.Logger.Info("bclient_start_dc is open!!")
 		select {
 		case <-rtc.StartBrowserClient:
 			bclient_start_dc.Send([]byte{1})
-			internal.Logger.Info("Sent the code on the bclient_start_dcc!!")
 		}
 	})
 }
 
 // processOutgoingMedia sends the provided samples on the audioTrack
 func (r *RTCConnection) ProcessOutgoingMedia() {
-	internal.Logger.Info("Inside processOutgoingMedia")
 
 	if r.mediaIn == nil {
-		internal.Logger.Info("MediaIn not provided... skipping relay")
 		return
 	}
-	internal.Logger.Info("TOTAL Number of samples to be written to rtc.audioTrack:", len(r.mediaIn))
 	i := 0
 Loop:
 	for sample := range r.mediaIn {
 		if sample.Data == nil {
-			internal.Logger.Info("sample.Data is nil... breaking out of loop")
 			break Loop
 		}
 		i += 1
-		internal.Logger.Info("MediaIn provided... writing samples from MediaIn (inside the sample:=loop)") // REMOVE AFTER DEBUG
 		if err := r.audioTrack.WriteSample(sample); err != nil {
-			internal.Logger.Error(err, "error writing sample") // REMOVE AFTER DEBUG
 		}
-		internal.Logger.Info("Number of samples written to rtc.audioTrack:", i)
 	}
-	logger.Info("Exiting processOutgoingMedia") // REMOVE
 }
 
 func (r *RTCConnection) OnTrickle(candidate webrtc.ICECandidateInit, target int) error {
@@ -224,7 +190,6 @@ func (r *RTCConnection) OnTrickle(candidate webrtc.ICECandidateInit, target int)
 		return r.sub.AddIceCandidate(candidate)
 	default:
 		err := errors.New(fmt.Sprintf("unknown target %d for candidate", target))
-		internal.Logger.Error(err, "error OnTrickle")
 		return err
 	}
 }
@@ -240,13 +205,11 @@ func (r *RTCConnection) SetAnswer(answer webrtc.SessionDescription) error {
 func (r *RTCConnection) OnOffer(offer webrtc.SessionDescription) (webrtc.SessionDescription, error) {
 	var answer = webrtc.SessionDescription{}
 	if err := r.sub.Offer(offer); err != nil {
-		internal.Logger.Error(err, "error setting offer")
 		return answer, err
 	}
 
 	answer, err := r.sub.Answer()
 	if err != nil {
-		internal.Logger.Error(err, "error getting answer")
 		return answer, err
 	}
 	return answer, nil

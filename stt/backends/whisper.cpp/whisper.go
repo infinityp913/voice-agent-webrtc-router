@@ -43,8 +43,6 @@ func New(modelPath string) (*WhisperModel, error) {
 	params.SetSpeedup(false)
 	params.SetLanguage(ctx.Whisper_lang_id("en"))
 
-	Logger.Infof("Initialized whisper model with params:\n %s", params.String())
-
 	return &WhisperModel{ctx: ctx, params: params}, nil
 }
 
@@ -67,6 +65,5 @@ func (w *WhisperModel) Transcribe(samples []float32) (engine.Transcription, erro
 		}
 	}
 	elapsed := time.Since(start)
-	Logger.Debugf("Process took %s", elapsed)
 	return transcription, nil
 }

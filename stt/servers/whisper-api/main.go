@@ -17,7 +17,6 @@ var (
 func main() {
 	whisperEngine, err := whisper.New("../models/ggml-base.en.bin")
 	if err != nil {
-		logger.Fatal(err, "error creating whisper model")
 	}
 
 	router := gin.Default()
@@ -31,7 +30,6 @@ func main() {
 
 		start := time.Now()
 		transcription, err := whisperEngine.Transcribe(transcriptionRequest)
-		logger.Error(err, "error running inference")
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
@@ -39,8 +37,6 @@ func main() {
 		end := time.Now()
 
 		elapsed := end.Sub(start)
-		logger.Infof("Took: %v", elapsed)
-		logger.Infof("%v", transcription)
 
 		c.JSON(200, transcription)
 	})
