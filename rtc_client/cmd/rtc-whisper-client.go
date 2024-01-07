@@ -363,15 +363,18 @@ func extractFloatArray(input string) []float32 {
 	valueStrings := strings.Split(valuesStr, ",")
 
 	// Parse each string to float32
-	var floatArray []float32
-	for _, valueStr := range valueStrings {
-		value, err := strconv.ParseFloat(strings.TrimSpace(valueStr), 32)
-		if err != nil {
-			// Handle parsing error as needed
-			fmt.Println("Error parsing float value:", err)
-			continue
-		}
-		floatArray = append(floatArray, float32(value))
+	var floatArray []float32 = make([]float32, len(valueStrings))
+	for idx, valueStr := range valueStrings {
+
+		go func(idx int, valueStr string) {
+			value, err := strconv.ParseFloat(strings.TrimSpace(valueStr), 32)
+			if err != nil {
+				// Handle parsing error as needed
+				logger.Error(err, "error parsing float")
+			}
+			// floatArray = append(floatArray, float32(value))
+			floatArray[idx] = float32(value)
+		}(idx, valueStr)
 	}
 
 	return floatArray
