@@ -39,7 +39,7 @@ func New(modelPath string) (*WhisperModel, error) {
 	params.SetPrintTimestamps(false)
 	params.SetSingleSegment(false)
 	params.SetMaxTokensPerSegment(32)
-	params.SetThreads(int(math.Min(float64(16), float64(runtime.NumCPU()))))
+	params.SetThreads(int(math.Min(float64(4), float64(runtime.NumCPU()))))
 	params.SetSpeedup(false)
 	params.SetLanguage(ctx.Whisper_lang_id("en"))
 
