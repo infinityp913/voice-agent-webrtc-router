@@ -25,7 +25,7 @@ import (
 	stt "github.com/infinityp913/rtc-go-server/stt/engine"
 )
 
-const llmTime = time.Millisecond * 1500
+const bufferTime = time.Millisecond * 1500 // this is the buffer time for the end user to speak before sending the prompt to Flask
 const NUM_STALL_MSGS = 3
 
 var (
@@ -149,7 +149,7 @@ func main() {
 		rc.UnpauseRia()
 	}
 
-	promptBuilder := NewPromptBuilder(llmTime, init_state, pauseFunc, unpauseFunc) //2s timer starts here
+	promptBuilder := NewPromptBuilder(bufferTime, init_state, pauseFunc, unpauseFunc) //2s timer starts here
 
 	onDocumentUpdate := func(document stt.Document) {
 		if document.NewText == "" {
@@ -230,7 +230,7 @@ func (p *PromptBuilder) UpdatePrompt(prompt string, ae *rtc_client.AudioEngine, 
 
 	p.prompt += prompt
 	p.timer.Stop()
-	p.timer.Reset(llmTime)
+	p.timer.Reset(bufferTime)
 	logger.Infof("TIMER RESET!!!")
 }
 
