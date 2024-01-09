@@ -464,10 +464,21 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			// }
 			// logger.Info("buf: ", buf)
 
+			// remove
+			fline, err := os.OpenFile("ria_response_from_line.pcm",
+				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				log.Println(err)
+			}
+			for _, value := range line {
+				fmt.Fprintln(fline, value) // print values to f, one per line
+			}
+			// end of remove
+
 			float_buf := extractFloatArray(line)
 
 			// remove
-			f, err := os.OpenFile("ria_response.pcm",
+			f, err := os.OpenFile("ria_response_from_floatbuf.pcm",
 				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			if err != nil {
 				log.Println(err)
