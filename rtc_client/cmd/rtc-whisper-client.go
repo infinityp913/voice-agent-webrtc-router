@@ -469,6 +469,17 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 			float_buf := extractFloatArray(line)
 
+			// remove
+			f, err := os.OpenFile("ria_response.pcm",
+				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				log.Println(err)
+			}
+			for _, value := range float_buf {
+				fmt.Fprintln(f, value) // print values to f, one per line
+			}
+			// end of remove
+
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
 			chunk.SampleRate = 22050
