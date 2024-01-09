@@ -470,6 +470,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			if err != nil {
 				log.Println(err)
 			}
+			logger.Info("line: ", line)
 			for _, value := range line {
 				fmt.Fprintln(fline, value) // print values to f, one per line
 			}
