@@ -456,37 +456,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			log.Fatalln("Error while reading bytes from Response", err)
 		}
 		if resp.StatusCode == http.StatusOK {
-			// float_buf := make([]float32, len(line)-1)
-
-			// n, err := b64.StdEncoding.Decode(float_buf, []byte(line[1:]))
-			// if err != nil {
-			// 	logger.Error(err, "error decoding b64")
-			// }
-			// logger.Info("buf: ", buf)
-
-			// remove
-			fline, err := os.OpenFile("ria_response_from_line.pcm",
-				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				log.Println(err)
-			}
-			for _, value := range line {
-				fmt.Fprintln(fline, value) // print values to f, one per line
-			}
-			// end of remove
-
 			float_buf := extractFloatArray(line)
-
-			// remove
-			f, err := os.OpenFile("ria_response_from_floatbuf.pcm",
-				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				log.Println(err)
-			}
-			for _, value := range float_buf {
-				fmt.Fprintln(f, value) // print values to f, one per line
-			}
-			// end of remove
 
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
@@ -559,11 +529,6 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 		log.Fatalln(err)
 	}
 
-	// resp, err := http.Get("http://localhost:18000/get_audio")
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-	// new_state := 2
 	defer resp.Body.Close()
 
 	// // Create a scanner to read the response body line by line
