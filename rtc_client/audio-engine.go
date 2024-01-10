@@ -206,7 +206,7 @@ func (a *AudioEngine) SendMediaByteArr(byteArr []byte) {
 	sample := media.Sample{
 		Data:               byteArr,
 		PrevDroppedPackets: 0, // FIXME support dropping packets
-		Duration:           time.Second * time.Duration(24050) * time.Duration(int64(len(byteArr))),
+		Duration:           time.Second * time.Duration(22050) * time.Duration(int64(len(byteArr))),
 	}
 	a.mediaOut <- sample
 	// this is important to properly pace the samples
