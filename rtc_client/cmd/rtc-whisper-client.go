@@ -25,7 +25,7 @@ import (
 	stt "github.com/infinityp913/rtc-go-server/stt/engine"
 )
 
-const bufferTime = time.Millisecond * 1000 // this is the buffer time for the end user to speak before sending the prompt to Flask
+const bufferTime = time.Millisecond * 1500 // this is the buffer time for the end user to speak before sending the prompt to Flask
 const NUM_STALL_MSGS = 3
 
 var (
