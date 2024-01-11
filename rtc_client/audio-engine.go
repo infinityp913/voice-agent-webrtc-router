@@ -111,8 +111,8 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	ae := &AudioEngine{
 		rtpIn:          make(chan *rtp.Packet),
 		mediaOut:       make(chan media.Sample),
-		pcm:            make([]float32, frameSize/2),
-		buf:            make([]byte, frameSize/2*2),
+		pcm:            make([]float32, frameSize/3),
+		buf:            make([]byte, frameSize/3*2),
 		dec:            dec,
 		enc:            enc,
 		sttEngine:      sttEngine,
