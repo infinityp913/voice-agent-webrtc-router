@@ -23,7 +23,7 @@ import (
 const (
 	sampleRate  = stt.SampleRate // (16000)
 	channels    = 1              // decode into 1 channel since that is what whisper.cpp wants
-	frameSizeMs = 40
+	frameSizeMs = 60
 )
 
 var frameSize = channels * frameSizeMs * sampleRate / 1000
@@ -175,7 +175,7 @@ func (a *AudioEngine) sendMedia(frames []internal.OpusFrame) {
 		sample := convertOpusToSample(f)
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
-		time.Sleep(time.Millisecond * 40)
+		time.Sleep(time.Millisecond * 60)
 		if f.IsLastFrame {
 			a.mediaOut <- media.Sample{
 				Data: nil,
@@ -194,7 +194,7 @@ func (a *AudioEngine) SendMedia(frames []OpusFrame) {
 		sample := convertOpusToSampleNew(f)
 		a.mediaOut <- sample
 		// this is important to properly pace the samples
-		time.Sleep(time.Millisecond * 40)
+		time.Sleep(time.Millisecond * 60)
 	}
 	internal.Logger.Info("DEBUG: End of sendMedia")
 }
@@ -210,7 +210,7 @@ func (a *AudioEngine) SendMediaByteArr(byteArr []byte) {
 	}
 	a.mediaOut <- sample
 	// this is important to properly pace the samples
-	time.Sleep(time.Millisecond * 40)
+	time.Sleep(time.Millisecond * 60)
 	internal.Logger.Info("DEBUG: End of sendMedia")
 }
 
@@ -219,7 +219,7 @@ func convertOpusToSample(frame internal.OpusFrame) media.Sample {
 	return media.Sample{
 		Data:               frame.Data,
 		PrevDroppedPackets: 0, // FIXME support dropping packets
-		Duration:           time.Millisecond * 40,
+		Duration:           time.Millisecond * 60,
 	}
 }
 
@@ -227,7 +227,7 @@ func convertOpusToSampleNew(frame OpusFrame) media.Sample {
 	return media.Sample{
 		Data:               frame.Data,
 		PrevDroppedPackets: 0, // FIXME support dropping packets
-		Duration:           time.Millisecond * 40,
+		Duration:           time.Millisecond * 60,
 	}
 }
 
