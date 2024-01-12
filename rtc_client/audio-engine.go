@@ -21,9 +21,10 @@ import (
 )
 
 const (
-	sampleRate  = stt.SampleRate // (16000)
-	channels    = 1              // decode into 1 channel since that is what whisper.cpp wants
-	frameSizeMs = 60
+	sampleRate          = stt.SampleRate // (16000)
+	channels            = 1              // decode into 1 channel since that is what whisper.cpp wants
+	frameSizeMs         = 60
+	frameSizeMsIncoming = 20
 )
 
 var frameSize = channels * frameSizeMs * sampleRate / 1000
@@ -111,8 +112,8 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	ae := &AudioEngine{
 		rtpIn:          make(chan *rtp.Packet),
 		mediaOut:       make(chan media.Sample),
-		pcm:            make([]float32, frameSize/3),
-		buf:            make([]byte, frameSize/3*2),
+		pcm:            make([]float32, frameSizeMsIncoming), //TODO: CHANGE THIS every time you change frame size
+		buf:            make([]byte, frameSizeMsIncoming*2),
 		dec:            dec,
 		enc:            enc,
 		sttEngine:      sttEngine,
