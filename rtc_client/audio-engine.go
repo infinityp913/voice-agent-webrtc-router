@@ -3,11 +3,9 @@ package rtc_client
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math"
 	"net/http"
-	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -23,15 +21,10 @@ import (
 )
 
 const (
-	sampleRate = stt.SampleRate // (16000)
-	channels   = 1              // decode into 1 channel since that is what whisper.cpp wants
-	// frameSizeMsOutgoing = 60
-	// frameSizeMsIncoming = 20
+	sampleRate  = stt.SampleRate // (16000)
+	channels    = 1              // decode into 1 channel since that is what whisper.cpp wants
 	frameSizeMs = 60
 )
-
-// var frameSizeOutgoing = channels * frameSizeMsOutgoing * sampleRate / 1000
-// var frameSizeIncoming = channels * frameSizeMsIncoming * sampleRate / 1000
 
 var frameSize = channels * frameSizeMs * sampleRate / 1000
 
@@ -284,17 +277,17 @@ func (a *AudioEngine) decode() {
 		if _, err := a.decodePacket(pkt); err != nil {
 			internal.Logger.Error(err, "error decoding opus packet ")
 		}
-		// ** DEBUG: the following is debug code to write the pcm data to a file **
-		f, err := os.OpenFile("end_user_pcmdata.log",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
-		if err != nil {
-			log.Println(err)
-		}
-		defer f.Close()
-		for _, value := range a.pcm {
-			fmt.Fprintln(f, value) // print values to f, one per line
-		}
-		// ** END OF DEBUG **
+		// // ** DEBUG: the following is debug code to write the pcm data to a file **
+		// f, err := os.OpenFile("end_user_pcmdata.log",
+		// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // options to append to the file, create file if doesn't exist and write only
+		// if err != nil {
+		// 	log.Println(err)
+		// }
+		// defer f.Close()
+		// for _, value := range a.pcm {
+		// 	fmt.Fprintln(f, value) // print values to f, one per line
+		// }
+		// // ** END OF DEBUG **
 	}
 }
 
