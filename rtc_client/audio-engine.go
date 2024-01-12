@@ -27,7 +27,8 @@ const (
 	frameSizeMsIncoming = 20
 )
 
-var frameSize = channels * frameSizeMsOutgoing * sampleRate / 1000
+var frameSizeOutgoing = channels * frameSizeMsOutgoing * sampleRate / 1000
+var frameSizeIncoming = channels * frameSizeMsIncoming * sampleRate / 1000
 
 // AudioEngine is used to convert RTP Opus packets to raw PCM audio to be sent to Whisper
 // and to convert raw PCM audio from the Flask server back to RTP Opus packets to be sent back over WebRTC
@@ -112,8 +113,8 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	ae := &AudioEngine{
 		rtpIn:          make(chan *rtp.Packet),
 		mediaOut:       make(chan media.Sample),
-		pcm:            make([]float32, frameSizeMsIncoming), //TODO: CHANGE THIS every time you change frame size
-		buf:            make([]byte, frameSizeMsIncoming*2),
+		pcm:            make([]float32, frameSizeIncoming), //TODO: CHANGE THIS every time you change frame size
+		buf:            make([]byte, frameSizeIncoming*2),
 		dec:            dec,
 		enc:            enc,
 		sttEngine:      sttEngine,
