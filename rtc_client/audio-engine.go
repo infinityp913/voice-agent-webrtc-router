@@ -101,7 +101,7 @@ func NewAudioEngine(sttEngine *stt.Engine) (*AudioEngine, error) {
 	}
 
 	// we use 2 channels for the output
-	enc, err := internal.NewOpusEncoder(2, frameSizeMs)
+	enc, err := internal.NewOpusEncoder(2, frameSizeMsOutgoing)
 	if err != nil {
 		return nil, err
 	}
