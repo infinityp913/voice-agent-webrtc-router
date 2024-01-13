@@ -459,9 +459,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 		}
 		if resp.StatusCode == http.StatusOK {
 
-			logger.Info("before extractFloatArray()")
+			logger.Info("before extractFloatArray()", line[0:100])
 			float_buf := extractFloatArray(line)
-			logger.Info("after extractFloatArray()")
+			logger.Info("after extractFloatArray()", float_buf[0:10])
 
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
