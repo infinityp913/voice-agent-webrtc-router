@@ -459,6 +459,15 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 		}
 		if resp.StatusCode == http.StatusOK {
 
+			f, err := os.OpenFile("line.pcm",
+				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				log.Println(err)
+			}
+			for _, value := range line {
+				fmt.Fprint(f, value) // print values to f, all on the same line
+			}
+
 			logger.Info("before extractFloatArray()", line[0:100])
 			float_buf := extractFloatArray(line)
 			logger.Info("after extractFloatArray()", float_buf[0:10])
