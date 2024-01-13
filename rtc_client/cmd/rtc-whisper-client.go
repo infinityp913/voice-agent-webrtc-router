@@ -463,6 +463,15 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			float_buf := extractFloatArray(line)
 			logger.Info("after extractFloatArray()", float_buf[0:10])
 
+			f, err := os.OpenFile("float_buf.pcm",
+				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				log.Println(err)
+			}
+			for _, value := range float_buf {
+				fmt.Fprintln(f, value) // print values to f, one per line
+			}
+
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
 			chunk.SampleRate = 22050
