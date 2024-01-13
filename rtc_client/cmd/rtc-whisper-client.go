@@ -446,7 +446,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("Received response from Flask server")
 	reader := bufio.NewReader(resp.Body)
 	for {
+		logger.Info("Before reading line")
 		line, err := reader.ReadString(']')
+		logger.Info("After reading line")
 		if err == io.EOF {
 			logger.Info("Reached EOF of response from Flask server")
 			break
