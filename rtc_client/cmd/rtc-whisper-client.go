@@ -456,7 +456,10 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			log.Fatalln("Error while reading bytes from Response", err)
 		}
 		if resp.StatusCode == http.StatusOK {
+
+			logger.Info("before extractFloatArray()")
 			float_buf := extractFloatArray(line)
+			logger.Info("after extractFloatArray()")
 
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
