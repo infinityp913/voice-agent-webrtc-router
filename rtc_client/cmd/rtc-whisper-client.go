@@ -463,7 +463,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			chunk.SampleRate = 22050
 			chunk.ChannelCount = 1
 
+			logger.Info("Before encoding")
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
+			logger.Info("After encoding")
 
 			rtc.ProcessOutgoingMedia()
 		} else {
