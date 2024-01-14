@@ -464,9 +464,10 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			if err != nil {
 				log.Println(err)
 			}
-			for _, value := range line {
-				fmt.Fprint(fline, value) // print values to f, all on the same line
-			}
+			// for _, value := range line {
+			// 	fmt.Fprint(fline, value) // print values to f, all on the same line
+			// }
+			fmt.Fprint(fline, line) // print values to f, all on the same line
 
 			logger.Info("before extractFloatArray()", line[0:100])
 			float_buf := extractFloatArray(line)
