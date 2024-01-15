@@ -380,6 +380,37 @@ func extractFloatArray(input string) []float32 {
 	return floatArray
 }
 
+func extractFloatArrayByte(input []byte) []float32 {
+	// Convert []byte to string
+	inputStr := string(input)
+
+	// Remove brackets and split by commas
+	valuesStr := strings.Trim(inputStr, "[]")
+	valueStrings := strings.Split(valuesStr, ",")
+
+	// Parse each string to float32
+	var floatArray []float32 = make([]float32, len(valueStrings))
+	var wg sync.WaitGroup
+	for idx, valueStr := range valueStrings {
+		wg.Add(1)
+		go func(idx int, valueStr string) {
+			defer wg.Done()
+			value, err := strconv.ParseFloat(strings.TrimSpace(valueStr), 32)
+			if err != nil {
+				// Handle parsing error as needed
+				logger.Error(err, "error parsing float")
+				return
+			}
+			floatArray[idx] = float32(value)
+		}(idx, valueStr)
+	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	return floatArray
+}
+
 // This function sends the current prompt (i.e., current message from the end user) to Flask
 func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
 	p.Lock()
@@ -447,7 +478,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	reader := bufio.NewReader(resp.Body)
 	for {
 		logger.Info("Before reading line")
-		line, err := reader.ReadString(']')
+		// line, err := reader.ReadString(']')
+		line, err := reader.ReadBytes(']')
 		logger.Info("After reading line")
 		if err == io.EOF {
 			logger.Info("Reached EOF of response from Flask server")
@@ -459,7 +491,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 		}
 		if resp.StatusCode == http.StatusOK {
 
-			float_buf := extractFloatArray(line)
+			// float_buf := extractFloatArray(line)
+			float_buf := extractFloatArrayByte(line)
 
 			chunk := AudioChunk{}
 			chunk.Data = float_buf
@@ -563,7 +596,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	reader := bufio.NewReader(resp.Body)
 	for {
 		logger.Info("Inside reading loop")
-		line, err := reader.ReadString(']')
+		line, err := reader.ReadBytes(']')
 		if err == io.EOF {
 			logger.Info("Reached EOF")
 			break
@@ -581,7 +614,8 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 			// logger.Info("buf: ", buf)
 
 			logger.Info("before extractFloatArray()")
-			float_buf := extractFloatArray(line)
+			// float_buf := extractFloatArray(line)
+			float_buf := extractFloatArrayByte(line)
 			logger.Info("after extractFloatArray()")
 
 			chunk := AudioChunk{}
