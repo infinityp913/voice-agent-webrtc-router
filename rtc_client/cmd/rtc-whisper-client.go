@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -468,6 +469,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	payload := []byte(`{"request": {"end_user_input": "` + currentPrompt + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
 
 	logger.Info("Sending prompt to Flask server")
+
 	resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		p.unpauseFunc()
@@ -475,44 +477,84 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	}
 	defer resp.Body.Close()
 	logger.Info("Received response from Flask server")
-	reader := bufio.NewReader(resp.Body)
-	for {
-		logger.Info("Before reading line")
-		// line, err := reader.ReadString(']')
-		line, err := reader.ReadBytes(']')
-		logger.Info("After reading line")
-		if err == io.EOF {
-			logger.Info("Reached EOF of response from Flask server")
-			break
-		}
+	if resp.StatusCode == http.StatusOK {
+
+		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			p.unpauseFunc()
-			log.Fatalln("Error while reading bytes from Response", err)
+			log.Fatalln("Error reading response body", err)
 		}
-		if resp.StatusCode == http.StatusOK {
 
-			// float_buf := extractFloatArray(line)
-			float_buf := extractFloatArrayByte(line)
+		responseChunks := bytes.Split(body, []byte("]"))
+		for _, chunk := range responseChunks {
+			// Remove leading '[' character if present
+			chunk = bytes.TrimLeft(chunk, "[")
 
-			chunk := AudioChunk{}
-			chunk.Data = float_buf
-			chunk.SampleRate = 22050
-			chunk.ChannelCount = 1
+			floatBuf := extractFloatArrayByte(chunk)
+
+			audioChunk := AudioChunk{
+				Data:         floatBuf,
+				SampleRate:   22050,
+				ChannelCount: 1,
+			}
 
 			logger.Info("Before encoding")
-			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
+			ae.Encode(audioChunk.Data, audioChunk.ChannelCount, audioChunk.SampleRate)
 			logger.Info("After encoding")
-
 			rtc.ProcessOutgoingMedia()
-		} else {
-			p.unpauseFunc()
-			logger.Info("Status code: ", resp.StatusCode)
-			logger.Info("Response: ", resp)
-			log.Fatalln("Status code not OK @ Flask")
 		}
-
+	} else {
+		p.unpauseFunc()
+		logger.Info("Status code: ", resp.StatusCode)
+		logger.Info("Response: ", resp)
+		log.Fatalln("Status code not OK @ Flask")
 	}
 	p.unpauseFunc()
+
+	// resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
+	// if err != nil {
+	// 	p.unpauseFunc()
+	// 	log.Fatalln(err)
+	// }
+	// defer resp.Body.Close()
+	// logger.Info("Received response from Flask server")
+	// reader := bufio.NewReader(resp.Body)
+	// for {
+	// 	logger.Info("Before reading line")
+	// 	// line, err := reader.ReadString(']')
+	// 	line, err := reader.ReadBytes(']')
+	// 	logger.Info("After reading line")
+	// 	if err == io.EOF {
+	// 		logger.Info("Reached EOF of response from Flask server")
+	// 		break
+	// 	}
+	// 	if err != nil {
+	// 		p.unpauseFunc()
+	// 		log.Fatalln("Error while reading bytes from Response", err)
+	// 	}
+	// 	if resp.StatusCode == http.StatusOK {
+
+	// 		// float_buf := extractFloatArray(line)
+	// 		float_buf := extractFloatArrayByte(line)
+
+	// 		chunk := AudioChunk{}
+	// 		chunk.Data = float_buf
+	// 		chunk.SampleRate = 22050
+	// 		chunk.ChannelCount = 1
+
+	// 		logger.Info("Before encoding")
+	// 		ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
+	// 		logger.Info("After encoding")
+
+	// 		rtc.ProcessOutgoingMedia()
+	// 	} else {
+	// 		p.unpauseFunc()
+	// 		logger.Info("Status code: ", resp.StatusCode)
+	// 		logger.Info("Response: ", resp)
+	// 		log.Fatalln("Status code not OK @ Flask")
+	// 	}
+
+	// }
+	// p.unpauseFunc()
 
 }
 
