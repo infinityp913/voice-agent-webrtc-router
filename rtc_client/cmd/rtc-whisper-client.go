@@ -479,7 +479,9 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	logger.Info("Received response from Flask server")
 	if resp.StatusCode == http.StatusOK {
 
+		logger.Info("Before reading line")
 		body, err := ioutil.ReadAll(resp.Body)
+		logger.Info("After reading line")
 		if err != nil {
 			log.Fatalln("Error reading response body", err)
 		}
