@@ -133,7 +133,7 @@ func main() {
 	} //NOV 28
 
 	// time.Sleep(2500 * time.Millisecond)
-	time.Sleep(2000 * time.Millisecond)
+	time.Sleep(1800 * time.Millisecond)
 	// time.Sleep(2800 * time.Millisecond)
 
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
