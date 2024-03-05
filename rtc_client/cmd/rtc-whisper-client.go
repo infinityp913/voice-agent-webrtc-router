@@ -132,7 +132,8 @@ func main() {
 		logger.Fatal(err, "error creating offer")
 	} //NOV 28
 
-	time.Sleep(2500 * time.Millisecond)
+	// time.Sleep(2500 * time.Millisecond)
+	time.Sleep(2600 * time.Millisecond)
 	// time.Sleep(2800 * time.Millisecond)
 
 	init_state := riaSaysHello(rc.Ae, rc.Rtc)
