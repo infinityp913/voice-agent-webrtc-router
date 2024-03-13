@@ -81,7 +81,7 @@ func readStallMsgs() {
 
 func main() {
 	// Load the stall messages like "One moment pls" into memory via the msgs array
-	go readStallMsgs()
+	// go readStallMsgs()
 
 	url := url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"}
 
