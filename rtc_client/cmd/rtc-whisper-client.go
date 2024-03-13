@@ -83,6 +83,9 @@ func main() {
 	// Load the stall messages like "One moment pls" into memory via the msgs array
 	// go readStallMsgs()
 
+	// get the client_id from the command line arg
+	client_id := os.Args[1]
+
 	url := url.URL{Scheme: "wss", Host: "matherium.com", Path: "/go-server"}
 
 	whisperCpp, err := whisper.New("../models/ggml-base.en.bin")
@@ -136,7 +139,7 @@ func main() {
 	// time.Sleep(1500 * time.Millisecond)
 	// time.Sleep(2800 * time.Millisecond)
 
-	init_state := riaSaysHello(rc.Ae, rc.Rtc)
+	init_state := riaSaysHello(rc.Ae, rc.Rtc, client_id)
 	logger.Info("reached the line after riaSaysHello()") // REMOVE
 	// commented nov 29
 	// f := callRiaSaysHello(rc)
@@ -164,7 +167,7 @@ func main() {
 
 	sttEngine.OnDocumentUpdate(onDocumentUpdate)
 
-	go promptBuilder.Start(rc.Ae, rc.Rtc)
+	go promptBuilder.Start(rc.Ae, rc.Rtc, client_id)
 	defer promptBuilder.Stop()
 
 	logger.Info("Starting Ria Client...")
@@ -179,12 +182,12 @@ func main() {
 	rc.WaitForDone() // nov 27
 }
 
-// nov 29
-func callRiaSaysHello(rc *rtc_client.RiaClient) func() {
-	return func() {
-		riaSaysHello(rc.Ae, rc.Rtc)
-	}
-}
+// // nov 29
+// func callRiaSaysHello(rc *rtc_client.RiaClient) func() {
+// 	return func() {
+// 		riaSaysHello(rc.Ae, rc.Rtc)
+// 	}
+// }
 
 // Struct to handle gathering STT output and passing to the Flask Server
 
@@ -242,14 +245,14 @@ func (p *PromptBuilder) Stop() {
 }
 
 // Start building prompts and sending to Flask server
-func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
+func (p *PromptBuilder) Start(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, client_id string) {
 	for {
 		logger.Infof("Inside Start()'s infinite loop")
 		// wait for the timer to fire OR Stop() to be called
 		select {
 		case <-p.timer.C: // indicates firing of timer aka the 2s timer has counted down
 			// p.Lock()
-			p.tryCallEngine(ae, rtc)
+			p.tryCallEngine(ae, rtc, client_id)
 			// p.Unlock()
 		case <-p.cancel: // indicates calling of Stop()
 			logger.Info("shutting down llm interface")
@@ -414,7 +417,7 @@ func extractFloatArrayByte(input []byte) []float32 {
 }
 
 // This function sends the current prompt (i.e., current message from the end user) to Flask
-func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) {
+func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, client_id string) {
 	p.Lock()
 
 	// no prompt so wait again
@@ -467,7 +470,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 	// }
 
 	logger.Info("The current_prompt being sent to Flask: ", currentPrompt)
-	payload := []byte(`{"request": {"end_user_input": "` + currentPrompt + `", "curr_state":"` + "2" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
+	payload := []byte(`{"request": {"end_user_input": "` + currentPrompt + `", "curr_state":"` + "2" + `", "client_id": "` + client_id + `", "prompt_repeated_response":"0"}}`)
 
 	logger.Info("Sending prompt to Flask server")
 	resp, err := http.Post("http://localhost:1800/smart_audio_stream", "application/json", bytes.NewBuffer(payload))
@@ -518,7 +521,7 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 
 }
 
-func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int {
+func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, client_id string) int {
 	// logger.Info("Getting PCM data from Flask Server") // REMOVE AFTER DEBUG
 	// // this endpoint returns standardized pcm data in the json format: {audio:"--pcm data--"}
 	// endpointURL := "http://localhost:8000/get_response_audio_pcm"
@@ -560,7 +563,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection) int
 	// go rtc.ProcessOutgoingMedia()
 	// return new_state
 
-	payload := []byte(`{"request": {"end_user_input": "` + "Hello" + `", "curr_state":"` + "0" + `", "client_id":"1", "prompt_repeated_response":"0"}}`)
+	payload := []byte(`{"request": {"end_user_input": "` + "Hello" + `", "curr_state":"` + "0" + `", "client_id": "` + client_id + `", "prompt_repeated_response":"0"}}`)
 	new_state := 2
 	// TODO: add state handling code and mutex locking and unlocking
 
