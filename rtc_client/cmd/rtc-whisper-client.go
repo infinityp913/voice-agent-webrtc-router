@@ -137,7 +137,7 @@ func main() {
 
 	// time.Sleep(2500 * time.Millisecond)
 	// time.Sleep(1500 * time.Millisecond)
-	time.Sleep(2900 * time.Millisecond)
+	time.Sleep(3100 * time.Millisecond)
 
 	init_state := riaSaysHello(rc.Ae, rc.Rtc, client_id)
 	logger.Info("reached the line after riaSaysHello()") // REMOVE
