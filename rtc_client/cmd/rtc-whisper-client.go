@@ -628,7 +628,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, cli
 			chunk.SampleRate = 22050
 			chunk.ChannelCount = 1
 
-			data := make([]float32, 4800)
+			data := make([]float32, 5300) // prepending silence. this was 4800 (previously 38050, idk why we increased) and now increasing by 500ms, the duration of the pick up sound
 			data = append(data, chunk.Data...)
 			chunk.Data = data
 
