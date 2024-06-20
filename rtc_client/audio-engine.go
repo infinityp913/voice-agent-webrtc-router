@@ -271,6 +271,7 @@ func (a *AudioEngine) decode() {
 
 		// // ** END OF DEBUG **
 
+		// FOLLOWING CODE DOWNLOADS PCM DATA RECEIVED BY RIA ie, the user's audio
 		if a.firstTimeStamp == 0 {
 			internal.Logger.Debug("Resetting timestamp bc firstTimeStamp is 0...  ", pkt.Timestamp)
 			a.firstTimeStamp = pkt.Timestamp
