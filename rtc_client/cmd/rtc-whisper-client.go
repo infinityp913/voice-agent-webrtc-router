@@ -162,7 +162,7 @@ func main() {
 		} else {
 			transcriptionStream <- document
 			promptBuilder.UpdatePrompt(document.NewText, rc.Ae, rc.Rtc)
-			// logger.Info("document.NewText: ", document.NewText)
+			logger.Info("document.NewText: ", document.NewText)
 		}
 	}
 
