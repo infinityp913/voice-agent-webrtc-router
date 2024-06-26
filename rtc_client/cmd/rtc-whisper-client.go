@@ -630,7 +630,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, cli
 			chunk.ChannelCount = 1
 
 			// data := make([]float32, 26850) // (26850 after adding 0.5s more ie 11025 (0.5*22050) more) prepending silence. this was 4800 (previously 38050, idk why we increased) and now increasing by 500ms ie 11025 samples (the duration of the pick up sound)
-			data := make([]float32, 115050) // india ring time = 7.08s, US ring time 4.19s. need to prepend silence of 4s more ie, 88200 more(22050*4 = 88200). So, 26850+88200=115050
+			data := make([]float32, 137100) // india ring time = 7.08s, US ring time 4.19s. need to prepend silence of 5s more ie, 110250 more(22050*5 = 110250). So, 26850+110250=137100
 			data = append(data, chunk.Data...)
 			chunk.Data = data
 
