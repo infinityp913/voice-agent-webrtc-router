@@ -509,6 +509,8 @@ func (p *PromptBuilder) tryCallEngine(ae *rtc_client.AudioEngine, rtc *rtc_clien
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 			logger.Info("After encoding")
 
+			logger.Info("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& STARTING STREAMING &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+
 			rtc.ProcessOutgoingMedia()
 		} else {
 			p.unpauseFunc()
