@@ -574,7 +574,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, cli
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	logger.Info("Received response from Flask server")
 	defer resp.Body.Close()
 
 	// // Create a scanner to read the response body line by line
