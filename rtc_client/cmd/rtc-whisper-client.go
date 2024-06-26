@@ -636,6 +636,7 @@ func riaSaysHello(ae *rtc_client.AudioEngine, rtc *rtc_client.RTCConnection, cli
 
 			ae.Encode(chunk.Data, chunk.ChannelCount, chunk.SampleRate)
 
+			logger.Info("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& STARTING STREAMING &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 			rtc.ProcessOutgoingMedia()
 		}
 
