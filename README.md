@@ -1,4 +1,4 @@
-# RTC Go Server
+# Real-Time WebRTC Audio Routing Server for Voice Agents
 This is a server to process RTC connections between browser clients and "server clients", that are spwaned on-demand.
 
 This was built to enable audio processing through a Speech-to-Text.
